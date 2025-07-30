@@ -112,8 +112,8 @@ export function SearchSection() {
   return (
     <section className="relative mt-5 md:10 lg:mt-[204.73px] z-[1000]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Main bordered container */}
-        <div className="bg-white border-2 border-[#FFA75D] rounded-2xl lg:rounded-3xl overflow-hidden relative">
+        {/* Main bordered container - removed overflow-hidden */}
+        <div className="bg-white border-2 border-[#FFA75D] rounded-2xl lg:rounded-3xl relative">
           <div className="flex flex-col md:flex-row items-stretch">
             {/* Search Fields Container */}
             <div className="flex flex-col md:flex-row items-center flex-1">

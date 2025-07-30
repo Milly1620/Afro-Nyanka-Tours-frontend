@@ -16,7 +16,7 @@ export function AdventureSection() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-12 items-center">
           {/* Left Content */}
           <div>
-            <h2 className="text-2xl md:text-4xl lg:text-5xl poppins-bold text-[#482B11] mb-4 lg:mb-6 text-center lg:text-left">
+            <h2 className="text-2xl md:text-4xl lg:text-5xl lg:leading-13.5 poppins-bold text-[#482B11] mb-4 lg:mb-6 text-center lg:text-left">
               Plan your perfect African adventure
             </h2>
             <p className="text-sm md:text-base lg:text-lg poppins-regular text-gray-600 mb-4 lg:mb-10 text-center lg:text-left">
@@ -40,7 +40,7 @@ export function AdventureSection() {
           </div>
 
           {/* Right Images Grid */}
-          <div className="grid grid-cols-2 gap-4 h-[300px] lg:h-[400px]">
+          <div className="grid grid-cols-2 gap-4">
             {/* Large Image - Left Side */}
             <div className="h-full">
               <img
