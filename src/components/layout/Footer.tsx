@@ -12,7 +12,7 @@ export function Footer() {
   return (
     <footer className="py-5 md:py-10 lg:py-24 border-t border-[#E6E6E6] text-[#6E7070] bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 items-start">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 items-baseline">
           {/* Company Info - Left Column */}
           <div className="sm:col-span-2 lg:col-span-1">
             <div className="flex items-center mb-6">
