@@ -1,9 +1,9 @@
 import { Routes, Route } from "react-router-dom";
 import { Header } from "./components/layout/Header";
 import { Footer } from "./components/layout/Footer";
-import { HomePage } from "./components/pages/HomePage";
 import { BookingPage } from "./components/pages/BookingPage";
 import { TextEditor } from "./components/TextEditor";
+import { HomePage } from "./components/pages/HomePage";
 
 function App() {
   return (

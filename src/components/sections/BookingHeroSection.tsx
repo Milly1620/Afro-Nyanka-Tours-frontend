@@ -208,27 +208,26 @@ export function BookingHeroSection() {
   ];
 
   return (
-    <section className="h-[400px] lg:h-[450px] flex flex-col justify-center overflow-hidden bg-black/40 bg-[url('/src/assets/heromain.svg')] bg-cover bg-no-repeat bg-blend-multiply mb-[582.19px]">
+    <section className="h-[400px] lg:h-[450px] flex flex-col justify-center overflow-hidden bg-black/40 bg-[url('/src/assets/heromain.svg')] bg-cover bg-no-repeat bg-blend-multiply mb-[850px] md:mb-[582.19px]">
       {/* Main Content */}
       <div className="flex flex-col items-center justify-center text-white">
         <div className="md:flex items-center justify-between mb-6 lg:w-[1204px]">
           <img src={frame1} alt="frame1" className="hidden md:block" />
           <h2 className="text-2xl md:text-4xl lg:text-5xl poppins-bold text-center">
-            Book Your African Adventure
+            Book Your Tour
           </h2>
           <img src={frame2} alt="frame2" className="hidden md:block" />
         </div>
         <div className="flex items-center gap-[35.75px]">
           <img src={frame3} alt="frame3" className="hidden md:block" />
           <p className="lg:w-[776px] text-sm md:text-base lg:text-lg leading-relaxed poppins-regular text-center">
-            Reserve your spot for an unforgettable journey through the heart of
-            Africa
+            Start planning your African adventure today
           </p>
           <img src={frame4} alt="frame4" className="hidden md:block" />
         </div>
       </div>
 
-      <div className="absolute top-[352px] left-0 right-0 z-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="absolute top-[302px] md:top-[322px] lg:top-[352px] left-0 right-0 z-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Name and Email Row */}

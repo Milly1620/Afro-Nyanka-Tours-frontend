@@ -57,38 +57,39 @@ export function Header() {
 
           {/* Center Navigation - Desktop */}
           <nav className="hidden lg:flex gap-x-4">
-            <div className="bg-white rounded-[799.2px] px-6 py-2">
+            <div className="bg-white rounded-[799.2px] px-6 py-2 flex items-center">
               <div className="flex items-center space-x-4">
                 {navItems.slice(0, 4).map((item) => (
-                  <button
+                  <Button
                     key={item.name}
                     onClick={() => handleNavigation(item?.href || "")}
-                    className={`px-4 py-2 rounded-full cursor-pointer text-[18px] font-medium transition-all duration-200 ${
+                    className={`px-4 py-2 rounded-full cursor-pointer text-[18px] ${
                       item.active
-                        ? "bg-[#FFA75D] poppins-semibold text-[#482B11] shadow-lg"
-                        : "bg-[#F5F5F573] poppins-regular text-[#6E7070]"
-                    }`}
+                        ? "bg-[#FFA75D] poppins-semibold text-[#482B11] hover:bg-[#FFA75D]"
+                        : "bg-[#F5F5F573] poppins-regular text-[#6E7070] hover:bg-[#efeded73]"
+                    }
+                    `}
                   >
                     {item.name}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
 
-            <div className="bg-white rounded-[799.2px] px-6 py-2">
+            <div className="bg-white rounded-[799.2px] px-6 py-2 flex items-center">
               <div className="flex items-center space-x-4">
                 {navItems.slice(4, 6).map((item) => (
-                  <button
+                  <Button
                     key={item.name}
                     onClick={() =>
                       item.name === "Book a tour"
                         ? handleBookTour()
                         : handleNavigation(item?.href || "")
                     }
-                    className={`flex items-center cursor-pointer px-4 py-2 rounded-full text-[18px] font-medium transition-all duration-200 ${
+                    className={`flex items-center cursor-pointer px-4 py-2 rounded-full text-[18px] ${
                       item.active
-                        ? "bg-[#FFA75D] poppins-semibold text-[#482B11] shadow-lg"
-                        : "bg-[#F5F5F573] poppins-regular text-[#6E7070]"
+                        ? "bg-[#FFA75D] poppins-semibold text-[#482B11] hover:bg-[#FFA75D]"
+                        : "bg-[#F5F5F573] poppins-regular text-[#6E7070] hover:bg-[#efeded73]"
                     }`}
                   >
                     {item.name === "Book a tour" ? (
@@ -97,7 +98,7 @@ export function Header() {
                       <Calendar className="h-4 w-4 mr-2.5" />
                     )}
                     {item.name}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
