@@ -18,18 +18,7 @@ export function HeroSection() {
 
   return (
     <div className="relative">
-      <section className="h-[450px] lg:h-[714px] relative flex flex-col justify-center overflow-hidden">
-        {/* Main Background */}
-        <div
-          className="absolute z-[-1] inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url(${heromain})`,
-          }}
-        />
-
-        {/* Overlay */}
-        <div className="absolute z-[-1] inset-0 bg-black/50" />
-
+      <section className="h-[450px] lg:h-[714px] relative flex flex-col justify-center overflow-hidden bg-black/50 bg-[url('/src/assets/heromain.svg')]  bg-cover bg-no-repeat bg-blend-multiply">
         {/* Main Content */}
         <div className="flex flex-col items-center justify-center text-white  ">
           <div className="md:flex items-center justify-between mb-6 lg:w-[1204px]">

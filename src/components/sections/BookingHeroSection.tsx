@@ -7,59 +7,208 @@ import { useState } from "react";
 import { Calendar, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
+
+interface BookingForm {
+  name: string;
+  email: string;
+  age: string;
+  country: string;
+  destination: string;
+  date: string;
+  additionalServices: string;
+}
+
+interface FormFieldProps {
+  label: string;
+  name: keyof BookingForm;
+  type?: string;
+  placeholder: string;
+  required?: boolean;
+  validation?: object;
+  errors: any;
+  register: any;
+  rows?: number;
+  options?: string[];
+}
+
+const FormField = ({
+  label,
+  name,
+  type = "text",
+  placeholder,
+  required = false,
+  validation = {},
+  errors,
+  register,
+  rows,
+  options,
+}: FormFieldProps) => {
+  const [openDropdown, setOpenDropdown] = useState(false);
+
+  const inputClasses =
+    "w-full px-4 py-3 lg:py-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#FFA75D] placeholder:text-[#ADADAD] focus:border-transparent outline-none transition-colors";
+
+  const validationRules = {
+    ...(required && { required: `${label} is required` }),
+    ...validation,
+  };
+
+  if (options) {
+    return (
+      <div className="relative">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          {label}
+        </label>
+        <button
+          type="button"
+          onClick={() => setOpenDropdown(!openDropdown)}
+          className="w-full h-12 px-4 bg-white border border-gray-300 rounded-lg flex items-center justify-between hover:border-gray-400 focus:outline-none focus:border-[#FFA75D] focus:ring-2 focus:ring-orange-100"
+        >
+          <span className="text-sm text-gray-900">
+            {register(name).value || placeholder}
+          </span>
+          <ChevronDown
+            className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${
+              openDropdown ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+
+        {openDropdown && (
+          <div className="absolute top-20 left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
+            {options.map((option, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => {
+                  register(name).onChange({ target: { value: option } });
+                  setOpenDropdown(false);
+                }}
+                className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-orange-50 hover:text-[#FFA75D] transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg"
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        )}
+        {errors[name] && (
+          <p className="text-sm text-red-600 mt-1 poppins-regular">
+            {errors[name].message}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        {label}
+      </label>
+      {rows ? (
+        <textarea
+          {...register(name, validationRules)}
+          rows={rows}
+          placeholder={placeholder}
+          className={`${inputClasses} resize-none`}
+        />
+      ) : (
+        <Input
+          {...register(name, validationRules)}
+          type={type}
+          placeholder={placeholder}
+          className={inputClasses}
+        />
+      )}
+      {errors[name] && (
+        <p className="text-sm text-red-600 mt-1 poppins-regular">
+          {errors[name].message}
+        </p>
+      )}
+    </div>
+  );
+};
 
 export function BookingHeroSection() {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<BookingForm>();
 
-      const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        age: "",
-        country: "",
-        destination: "Select destination",
-        date: "",
-        additionalServices: "",
-      });
+  const onSubmit = (data: BookingForm) => {
+    console.log("Booking form data:", data);
+    reset();
+  };
 
-      const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const destinations = [
+    "Accra City Tours",
+    "Cape Coast Heritage",
+    "Kumasi Cultural Experience",
+    "Tamale Northern Adventures",
+    "Volta Region Nature",
+    "Western Region Beaches",
+  ];
 
-      const destinations = [
-        "Accra City Tours",
-        "Cape Coast Heritage",
-        "Kumasi Cultural Experience",
-        "Tamale Northern Adventures",
-        "Volta Region Nature",
-        "Western Region Beaches",
-      ];
+  const formFields = [
+    {
+      label: "Name",
+      name: "name" as keyof BookingForm,
+      placeholder: "Enter your name",
+      required: true,
+    },
+    {
+      label: "Email",
+      name: "email" as keyof BookingForm,
+      type: "email",
+      placeholder: "Enter your email",
+      required: true,
+      validation: {
+        pattern: {
+          value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+          message: "Invalid email address",
+        },
+      },
+    },
+    {
+      label: "Age",
+      name: "age" as keyof BookingForm,
+      type: "number",
+      placeholder: "Enter your age",
+      required: true,
+    },
+    {
+      label: "Country of origin",
+      name: "country" as keyof BookingForm,
+      placeholder: "Enter your country",
+      required: true,
+    },
+    {
+      label: "Destination",
+      name: "destination" as keyof BookingForm,
+      placeholder: "Select destination",
+      required: true,
+      options: destinations,
+    },
+    {
+      label: "Preferred date",
+      name: "date" as keyof BookingForm,
+      type: "date",
+      placeholder: "dd/mm/yyyy",
+      required: true,
+    },
+    {
+      label: "Additional services",
+      name: "additionalServices" as keyof BookingForm,
+      placeholder: "Write your message",
+      rows: 6,
+    },
+  ];
 
-      const handleInputChange = (field: string, value: string) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
-      };
-
-      const handleDropdownSelect = (field: string, value: string) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
-        setOpenDropdown(null);
-      };
-
-      const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log("Booking form data:", formData);
-        // Handle form submission
-      };
-
-      
   return (
-    <section className="h-[400px] lg:h-[450px] flex flex-col justify-center overflow-hidden">
-      {/* Main Background */}
-      <div
-        className="absolute z-[-1] inset-0 bg-cover bg-no-repeat"
-        style={{
-          backgroundImage: `url(${heromain})`,
-        }}
-      />
-
-      {/* Overlay */}
-      <div className="absolute z-[-1] inset-0 bg-black/50" />
-
+    <section className="h-[400px] lg:h-[450px] flex flex-col justify-center overflow-hidden bg-black/40 bg-[url('/src/assets/heromain.svg')] bg-cover bg-no-repeat bg-blend-multiply mb-[582.19px]">
       {/* Main Content */}
       <div className="flex flex-col items-center justify-center text-white">
         <div className="md:flex items-center justify-between mb-6 lg:w-[1204px]">
@@ -79,172 +228,67 @@ export function BookingHeroSection() {
         </div>
       </div>
 
-        <div className="absolute top-[352px] left-0 right-0 z-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Name and Email Row */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Name
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="Enter your name"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange("name", e.target.value)}
-                    className="w-full h-12 border-gray-300 focus:border-[#FFA75D] focus:ring-[#FFA75D] rounded-lg"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email
-                  </label>
-                  <Input
-                    type="email"
-                    placeholder="Enter your email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                    className="w-full h-12 border-gray-300 focus:border-[#FFA75D] focus:ring-[#FFA75D] rounded-lg"
-                  />
-                </div>
-              </div>
+      <div className="absolute top-[352px] left-0 right-0 z-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {/* Name and Email Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                {...formFields[0]}
+                errors={errors}
+                register={register}
+              />
+              <FormField
+                {...formFields[1]}
+                errors={errors}
+                register={register}
+              />
+            </div>
 
-              {/* Age and Country Row */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Age
-                  </label>
-                  <Input
-                    type="number"
-                    placeholder="Enter your age"
-                    value={formData.age}
-                    onChange={(e) => handleInputChange("age", e.target.value)}
-                    className="w-full h-12 border-gray-300 focus:border-[#FFA75D] focus:ring-[#FFA75D] rounded-lg"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Country of origin
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="Enter subject"
-                    value={formData.country}
-                    onChange={(e) =>
-                      handleInputChange("country", e.target.value)
-                    }
-                    className="w-full h-12 border-gray-300 focus:border-[#FFA75D] focus:ring-[#FFA75D] rounded-lg"
-                  />
-                </div>
-              </div>
+            {/* Age and Country Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                {...formFields[2]}
+                errors={errors}
+                register={register}
+              />
+              <FormField
+                {...formFields[3]}
+                errors={errors}
+                register={register}
+              />
+            </div>
 
-              {/* Destination and Date Row */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Destination
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setOpenDropdown(
-                        openDropdown === "destination" ? null : "destination"
-                      )
-                    }
-                    className="w-full h-12 px-4 bg-white border border-gray-300 rounded-lg flex items-center justify-between hover:border-gray-400 focus:outline-none focus:border-[#FFA75D] focus:ring-2 focus:ring-orange-100"
-                  >
-                    <span
-                      className={`text-sm ${
-                        formData.destination === "Select destination"
-                          ? "text-gray-500"
-                          : "text-gray-900"
-                      }`}
-                    >
-                      {formData.destination}
-                    </span>
-                    <ChevronDown
-                      className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${
-                        openDropdown === "destination" ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
+            {/* Destination and Date Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                {...formFields[4]}
+                errors={errors}
+                register={register}
+              />
+              <FormField
+                {...formFields[5]}
+                errors={errors}
+                register={register}
+              />
+            </div>
 
-                  {openDropdown === "destination" && (
-                    <div className="absolute top-20 left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
-                      {destinations.map((option, index) => (
-                        <button
-                          key={index}
-                          type="button"
-                          onClick={() =>
-                            handleDropdownSelect("destination", option)
-                          }
-                          className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-orange-50 hover:text-[#FFA75D] transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg"
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+            {/* Additional Services */}
+            <FormField {...formFields[6]} errors={errors} register={register} />
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Preferred date
-                  </label>
-                  <div className="relative">
-                    <Input
-                      type="date"
-                      placeholder="dd/mm/yyyy"
-                      value={formData.date}
-                      onChange={(e) =>
-                        handleInputChange("date", e.target.value)
-                      }
-                      className="w-full h-12 border-gray-300 focus:border-[#FFA75D] focus:ring-[#FFA75D] rounded-lg pr-12"
-                    />
-                    <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Additional Services */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Additional services
-                </label>
-                <textarea
-                  rows={6}
-                  placeholder="Write your message"
-                  value={formData.additionalServices}
-                  onChange={(e) =>
-                    handleInputChange("additionalServices", e.target.value)
-                  }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-[#FFA75D] focus:ring-[#FFA75D] resize-none"
-                />
-              </div>
-
-              {/* Submit Button */}
-              <div className="flex justify-end">
-                <Button
-                  type="submit"
-                  className="bg-[#FFA75D] hover:bg-[#FFA75D] text-white px-8 py-3 rounded-xl font-semibold text-base transition-colors duration-200 shadow-lg hover:shadow-xl"
-                >
-                  <Calendar className="h-5 w-5 mr-2" />
-                  Book now
-                </Button>
-              </div>
-            </form>
-          </div>
+            {/* Submit Button */}
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                className="bg-[#FFA75D] hover:bg-[#FFA75D] text-white px-8 py-3 rounded-xl font-semibold text-base transition-colors duration-200 shadow-lg hover:shadow-xl"
+              >
+                <Calendar className="h-5 w-5 mr-2" />
+                Book now
+              </Button>
+            </div>
+          </form>
         </div>
-
-      {/* Close dropdown overlay */}
-      {openDropdown && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setOpenDropdown(null)}
-        />
-      )}
+      </div>
     </section>
   );
 }
