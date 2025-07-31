@@ -31,22 +31,7 @@ const AttractionCard = ({ attraction }: AttractionCardProps) => (
         </span>
       </div>
 
-      <div className="text-[22.14px] poppins-medium text-[#0D0D0C] mb-2 lg:mb-[32.72px]">
-        {attraction.currency}
-        {attraction.price.toFixed(2)}
-        <span className="text-[16.61px] poppins-regular text-[#6E7070]">
-          /Person
-        </span>
-      </div>
-
       <div className="flex items-center justify-between">
-        <div className="flex items-center text-[#6E7070]">
-          <Clock size={14.76} className="mr-2" />
-          <span className="text-[14.76px] poppins-regular">
-            {attraction.duration}
-          </span>
-        </div>
-
         <Button className="p-3 lg:px-4 lg:py-2  bg-transparent text-[#482B11] hover:text-[#FFA75D] poppins-medium text-sm transition-colors group border border-[#E1E4E5]  hover:bg-transparent cursor-pointer">
           <span className="text-[14.76px] poppins-medium">Book Now</span>
           <ArrowRight className="h-6 w-6 ml-1 text-[#FFA75D] group-hover:translate-x-1 transition-transform" />

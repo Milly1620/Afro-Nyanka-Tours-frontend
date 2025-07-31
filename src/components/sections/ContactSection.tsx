@@ -141,6 +141,13 @@ export function ContactSection() {
       },
     },
     {
+      label: "Phone",
+      name: "phone" as keyof ContactForm,
+      placeholder: "Enter your phone number",
+      required: true,
+    },
+
+    {
       label: "Subject",
       name: "phone" as keyof ContactForm,
       placeholder: "Enter subject",
@@ -180,7 +187,7 @@ export function ContactSection() {
               onSubmit={handleSubmit(onSubmit)}
               className="space-y-6 lg:space-y-8"
             >
-              <div className="flex flex-col gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {formFields.slice(0, 2).map((field) => (
                   <FormField
                     key={field.name}

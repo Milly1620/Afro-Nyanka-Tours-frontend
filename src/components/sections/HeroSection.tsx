@@ -32,7 +32,7 @@ export function HeroSection() {
             <img src={frame3} alt="frame3" className="hidden md:block" />
             <p className="lg:w-[776px] text-sm md:text-base lg:text-lg leading-relaxed poppins-regular text-center">
               Experience authentic African culture through our expertly guided
-              tours across Ghana, Cote D'Ivoire, Togo, and Burkina
+              tours across Ghana, Cote D'Ivoire, Togo, Burkina Faso and beyond
             </p>
             <img src={frame4} alt="frame4" className="hidden md:block" />
           </div>

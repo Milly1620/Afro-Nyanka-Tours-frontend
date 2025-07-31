@@ -44,16 +44,6 @@ export function SearchSection() {
     "1 Month+",
   ];
 
-  const priceRanges = [
-    "500 GHS - 1500 GHS",
-    "1500 GHS - 3000 GHS",
-    "2000 GHS - 8000 GHS",
-    "3000 GHS - 5000 GHS",
-    "5000 GHS - 8000 GHS",
-    "8000 GHS - 12000 GHS",
-    "12000 GHS+",
-  ];
-
   const handleDropdownSelect = (field: string, value: string) => {
     setSearchData((prev) => ({ ...prev, [field]: value }));
     setOpenDropdown(null);
@@ -149,14 +139,6 @@ export function SearchSection() {
 
               {/* Separator */}
               <div className="w-full md:w-px h-px md:h-10 bg-gray-200"></div>
-
-              {/* Price */}
-              <DropdownField
-                field="price"
-                value={searchData.price}
-                icon={DollarSign}
-                options={priceRanges}
-              />
             </div>
 
             {/* Separator */}
