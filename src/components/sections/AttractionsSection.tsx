@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 
 // Import attraction images
 import castleImg from "../../assets/castle.svg";
-import blackstarsquareImg from "../../assets/blackstarsquare.svg";
+import blackstarsquareImg from "../../assets/independenceSquare.jpeg";
 import mosqueImg from "../../assets/mosque.svg";
-import kakumImg from "../../assets/kakum.svg";
+import kakumImg from "../../assets/kakum.jpg";
 
 const AttractionCard = ({ attraction }: AttractionCardProps) => (
   <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group">

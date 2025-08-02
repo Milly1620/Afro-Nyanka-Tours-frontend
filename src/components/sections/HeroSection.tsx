@@ -1,9 +1,9 @@
 import { useState } from "react";
 import heromain from "../../assets/heromain.svg";
-import canopywalk from "../../assets/canopywalk.svg";
-import cruise from "../../assets/cruise.svg";
-import beach from "../../assets/beach.svg";
-import parachute from "../../assets/parachute.svg";
+import carousel1 from "../../assets/carousel1.jpeg";
+import carousel2 from "../../assets/carousel2.jpeg";
+import carousel3 from "../../assets/carousel3.jpeg";
+import carousel4 from "../../assets/carousel4.jpeg";
 import frame1 from "../../assets/adinkrawhite.svg";
 import frame2 from "../../assets/agyindawuruwhite.svg";
 import frame3 from "../../assets/nyamewhite.svg";
@@ -18,7 +18,7 @@ export function HeroSection() {
 
   return (
     <div className="relative">
-      <section className="h-[450px] lg:h-[714px] relative flex flex-col justify-center overflow-hidden bg-black/50 bg-[url('/src/assets/heromain.svg')]  bg-cover bg-no-repeat bg-blend-multiply">
+      <section className="h-[450px] lg:h-[714px] relative flex flex-col justify-center overflow-hidden bg-[url('/src/assets/carousel3.jpeg')]  bg-center bg-no-repeat bg-blend-multiply">
         {/* Main Content */}
         <div className="flex flex-col items-center justify-center text-white  ">
           <div className="md:flex items-center justify-between mb-6 lg:w-[1204px]">
@@ -114,26 +114,26 @@ const carouselCards = [
     bgColor: "from-orange-400 to-[#FFA75D]",
   },
   {
-    src: canopywalk,
-    title: "Discovery",
+    src: carousel1,
+    title: "History",
     subtitle: "See More",
     bgColor: "from-green-400 to-green-600",
   },
   {
-    src: cruise,
-    title: "Cruises",
+    src: carousel2,
+    title: "Discovery",
     subtitle: "See More",
     bgColor: "from-blue-400 to-blue-600",
   },
   {
-    src: beach,
+    src: carousel3,
     title: "Scenery",
     subtitle: "See More",
     bgColor: "from-amber-400 to-amber-600",
   },
   {
-    src: parachute,
-    title: "Airbirds",
+    src: carousel4,
+    title: "Adventure",
     subtitle: "See More",
     bgColor: "from-sky-400 to-sky-600",
   },
