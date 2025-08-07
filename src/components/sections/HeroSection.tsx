@@ -4,6 +4,7 @@ import carousel1 from "../../assets/carousel1.jpeg";
 import carousel2 from "../../assets/carousel2.jpeg";
 import carousel3 from "../../assets/carousel3.jpeg";
 import carousel4 from "../../assets/carousel4.jpeg";
+import nature from "../../assets/nature.jpeg";
 import frame1 from "../../assets/adinkrawhite.svg";
 import frame2 from "../../assets/agyindawuruwhite.svg";
 import frame3 from "../../assets/nyamewhite.svg";
@@ -108,8 +109,8 @@ export function HeroSection() {
 
 const carouselCards = [
   {
-    src: heromain,
-    title: "Culture",
+    src: nature,
+    title: "Nature",
     subtitle: "See More",
     bgColor: "from-orange-400 to-[#FFA75D]",
   },
