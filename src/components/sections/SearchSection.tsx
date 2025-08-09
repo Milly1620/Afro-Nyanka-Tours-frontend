@@ -1,28 +1,70 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Activity, Clock, DollarSign, ChevronDown } from "lucide-react";
+import {
+  MapPin,
+  Activity as ActivityIcon,
+  Clock,
+  Globe,
+  Landmark,
+  MapPinned,
+  ChevronDown,
+  Check,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+type SearchState = {
+  country: string;
+  provinces: string[];
+  destinations: string[];
+  activity: string;
+  duration: string;
+};
+
 export function SearchSection() {
-  const [searchData, setSearchData] = useState({
-    destination: "Destination",
+  const [searchData, setSearchData] = useState<SearchState>({
+    country: "Country",
+    provinces: [],
+    destinations: [],
     activity: "Activity",
     duration: "0 Days - 6 Days",
-    price: "2000 GHS - 8000 GHS",
   });
 
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const destinations = [
-    "Accra",
-    "Kumasi",
-    "Cape Coast",
-    "Tamale",
-    "Takoradi",
-    "Ho",
-    "Koforidua",
-  ];
+  // Mock API-backed dictionaries (replace with fetched data later)
+  const countries = ["Ghana", "Côte d'Ivoire", "Togo", "Burkina Faso"];
+  const provincesByCountry: Record<string, string[]> = {
+    Ghana: [
+      "Greater Accra",
+      "Ashanti",
+      "Central",
+      "Western",
+      "Volta",
+      "Northern",
+    ],
+    "Côte d'Ivoire": ["Abidjan", "Yamoussoukro", "Bouaké"],
+    Togo: ["Maritime", "Plateaux", "Centrale", "Kara"],
+    "Burkina Faso": ["Centre", "Hauts-Bassins", "Boucle du Mouhoun"],
+  };
+  const destinationsByProvince: Record<string, string[]> = {
+    "Greater Accra": ["Accra City", "Jamestown", "Osu Castle"],
+    Ashanti: ["Kumasi", "Manhyia Palace"],
+    Central: ["Cape Coast Castle", "Elmina"],
+    Western: ["Takoradi", "Axim Beach"],
+    Volta: ["Wli Falls", "Ho"],
+    Northern: ["Mole Park", "Tamale"],
+    Abidjan: ["Plateau", "Cocody"],
+    Yamoussoukro: ["Basilica", "Crocodile Lake"],
+    Bouaké: ["Markets", "Textiles"],
+    Maritime: ["Lomé", "Aného"],
+    Plateaux: ["Kpalimé", "Mount Agou"],
+    Centrale: ["Sokodé"],
+    Kara: ["Kara City", "Koutammakou"],
+    Centre: ["Ouagadougou"],
+    "Hauts-Bassins": ["Bobo-Dioulasso"],
+    "Boucle du Mouhoun": ["Dédougou"],
+  };
 
   const activities = [
     "Wildlife Safari",
@@ -44,36 +86,78 @@ export function SearchSection() {
     "1 Month+",
   ];
 
-  const handleDropdownSelect = (field: string, value: string) => {
-    setSearchData((prev) => ({ ...prev, [field]: value }));
-    setOpenDropdown(null);
+  const availableProvinces = useMemo(() => {
+    return provincesByCountry[searchData.country] || [];
+  }, [searchData.country]);
+
+  const availableDestinations = useMemo(() => {
+    // Aggregate destinations for all selected provinces
+    const set = new Set<string>();
+    searchData.provinces.forEach((p) => {
+      (destinationsByProvince[p] || []).forEach((d) => set.add(d));
+    });
+    return Array.from(set);
+  }, [searchData.provinces]);
+
+  // Helpers
+  const toggleFromArray = (arr: string[], value: string) =>
+    arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value];
+
+  const handleDropdownSelect = (field: keyof SearchState, value: string) => {
+    if (field === "country") {
+      setSearchData((prev) => ({
+        ...prev,
+        country: value,
+        provinces: [],
+        destinations: [],
+      }));
+      setOpenDropdown(null);
+      return;
+    }
+    if (field === "activity" || field === "duration") {
+      setSearchData((prev) => ({ ...prev, [field]: value }));
+      setOpenDropdown(null);
+    }
   };
 
   const handleBookNow = () => {
-    console.log("Search data:", searchData);
+    // Example payload ready for API
+    const payload = {
+      country: searchData.country !== "Country" ? searchData.country : null,
+      provinces: searchData.provinces,
+      destinations: searchData.destinations,
+      activity: searchData.activity !== "Activity" ? searchData.activity : null,
+      duration: searchData.duration,
+    };
+    console.log("Search payload:", payload);
     navigate("/booking");
   };
 
+  // Single select dropdown
   const DropdownField = ({
     field,
     value,
     icon: Icon,
     options,
+    placeholder,
   }: {
-    field: string;
+    field: keyof SearchState;
     value: string;
     icon: any;
     options: string[];
+    placeholder: string;
   }) => (
     <div className="relative flex-1">
       <button
-        onClick={() => setOpenDropdown(openDropdown === field ? null : field)}
+        onClick={() =>
+          setOpenDropdown(openDropdown === String(field) ? null : String(field))
+        }
         className="w-full h-12 lg:h-16 px-4 lg:px-6 bg-transparent flex items-center justify-between hover:bg-gray-50 transition-all duration-200 focus:outline-none"
       >
         <div className="flex items-center space-x-2 lg:space-x-3">
           <Icon className="h-4 w-4 lg:h-5 lg:w-5 text-[#FFA75D]" />
           <span className="text-xs lg:text-sm font-medium text-gray-600 truncate">
-            {value}
+            {value || placeholder}
           </span>
         </div>
         <ChevronDown
@@ -85,11 +169,11 @@ export function SearchSection() {
 
       {openDropdown === field && (
         <div className="absolute top-12 lg:top-16 left-0 right-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl z-[1001] max-h-60 overflow-y-auto">
-          {options.map((option, index) => (
+          {options.map((option) => (
             <button
-              key={index}
+              key={option}
               onClick={() => handleDropdownSelect(field, option)}
-              className="w-full px-4 lg:px-6 py-3 text-left text-xs lg:text-sm text-gray-700 hover:bg-gray-50 hover:text-[#FFA75D] transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg border-b border-gray-100 last:border-b-0"
+              className="w-full px-4 lg:px-6 py-3 text-left text-xs lg:text-sm text-gray-700 hover:bg-gray-50 hover:text-[#FFA75D] transition-colors duration-150 border-b border-gray-100 last:border-b-0"
             >
               {option}
             </button>
@@ -99,49 +183,142 @@ export function SearchSection() {
     </div>
   );
 
+  // Multi-select dropdown with checkboxes
+  const MultiSelectField = ({
+    field,
+    values,
+    icon: Icon,
+    options,
+    placeholder,
+  }: {
+    field: "provinces" | "destinations";
+    values: string[];
+    icon: any;
+    options: string[];
+    placeholder: string;
+  }) => (
+    <div className="relative flex-1">
+      <button
+        onClick={() => setOpenDropdown(openDropdown === field ? null : field)}
+        className="w-full h-12 lg:h-16 px-4 lg:px-6 bg-transparent flex items-center justify-between hover:bg-gray-50 transition-all duration-200 focus:outline-none"
+      >
+        <div className="flex items-center space-x-2 lg:space-x-3">
+          <Icon className="h-4 w-4 lg:h-5 lg:w-5 text-[#FFA75D]" />
+          <span className="text-xs lg:text-sm font-medium text-gray-600 truncate">
+            {values.length > 0 ? `${values.length} selected` : placeholder}
+          </span>
+        </div>
+        <ChevronDown
+          className={`h-3 w-3 lg:h-4 lg:w-4 text-gray-400 transition-transform duration-200 ${
+            openDropdown === field ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+
+      {openDropdown === field && (
+        <div className="absolute top-12 lg:top-16 left-0 right-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl z-[1001] max-h-60 overflow-y-auto">
+          {options.length === 0 && (
+            <div className="px-4 py-3 text-xs lg:text-sm text-gray-500">
+              No options
+            </div>
+          )}
+          {options.map((option) => {
+            const checked = values.includes(option);
+            return (
+              <button
+                key={option}
+                onClick={() =>
+                  setSearchData((prev) => ({
+                    ...prev,
+                    [field]: toggleFromArray(prev[field], option),
+                    ...(field === "provinces"
+                      ? { destinations: [] } // clear destinations when provinces change
+                      : {}),
+                  }))
+                }
+                className="w-full px-4 lg:px-6 py-3 text-left text-xs lg:text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 flex items-center gap-3 border-b border-gray-100 last:border-b-0"
+              >
+                <span
+                  className={`inline-flex h-4 w-4 items-center justify-center rounded border ${
+                    checked
+                      ? "bg-[#FFA75D] border-[#FFA75D]"
+                      : "border-gray-300"
+                  }`}
+                >
+                  {checked && <Check className="h-3 w-3 text-white" />}
+                </span>
+                <span
+                  className={`${checked ? "text-[#482B11]" : "text-gray-700"}`}
+                >
+                  {option}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <section className="relative mt-5 md:10 lg:mt-[204.73px] z-[1000]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Main bordered container - removed overflow-hidden */}
+        {/* Main bordered container */}
         <div className="bg-white border-2 border-[#FFA75D] rounded-2xl lg:rounded-3xl relative">
           <div className="flex flex-col md:flex-row items-stretch">
-            {/* Search Fields Container */}
-            <div className="flex flex-col md:flex-row items-center flex-1">
-              {/* Destination */}
-              <DropdownField
-                field="destination"
-                value={searchData.destination}
-                icon={MapPin}
-                options={destinations}
-              />
+            {/* Country */}
+            <DropdownField
+              field="country"
+              value={searchData.country}
+              icon={Globe}
+              options={countries}
+              placeholder="Country"
+            />
 
-              {/* Separator */}
-              <div className="w-full md:w-px h-px md:h-10 bg-gray-200"></div>
+            <div className="w-full md:w-px h-px md:h-10 bg-gray-200"></div>
 
-              {/* Activity */}
-              <DropdownField
-                field="activity"
-                value={searchData.activity}
-                icon={Activity}
-                options={activities}
-              />
+            {/* Province (Multi) */}
+            <MultiSelectField
+              field="provinces"
+              values={searchData.provinces}
+              icon={Landmark}
+              options={availableProvinces}
+              placeholder="Province(s)"
+            />
 
-              {/* Separator */}
-              <div className="w-full md:w-px h-px md:h-10 bg-gray-200"></div>
+            <div className="w-full md:w-px h-px md:h-10 bg-gray-200"></div>
 
-              {/* Duration */}
-              <DropdownField
-                field="duration"
-                value={searchData.duration}
-                icon={Clock}
-                options={durations}
-              />
+            {/* Destination (Multi) */}
+            <MultiSelectField
+              field="destinations"
+              values={searchData.destinations}
+              icon={MapPinned}
+              options={availableDestinations}
+              placeholder="Destination(s)"
+            />
 
-              {/* Separator */}
-              <div className="w-full md:w-px h-px md:h-10 bg-gray-200"></div>
-            </div>
+            <div className="w-full md:w-px h-px md:h-10 bg-gray-200"></div>
 
-            {/* Separator */}
+            {/* Activity */}
+            <DropdownField
+              field="activity"
+              value={searchData.activity}
+              icon={ActivityIcon}
+              options={activities}
+              placeholder="Activity"
+            />
+
+            <div className="w-full md:w-px h-px md:h-10 bg-gray-200"></div>
+
+            {/* Duration */}
+            <DropdownField
+              field="duration"
+              value={searchData.duration}
+              icon={Clock}
+              options={durations}
+              placeholder="Duration"
+            />
+
             <div className="w-full md:w-px h-px md:h-10 bg-gray-200"></div>
 
             {/* Book Now Button */}
@@ -160,7 +337,7 @@ export function SearchSection() {
       {/* Overlay to close dropdowns when clicking outside */}
       {openDropdown && (
         <div
-          className="fixed inset-0 z-[1000]"
+          className="fixed inset-0 z-[900]" // behind dropdowns (1001)
           onClick={() => setOpenDropdown(null)}
         />
       )}
