@@ -324,7 +324,7 @@ export function SearchSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main bordered container */}
         <div className="bg-white border-2 border-[#FFA75D] rounded-2xl lg:rounded-3xl relative">
-          <div className="flex flex-col md:flex-row items-stretch">
+          <div className="flex flex-col md:flex-row items-center justify-center">
             {/* Country */}
             <DropdownField
               field="country"
