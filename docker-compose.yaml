@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: afronyanka-frontend
+    ports:
+      - "7000:000"  
+    restart: always
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro  
+    networks:
+      - frontend-network
+
+networks:
+  frontend-network:
+    driver: bridge
