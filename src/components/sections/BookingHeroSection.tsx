@@ -1,4 +1,3 @@
-import heromain from "../../assets/heromain.svg";
 import frame1 from "../../assets/adinkrawhite.svg";
 import frame2 from "../../assets/agyindawuruwhite.svg";
 import frame3 from "../../assets/nyamewhite.svg";
@@ -17,6 +16,7 @@ interface BookingForm {
   destination: string;
   date: string;
   additionalServices: string;
+  numberOfPersons: string;
 }
 
 interface FormFieldProps {
@@ -186,6 +186,13 @@ export function BookingHeroSection() {
       required: true,
     },
     {
+      label: "Number of Persons",
+      name: "numberOfPersons" as keyof BookingForm,
+      type: "number",
+      placeholder: "Enter number of Persons",
+      required: true,
+    },
+    {
       label: "Destination",
       name: "destination" as keyof BookingForm,
       placeholder: "Select destination",
@@ -260,20 +267,27 @@ export function BookingHeroSection() {
 
             {/* Destination and Date Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* number of people */}
               <FormField
                 {...formFields[4]}
                 errors={errors}
                 register={register}
               />
+
               <FormField
                 {...formFields[5]}
+                errors={errors}
+                register={register}
+              />
+              <FormField
+                {...formFields[6]}
                 errors={errors}
                 register={register}
               />
             </div>
 
             {/* Additional Services */}
-            <FormField {...formFields[6]} errors={errors} register={register} />
+            <FormField {...formFields[7]} errors={errors} register={register} />
 
             {/* Submit Button */}
             <div className="flex justify-end">
