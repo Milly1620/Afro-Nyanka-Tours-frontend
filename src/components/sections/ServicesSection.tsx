@@ -27,10 +27,12 @@ const ServiceCard = ({ service, className = "" }: ServiceCardProps) => (
         {service.description}
       </p>
 
-      <Button className="self-start group poppins-medium bg-transparent border border-white rounded-full hover:bg-white hover:text-[#482B11] transition-all duration-300">
-        {service.ctaText}
-        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-      </Button>
+      {service.ctaText && (
+        <Button className="self-start group poppins-medium bg-transparent border border-white rounded-full hover:bg-white hover:text-[#482B11] transition-all duration-300">
+          {service.ctaText}
+          <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+        </Button>
+      )}
     </div>
   </div>
 );
@@ -74,8 +76,8 @@ interface Service {
   title: string;
   description: string;
   image: string;
-  ctaText: string;
-  ctaLink: string;
+  ctaText?: string;
+  ctaLink?: string;
 }
 
 interface ServiceCardProps {
@@ -99,8 +101,6 @@ const services: Service[] = [
     description:
       "Modern, comfortable, and reliable transportation options from city cars to safari vehicles, all maintained to highest standards.",
     image: vehicleImg,
-    ctaText: "View Fleet",
-    ctaLink: "/services/vehicle-rental",
   },
   {
     id: "3",
@@ -108,7 +108,5 @@ const services: Service[] = [
     description:
       "Our certified local guides bring destinations to life with deep cultural knowledge, historical insights, and authentic storytelling.",
     image: touristImg,
-    ctaText: "Learn More",
-    ctaLink: "/services/tour-guiding",
   },
 ];

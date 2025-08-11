@@ -16,10 +16,7 @@ export function Footer() {
           {/* Company Info - Left Column */}
           <div className="sm:col-span-2 lg:col-span-1">
             <div className="flex items-center mb-6">
-              <img
-                src={footerLogo}
-                alt="Afro Nyanka Tours"
-              />
+              <img src={footerLogo} alt="Afro Nyanka Tours" />
             </div>
             <p className="mb-6 leading-relaxed text-sm lg:text-base poppins-regular">
               Discover the authentic beauty of West Africa with our expert
@@ -49,7 +46,6 @@ export function Footer() {
               </a>
             </div>
           </div>
-
           {/* Popular Destinations */}
           <div>
             <h3 className="text-lg lg:text-xl font-semibold text-[#482B11] mb-4 lg:mb-6 poppins-medium">
@@ -58,7 +54,7 @@ export function Footer() {
             <ul className="space-y-3 lg:space-y-4">
               <li>
                 <a
-                  href="#"
+                  href="#attractions"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
                   Ghana City Tours
@@ -66,7 +62,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="#attractions"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
                   Cape Coast Heritage
@@ -74,7 +70,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="#attractions"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
                   Ashanti Culture
@@ -82,7 +78,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="#attractions"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
                   Cote d'Ivoire Adventures
@@ -90,7 +86,6 @@ export function Footer() {
               </li>
             </ul>
           </div>
-
           {/* Services */}
           <div>
             <h3 className="text-lg lg:text-xl font-semibold text-[#482B11] mb-4 lg:mb-6 poppins-medium">
@@ -99,39 +94,30 @@ export function Footer() {
             <ul className="space-y-3 lg:space-y-4">
               <li>
                 <a
-                  href="#"
+                  href="#services"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
-                  Tour Guiding
+                  Custom itinerary planning
                 </a>
               </li>
               <li>
                 <a
-                  href="#"
+                  href="#services"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
-                  Itinerary Planning
+                  Expert tour guiding
                 </a>
               </li>
               <li>
                 <a
-                  href="#"
+                  href="#services"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
-                  Vehicle Rental
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
-                >
-                  Chartered Flights
+                  Vehicle rentle
                 </a>
               </li>
             </ul>
           </div>
-
           {/* Contact Info */}
           <div>
             <h3 className="text-lg lg:text-xl font-semibold text-[#482B11] mb-4 lg:mb-6 poppins-medium">
@@ -150,16 +136,16 @@ export function Footer() {
                   href="tel:+233241234567"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
-                  +233 24 123 4567
+                  +233 54866 5634 / +233 26225 1826 / +233 54920 2348
                 </a>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-4 w-4 lg:h-5 lg:w-5 text-[#FFA75D] flex-shrink-0" />
                 <a
-                  href="mailto:info@afronyanka.com"
+                  href="mailto:afronyankatours@gmail.com"
                   className="text-sm lg:text-base poppins-regular break-all hover:text-[#FFA75D] transition-colors"
                 >
-                  info@afronyanka.com
+                  afronyankatours@gmail.com
                 </a>
               </div>
             </div>

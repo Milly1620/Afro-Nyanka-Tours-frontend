@@ -19,7 +19,14 @@ export function HeroSection() {
 
   return (
     <div className="relative">
-      <section className="h-[450px] lg:h-[714px] relative flex flex-col justify-center overflow-hidden bg-[url('/src/assets/carousel3.jpeg')]  bg-center bg-no-repeat bg-blend-multiply">
+      <section
+        className="w-screen 
+    h-[450px] lg:h-[714px] 
+    relative flex flex-col justify-center 
+    overflow-hidden 
+    bg-[url('/src/assets/carousel3.jpeg')] 
+    bg-center bg-no-repeat bg-cover bg-blend-multiply"
+      >
         {/* Main Content */}
         <div className="flex flex-col items-center justify-center text-white  ">
           <div className="md:flex items-center justify-between mb-6 lg:w-[1204px]">
@@ -78,9 +85,6 @@ export function HeroSection() {
                     <h3 className="text-[16.78px] text-[#482B11] poppins-semibold mt-2.5 mb-1">
                       {card.title}
                     </h3>
-                    <p className="text-xs poppins-medium text-[#6E7070]">
-                      {card.subtitle}
-                    </p>
                   </div>
                 </div>
               );
@@ -111,31 +115,26 @@ const carouselCards = [
   {
     src: nature,
     title: "Nature",
-    subtitle: "See More",
     bgColor: "from-orange-400 to-[#FFA75D]",
   },
   {
     src: carousel1,
     title: "History",
-    subtitle: "See More",
     bgColor: "from-green-400 to-green-600",
   },
   {
     src: carousel2,
     title: "Discovery",
-    subtitle: "See More",
     bgColor: "from-blue-400 to-blue-600",
   },
   {
     src: carousel3,
     title: "Scenery",
-    subtitle: "See More",
     bgColor: "from-amber-400 to-amber-600",
   },
   {
     src: carousel4,
     title: "Adventure",
-    subtitle: "See More",
     bgColor: "from-sky-400 to-sky-600",
   },
 ];

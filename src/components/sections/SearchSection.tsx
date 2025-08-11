@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
   MapPin,
   Activity as ActivityIcon,
-  Clock,
+  Calendar,
   Globe,
   Landmark,
   MapPinned,
@@ -17,7 +19,8 @@ type SearchState = {
   provinces: string[];
   destinations: string[];
   activity: string;
-  duration: string;
+  startDate: Date | null;
+  endDate: Date | null;
 };
 
 export function SearchSection() {
@@ -26,10 +29,12 @@ export function SearchSection() {
     provinces: [],
     destinations: [],
     activity: "Activity",
-    duration: "0 Days - 6 Days",
+    startDate: null,
+    endDate: null,
   });
 
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const navigate = useNavigate();
 
   // Mock API-backed dictionaries (replace with fetched data later)
@@ -76,16 +81,6 @@ export function SearchSection() {
     "Photography Tours",
   ];
 
-  const durations = [
-    "1 Day",
-    "2-3 Days",
-    "4-6 Days",
-    "0 Days - 6 Days",
-    "1 Week",
-    "2 Weeks",
-    "1 Month+",
-  ];
-
   const availableProvinces = useMemo(() => {
     return provincesByCountry[searchData.country] || [];
   }, [searchData.country]);
@@ -114,9 +109,23 @@ export function SearchSection() {
       setOpenDropdown(null);
       return;
     }
-    if (field === "activity" || field === "duration") {
+    if (field === "activity") {
       setSearchData((prev) => ({ ...prev, [field]: value }));
       setOpenDropdown(null);
+    }
+  };
+
+  const handleDateChange = (dates: [Date | null, Date | null]) => {
+    const [start, end] = dates;
+    setSearchData((prev) => ({
+      ...prev,
+      startDate: start,
+      endDate: end,
+    }));
+    
+    // Only close the date picker when both dates are selected
+    if (start && end) {
+      setIsDatePickerOpen(false);
     }
   };
 
@@ -127,7 +136,8 @@ export function SearchSection() {
       provinces: searchData.provinces,
       destinations: searchData.destinations,
       activity: searchData.activity !== "Activity" ? searchData.activity : null,
-      duration: searchData.duration,
+      startDate: searchData.startDate,
+      endDate: searchData.endDate,
     };
     console.log("Search payload:", payload);
     navigate("/booking");
@@ -260,6 +270,55 @@ export function SearchSection() {
     </div>
   );
 
+  // Date range picker field
+  const DateRangeField = () => (
+    <div className="relative flex-1">
+      <div className="w-full h-12 lg:h-16 px-4 lg:px-6 bg-transparent flex items-center space-x-2 lg:space-x-3 hover:bg-gray-50 transition-all duration-200">
+        <Calendar className="h-4 w-4 lg:h-5 lg:w-5 text-[#FFA75D] flex-shrink-0" />
+        <DatePicker
+          selected={searchData.startDate}
+          onChange={handleDateChange}
+          startDate={searchData.startDate}
+          endDate={searchData.endDate}
+          selectsRange
+          placeholderText="Select dates"
+          dateFormat="MMM dd, yyyy"
+          minDate={new Date()}
+          open={isDatePickerOpen}
+          onInputClick={() => setIsDatePickerOpen(true)}
+          onClickOutside={() => setIsDatePickerOpen(false)}
+          className="flex-1 bg-transparent text-xs lg:text-sm font-medium text-gray-600 focus:outline-none cursor-pointer"
+          wrapperClassName="flex-1"
+          popperClassName="z-[1002]"
+          popperPlacement="bottom-start"
+          showPopperArrow={false}
+          customInput={
+            <div className="flex-1 text-left flex items-center justify-between">
+              <span className="text-xs lg:text-sm font-medium text-gray-600">
+                {searchData.startDate && searchData.endDate
+                  ? `${searchData.startDate.toLocaleDateString('en-US', { month: 'short', day: '2-digit' })} - ${searchData.endDate.toLocaleDateString('en-US', { month: 'short', day: '2-digit' })}`
+                  : "Select dates"}
+              </span>
+              {isDatePickerOpen && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsDatePickerOpen(false);
+                  }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors duration-150"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          }
+        />
+      </div>
+    </div>
+  );
+
   return (
     <section className="relative mt-5 md:10 lg:mt-[204.73px] z-[1000]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -310,14 +369,8 @@ export function SearchSection() {
 
             <div className="w-full md:w-px h-px md:h-10 bg-gray-200"></div>
 
-            {/* Duration */}
-            <DropdownField
-              field="duration"
-              value={searchData.duration}
-              icon={Clock}
-              options={durations}
-              placeholder="Duration"
-            />
+            {/* Date Range Picker */}
+            <DateRangeField />
 
             <div className="w-full md:w-px h-px md:h-10 bg-gray-200"></div>
 
