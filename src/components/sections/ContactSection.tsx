@@ -106,17 +106,18 @@ export function ContactSection() {
     {
       icon: Phone,
       title: "Call Us",
-      content: "+233 24 123 4567",
+      content: (
+        <div className="space-y-1">
+          <p>+233 548 665 634</p>
+          <p>+233 549 202 348</p>
+          <p>+233 262 251 826</p>
+        </div>
+      ),
     },
     {
       icon: Clock,
       title: "Office Hours",
-      content: (
-        <div className="space-y-1">
-          <p>Mon - Fri: 8:00 AM - 6:00 PM</p>
-          <p>Sat: 9:00 AM - 4:00 PM</p>
-        </div>
-      ),
+      content: "24 / 7"
     },
   ];
 
