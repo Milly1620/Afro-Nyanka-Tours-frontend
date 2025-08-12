@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -13,6 +13,8 @@ import {
   Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toursApi } from "@/services/api";
+import { Tour } from "@/types/api";
 
 type SearchState = {
   country: string;
@@ -35,41 +37,80 @@ export function SearchSection() {
 
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [toursData, setToursData] = useState<Tour[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Mock API-backed dictionaries (replace with fetched data later)
-  const countries = ["Ghana", "Côte d'Ivoire", "Togo", "Burkina Faso"];
-  const provincesByCountry: Record<string, string[]> = {
-    Ghana: [
-      "Greater Accra",
-      "Ashanti",
-      "Central",
-      "Western",
-      "Volta",
-      "Northern",
-    ],
-    "Côte d'Ivoire": ["Abidjan", "Yamoussoukro", "Bouaké"],
-    Togo: ["Maritime", "Plateaux", "Centrale", "Kara"],
-    "Burkina Faso": ["Centre", "Hauts-Bassins", "Boucle du Mouhoun"],
+  // Fetch tours data when country changes
+  useEffect(() => {
+    if (searchData.country !== "Country") {
+      fetchToursData(searchData.country);
+    }
+  }, [searchData.country]);
+
+  // Fetch all tours data on first render to populate countries list
+  useEffect(() => {
+    fetchAllToursData();
+  }, []);
+
+  const fetchToursData = async (country: string) => {
+    setIsLoading(true);
+    try {
+      const tours = await toursApi.getToursByCountry(country);
+      setToursData(tours);
+    } catch (error) {
+      console.error("Error fetching tours:", error);
+      setToursData([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
-  const destinationsByProvince: Record<string, string[]> = {
-    "Greater Accra": ["Accra City", "Jamestown", "Osu Castle"],
-    Ashanti: ["Kumasi", "Manhyia Palace"],
-    Central: ["Cape Coast Castle", "Elmina"],
-    Western: ["Takoradi", "Axim Beach"],
-    Volta: ["Wli Falls", "Ho"],
-    Northern: ["Mole Park", "Tamale"],
-    Abidjan: ["Plateau", "Cocody"],
-    Yamoussoukro: ["Basilica", "Crocodile Lake"],
-    Bouaké: ["Markets", "Textiles"],
-    Maritime: ["Lomé", "Aného"],
-    Plateaux: ["Kpalimé", "Mount Agou"],
-    Centrale: ["Sokodé"],
-    Kara: ["Kara City", "Koutammakou"],
-    Centre: ["Ouagadougou"],
-    "Hauts-Bassins": ["Bobo-Dioulasso"],
-    "Boucle du Mouhoun": ["Dédougou"],
+
+  const fetchAllToursData = async () => {
+    setIsLoading(true);
+    try {
+      // Fetch tours for a default country to get initial data
+      const tours = await toursApi.getToursByCountry("Ghana");
+      setToursData(tours);
+    } catch (error) {
+      console.error("Error fetching initial tours:", error);
+      setToursData([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  // Extract unique countries from tours data
+  const countries = useMemo(() => {
+    const uniqueCountries = [...new Set(toursData.map((tour) => tour.country))];
+    return uniqueCountries.length > 0 ? uniqueCountries : [];
+  }, [toursData]);
+
+  // Extract unique regions (provinces) from tours data for selected country
+  const provincesByCountry = useMemo(() => {
+    const provinces = toursData
+      .filter((tour) => tour.country === searchData.country)
+      .map((tour) => tour.region);
+    const uniqueProvinces = [...new Set(provinces)];
+    return { [searchData.country]: uniqueProvinces };
+  }, [toursData, searchData.country]);
+
+  // Extract destinations from tour locations for selected provinces
+  const destinationsByProvince = useMemo(() => {
+    const destinations: Record<string, string[]> = {};
+
+    searchData.provinces.forEach((province) => {
+      const provinceTours = toursData.filter(
+        (tour) => tour.region === province
+      );
+      const locations = provinceTours.flatMap((tour) =>
+        tour.tour_locations.map((tl) => tl.location.name)
+      );
+      destinations[province] = [...new Set(locations)];
+    });
+
+    return destinations;
+  }, [toursData, searchData.provinces]);
 
   const activities = [
     "Wildlife Safari",
@@ -83,7 +124,7 @@ export function SearchSection() {
 
   const availableProvinces = useMemo(() => {
     return provincesByCountry[searchData.country] || [];
-  }, [searchData.country]);
+  }, [provincesByCountry, searchData.country]);
 
   const availableDestinations = useMemo(() => {
     // Aggregate destinations for all selected provinces
@@ -92,7 +133,7 @@ export function SearchSection() {
       (destinationsByProvince[p] || []).forEach((d) => set.add(d));
     });
     return Array.from(set);
-  }, [searchData.provinces]);
+  }, [destinationsByProvince, searchData.provinces]);
 
   // Helpers
   const toggleFromArray = (arr: string[], value: string) =>
@@ -122,7 +163,7 @@ export function SearchSection() {
       startDate: start,
       endDate: end,
     }));
-    
+
     // Only close the date picker when both dates are selected
     if (start && end) {
       setIsDatePickerOpen(false);
@@ -162,7 +203,7 @@ export function SearchSection() {
         onClick={() =>
           setOpenDropdown(openDropdown === String(field) ? null : String(field))
         }
-        className="w-full h-12 lg:h-16 px-4 lg:px-6 bg-transparent flex items-center justify-between hover:bg-gray-50 transition-all duration-200 focus:outline-none"
+        className="w-full h-12 lg:h-16 px-4 lg:px-6 bg-transparent flex items-center justify-between cursor-pointer transition-all duration-200 focus:outline-none"
       >
         <div className="flex items-center space-x-2 lg:space-x-3">
           <Icon className="h-4 w-4 lg:h-5 lg:w-5 text-[#FFA75D]" />
@@ -179,15 +220,25 @@ export function SearchSection() {
 
       {openDropdown === field && (
         <div className="absolute top-12 lg:top-16 left-0 right-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl z-[1001] max-h-60 overflow-y-auto">
-          {options.map((option) => (
-            <button
-              key={option}
-              onClick={() => handleDropdownSelect(field, option)}
-              className="w-full px-4 lg:px-6 py-3 text-left text-xs lg:text-sm text-gray-700 hover:bg-gray-50 hover:text-[#FFA75D] transition-colors duration-150 border-b border-gray-100 last:border-b-0"
-            >
-              {option}
-            </button>
-          ))}
+          {isLoading && options.length === 0 ? (
+            <div className="px-4 py-3 text-xs lg:text-sm text-gray-500">
+              Loading countries...
+            </div>
+          ) : options.length === 0 ? (
+            <div className="px-4 py-3 text-xs lg:text-sm text-gray-500">
+              No countries available
+            </div>
+          ) : (
+            options.map((option) => (
+              <button
+                key={option}
+                onClick={() => handleDropdownSelect(field, option)}
+                className="w-full px-4 lg:px-6 py-3 text-left text-xs lg:text-sm text-gray-700 cursor-pointer hover:text-[#FFA75D] transition-colors duration-150 border-b border-gray-100 last:border-b-0"
+              >
+                {option}
+              </button>
+            ))
+          )}
         </div>
       )}
     </div>
@@ -210,7 +261,7 @@ export function SearchSection() {
     <div className="relative flex-1">
       <button
         onClick={() => setOpenDropdown(openDropdown === field ? null : field)}
-        className="w-full h-12 lg:h-16 px-4 lg:px-6 bg-transparent flex items-center justify-between hover:bg-gray-50 transition-all duration-200 focus:outline-none"
+        className="w-full h-12 lg:h-16 px-4 lg:px-6 bg-transparent flex items-center justify-between cursor-pointer transition-all duration-200 focus:outline-none"
       >
         <div className="flex items-center space-x-2 lg:space-x-3">
           <Icon className="h-4 w-4 lg:h-5 lg:w-5 text-[#FFA75D]" />
@@ -227,44 +278,51 @@ export function SearchSection() {
 
       {openDropdown === field && (
         <div className="absolute top-12 lg:top-16 left-0 right-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl z-[1001] max-h-60 overflow-y-auto">
-          {options.length === 0 && (
+          {isLoading ? (
             <div className="px-4 py-3 text-xs lg:text-sm text-gray-500">
-              No options
+              Loading...
             </div>
+          ) : options.length === 0 ? (
+            <div className="px-4 py-3 text-xs lg:text-sm text-gray-500">
+              No options available
+            </div>
+          ) : (
+            options.map((option) => {
+              const checked = values.includes(option);
+              return (
+                <button
+                  key={option}
+                  onClick={() =>
+                    setSearchData((prev) => ({
+                      ...prev,
+                      [field]: toggleFromArray(prev[field], option),
+                      ...(field === "provinces"
+                        ? { destinations: [] } // clear destinations when provinces change
+                        : {}),
+                    }))
+                  }
+                  className="w-full px-4 lg:px-6 py-3 text-left text-xs lg:text-sm text-gray-700 cursor-pointer transition-colors duration-150 flex items-center gap-3 border-b border-gray-100 last:border-b-0"
+                >
+                  <span
+                    className={`inline-flex h-4 w-4 items-center justify-center rounded border ${
+                      checked
+                        ? "bg-[#FFA75D] border-[#FFA75D]"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    {checked && <Check className="h-3 w-3 text-white" />}
+                  </span>
+                  <span
+                    className={`${
+                      checked ? "text-[#482B11]" : "text-gray-700"
+                    }`}
+                  >
+                    {option}
+                  </span>
+                </button>
+              );
+            })
           )}
-          {options.map((option) => {
-            const checked = values.includes(option);
-            return (
-              <button
-                key={option}
-                onClick={() =>
-                  setSearchData((prev) => ({
-                    ...prev,
-                    [field]: toggleFromArray(prev[field], option),
-                    ...(field === "provinces"
-                      ? { destinations: [] } // clear destinations when provinces change
-                      : {}),
-                  }))
-                }
-                className="w-full px-4 lg:px-6 py-3 text-left text-xs lg:text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 flex items-center gap-3 border-b border-gray-100 last:border-b-0"
-              >
-                <span
-                  className={`inline-flex h-4 w-4 items-center justify-center rounded border ${
-                    checked
-                      ? "bg-[#FFA75D] border-[#FFA75D]"
-                      : "border-gray-300"
-                  }`}
-                >
-                  {checked && <Check className="h-3 w-3 text-white" />}
-                </span>
-                <span
-                  className={`${checked ? "text-[#482B11]" : "text-gray-700"}`}
-                >
-                  {option}
-                </span>
-              </button>
-            );
-          })}
         </div>
       )}
     </div>
@@ -273,7 +331,7 @@ export function SearchSection() {
   // Date range picker field
   const DateRangeField = () => (
     <div className="relative flex-1">
-      <div className="w-full h-12 lg:h-16 px-4 lg:px-6 bg-transparent flex items-center space-x-2 lg:space-x-3 hover:bg-gray-50 transition-all duration-200">
+      <div className="w-full h-12 lg:h-16 px-4 lg:px-6 bg-transparent flex items-center space-x-2 lg:space-x-3 cursor-pointer transition-all duration-200">
         <Calendar className="h-4 w-4 lg:h-5 lg:w-5 text-[#FFA75D] flex-shrink-0" />
         <DatePicker
           selected={searchData.startDate}
@@ -296,7 +354,13 @@ export function SearchSection() {
             <div className="flex-1 text-left flex items-center justify-between">
               <span className="text-xs lg:text-sm font-medium text-gray-600">
                 {searchData.startDate && searchData.endDate
-                  ? `${searchData.startDate.toLocaleDateString('en-US', { month: 'short', day: '2-digit' })} - ${searchData.endDate.toLocaleDateString('en-US', { month: 'short', day: '2-digit' })}`
+                  ? `${searchData.startDate.toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "2-digit",
+                    })} - ${searchData.endDate.toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "2-digit",
+                    })}`
                   : "Select dates"}
               </span>
               {isDatePickerOpen && (
@@ -307,8 +371,18 @@ export function SearchSection() {
                   }}
                   className="text-gray-400 hover:text-gray-600 transition-colors duration-150"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               )}
@@ -378,7 +452,7 @@ export function SearchSection() {
             <div className="flex items-center justify-center p-4 lg:px-4">
               <Button
                 onClick={handleBookNow}
-                className="w-full lg:w-auto h-10 lg:h-10 px-6 lg:px-8 bg-[#FFA75D] hover:bg-[#FF9A4D] text-white rounded-full font-semibold text-sm lg:text-base transition-all duration-200 shadow-none border-0"
+                className="w-full cursor-pointer lg:w-auto h-10 lg:h-10 px-6 lg:px-8 bg-[#FFA75D] hover:bg-[#FF9A4D] text-white rounded-full font-semibold text-sm lg:text-base transition-all duration-200 shadow-none border-0"
               >
                 Book Now
               </Button>
