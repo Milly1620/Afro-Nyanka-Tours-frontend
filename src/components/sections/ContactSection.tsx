@@ -117,7 +117,7 @@ export function ContactSection() {
     {
       icon: Clock,
       title: "Office Hours",
-      content: "24 / 7"
+      content: "24/7"
     },
   ];
 
