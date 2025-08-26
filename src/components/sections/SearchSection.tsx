@@ -7,7 +7,6 @@ import {
   Activity as ActivityIcon,
   Calendar,
   Globe,
-  Landmark,
   MapPinned,
   ChevronDown,
   Check,
@@ -18,9 +17,8 @@ import { Tour } from "@/types/api";
 
 type SearchState = {
   country: string;
-  provinces: string[];
   destinations: string[];
-  activity: string;
+  activities: string[];
   startDate: Date | null;
   endDate: Date | null;
 };
@@ -28,30 +26,59 @@ type SearchState = {
 export function SearchSection() {
   const [searchData, setSearchData] = useState<SearchState>({
     country: "Country",
-    provinces: [],
     destinations: [],
-    activity: "Activity",
+    activities: [],
     startDate: null,
     endDate: null,
   });
 
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [countries, setCountries] = useState<string[]>([]);
   const [toursData, setToursData] = useState<Tour[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Fetch countries on component mount
+  useEffect(() => {
+    fetchCountries();
+  }, []);
 
   // Fetch tours data when country changes
   useEffect(() => {
     if (searchData.country !== "Country") {
       fetchToursData(searchData.country);
+      // Reset destinations and activities when country changes
+      setSearchData((prev) => ({
+        ...prev,
+        destinations: [],
+        activities: [],
+      }));
     }
   }, [searchData.country]);
 
-  // Fetch all tours data on first render to populate countries list
+  // Reset activities when destinations change
   useEffect(() => {
-    fetchAllToursData();
-  }, []);
+    if (searchData.destinations.length > 0) {
+      setSearchData((prev) => ({
+        ...prev,
+        activities: [],
+      }));
+    }
+  }, [searchData.destinations]);
+
+  const fetchCountries = async () => {
+    setIsLoading(true);
+    try {
+      const countriesData = await toursApi.getCountries();
+      setCountries(countriesData);
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+      setCountries([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const fetchToursData = async (country: string) => {
     setIsLoading(true);
@@ -66,94 +93,34 @@ export function SearchSection() {
     }
   };
 
-  const fetchAllToursData = async () => {
-    setIsLoading(true);
-    try {
-      // Fetch tours for a default country to get initial data
-      const tours = await toursApi.getToursByCountry("Ghana");
-      setToursData(tours);
-    } catch (error) {
-      console.error("Error fetching initial tours:", error);
-      setToursData([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Extract unique countries from tours data
-  const countries = useMemo(() => {
-    const uniqueCountries = [...new Set(toursData.map((tour) => tour.country))];
-    return uniqueCountries.length > 0 ? uniqueCountries : [];
-  }, [toursData]);
-
-  // Extract unique regions (provinces) from tours data for selected country
-  const provincesByCountry = useMemo(() => {
-    const provinces = toursData
-      .filter((tour) => tour.country === searchData.country)
-      .map((tour) => tour.region);
-    const uniqueProvinces = [...new Set(provinces)];
-    return { [searchData.country]: uniqueProvinces };
+  // Extract destinations (tour names) for selected country
+  const destinations = useMemo(() => {
+    if (searchData.country === "Country") return [];
+    return toursData.map((tour) => tour.name);
   }, [toursData, searchData.country]);
 
-  // Extract destinations from tour locations for selected provinces
-  const destinationsByProvince = useMemo(() => {
-    const destinations: Record<string, string[]> = {};
+  // Extract activities (tour locations) for selected destinations
+  const activities = useMemo(() => {
+    if (searchData.destinations.length === 0) return [];
 
-    searchData.provinces.forEach((province) => {
-      const provinceTours = toursData.filter(
-        (tour) => tour.region === province
-      );
-      const locations = provinceTours.flatMap((tour) =>
-        tour.tour_locations.map((tl) => tl.location.name)
-      );
-      destinations[province] = [...new Set(locations)];
-    });
+    const selectedTours = toursData.filter((tour) =>
+      searchData.destinations.includes(tour.name)
+    );
 
-    return destinations;
-  }, [toursData, searchData.provinces]);
+    const allActivities = selectedTours.flatMap((tour) =>
+      tour.tour_locations.map((tl) => tl.location.name)
+    );
 
-  const activities = [
-    "Wildlife Safari",
-    "Cultural Tours",
-    "Beach Activities",
-    "Adventure Sports",
-    "Historical Sites",
-    "Nature Walks",
-    "Photography Tours",
-  ];
-
-  const availableProvinces = useMemo(() => {
-    return provincesByCountry[searchData.country] || [];
-  }, [provincesByCountry, searchData.country]);
-
-  const availableDestinations = useMemo(() => {
-    // Aggregate destinations for all selected provinces
-    const set = new Set<string>();
-    searchData.provinces.forEach((p) => {
-      (destinationsByProvince[p] || []).forEach((d) => set.add(d));
-    });
-    return Array.from(set);
-  }, [destinationsByProvince, searchData.provinces]);
+    return [...new Set(allActivities)]; // Remove duplicates
+  }, [toursData, searchData.destinations]);
 
   // Helpers
   const toggleFromArray = (arr: string[], value: string) =>
     arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value];
 
   const handleDropdownSelect = (field: keyof SearchState, value: string) => {
-    if (field === "country") {
-      setSearchData((prev) => ({
-        ...prev,
-        country: value,
-        provinces: [],
-        destinations: [],
-      }));
-      setOpenDropdown(null);
-      return;
-    }
-    if (field === "activity") {
-      setSearchData((prev) => ({ ...prev, [field]: value }));
-      setOpenDropdown(null);
-    }
+    setSearchData((prev) => ({ ...prev, [field]: value }));
+    setOpenDropdown(null);
   };
 
   const handleDateChange = (dates: [Date | null, Date | null]) => {
@@ -174,9 +141,8 @@ export function SearchSection() {
     // Example payload ready for API
     const payload = {
       country: searchData.country !== "Country" ? searchData.country : null,
-      provinces: searchData.provinces,
       destinations: searchData.destinations,
-      activity: searchData.activity !== "Activity" ? searchData.activity : null,
+      activities: searchData.activities,
       startDate: searchData.startDate,
       endDate: searchData.endDate,
     };
@@ -222,11 +188,11 @@ export function SearchSection() {
         <div className="absolute top-12 lg:top-16 left-0 right-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl z-[1001] max-h-60 overflow-y-auto">
           {isLoading && options.length === 0 ? (
             <div className="px-4 py-3 text-xs lg:text-sm text-gray-500">
-              Loading countries...
+              Loading...
             </div>
           ) : options.length === 0 ? (
             <div className="px-4 py-3 text-xs lg:text-sm text-gray-500">
-              No countries available
+              No options available
             </div>
           ) : (
             options.map((option) => (
@@ -252,7 +218,7 @@ export function SearchSection() {
     options,
     placeholder,
   }: {
-    field: "provinces" | "destinations";
+    field: "destinations" | "activities";
     values: string[];
     icon: any;
     options: string[];
@@ -296,8 +262,8 @@ export function SearchSection() {
                     setSearchData((prev) => ({
                       ...prev,
                       [field]: toggleFromArray(prev[field], option),
-                      ...(field === "provinces"
-                        ? { destinations: [] } // clear destinations when provinces change
+                      ...(field === "destinations"
+                        ? { activities: [] } // clear activities when destinations change
                         : {}),
                     }))
                   }
@@ -410,35 +376,24 @@ export function SearchSection() {
 
             <div className="w-full md:w-px h-px md:h-10 bg-gray-200"></div>
 
-            {/* Province (Multi) */}
-            <MultiSelectField
-              field="provinces"
-              values={searchData.provinces}
-              icon={Landmark}
-              options={availableProvinces}
-              placeholder="Province(s)"
-            />
-
-            <div className="w-full md:w-px h-px md:h-10 bg-gray-200"></div>
-
-            {/* Destination (Multi) */}
+            {/* Destinations (Multi) */}
             <MultiSelectField
               field="destinations"
               values={searchData.destinations}
               icon={MapPinned}
-              options={availableDestinations}
+              options={destinations}
               placeholder="Destination(s)"
             />
 
             <div className="w-full md:w-px h-px md:h-10 bg-gray-200"></div>
 
-            {/* Activity */}
-            <DropdownField
-              field="activity"
-              value={searchData.activity}
+            {/* Activities (Multi) */}
+            <MultiSelectField
+              field="activities"
+              values={searchData.activities}
               icon={ActivityIcon}
               options={activities}
-              placeholder="Activity"
+              placeholder="Activity(ies)"
             />
 
             <div className="w-full md:w-px h-px md:h-10 bg-gray-200"></div>

@@ -42,27 +42,27 @@ export const carouselCards = [
   {
     src: nature,
     title: "Nature",
-    bgColor: "from-orange-400 to-[#FFA75D]",
+    bgColor: "bg-gray-500"
   },
   {
     src: carousel1,
     title: "History",
-    bgColor: "from-green-400 to-green-600",
+    bgColor: "bg-gray-500",
   },
   {
     src: carousel2,
     title: "Discovery",
-    bgColor: "from-blue-400 to-blue-600",
+    bgColor: "bg-gray-500",
   },
   {
     src: carousel3,
     title: "Scenery",
-    bgColor: "from-amber-400 to-amber-600",
+    bgColor: "bg-gray-500",
   },
   {
     src: carousel4,
     title: "Adventure",
-    bgColor: "from-sky-400 to-sky-600",
+    bgColor: "bg-gray-500",
   },
 ];
 

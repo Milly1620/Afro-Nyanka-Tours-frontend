@@ -9,6 +9,16 @@ const api = axios.create({
 });
 
 export const toursApi = {
+  getCountries: async (): Promise<string[]> => {
+    try {
+      const response = await api.get(`/api/tours/tours/countries`);
+      return response.data.countries;
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+      return [];
+    }
+  },
+
   getToursByCountry: async (country: string): Promise<Tour[]> => {
     try {
       const response = await api.get(`/api/tours/country/${country}`);
