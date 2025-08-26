@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { toursApi } from "@/services/api";
 import { Tour } from "@/types/api";
+import { setSearchData, useAppDispatch } from "@/store";
 
 type SearchState = {
   country: string;
@@ -24,7 +25,7 @@ type SearchState = {
 };
 
 export function SearchSection() {
-  const [searchData, setSearchData] = useState<SearchState>({
+  const [searchData, setLocalSearchData] = useState<SearchState>({
     country: "Country",
     destinations: [],
     activities: [],
@@ -38,6 +39,7 @@ export function SearchSection() {
   const [toursData, setToursData] = useState<Tour[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   // Fetch countries on component mount
   useEffect(() => {
@@ -49,7 +51,7 @@ export function SearchSection() {
     if (searchData.country !== "Country") {
       fetchToursData(searchData.country);
       // Reset destinations and activities when country changes
-      setSearchData((prev) => ({
+      setLocalSearchData((prev) => ({
         ...prev,
         destinations: [],
         activities: [],
@@ -60,7 +62,7 @@ export function SearchSection() {
   // Reset activities when destinations change
   useEffect(() => {
     if (searchData.destinations.length > 0) {
-      setSearchData((prev) => ({
+      setLocalSearchData((prev) => ({
         ...prev,
         activities: [],
       }));
@@ -119,13 +121,13 @@ export function SearchSection() {
     arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value];
 
   const handleDropdownSelect = (field: keyof SearchState, value: string) => {
-    setSearchData((prev) => ({ ...prev, [field]: value }));
+    setLocalSearchData((prev) => ({ ...prev, [field]: value }));
     setOpenDropdown(null);
   };
 
   const handleDateChange = (dates: [Date | null, Date | null]) => {
     const [start, end] = dates;
-    setSearchData((prev) => ({
+    setLocalSearchData((prev) => ({
       ...prev,
       startDate: start,
       endDate: end,
@@ -138,15 +140,19 @@ export function SearchSection() {
   };
 
   const handleBookNow = () => {
-    // Example payload ready for API
-    const payload = {
-      country: searchData.country !== "Country" ? searchData.country : null,
-      destinations: searchData.destinations,
-      activities: searchData.activities,
-      startDate: searchData.startDate,
-      endDate: searchData.endDate,
-    };
-    console.log("Search payload:", payload);
+    // Store search data in Redux for the booking page
+    dispatch(
+      setSearchData({
+        country: searchData.country !== "Country" ? searchData.country : "",
+        destinations: searchData.destinations,
+        activities: searchData.activities,
+        startDate: searchData.startDate,
+        endDate: searchData.endDate,
+        toursData: toursData, // Include tour data for mapping
+      })
+    );
+
+    // Navigate to booking page
     navigate("/booking");
   };
 
@@ -259,7 +265,7 @@ export function SearchSection() {
                 <button
                   key={option}
                   onClick={() =>
-                    setSearchData((prev) => ({
+                    setLocalSearchData((prev) => ({
                       ...prev,
                       [field]: toggleFromArray(prev[field], option),
                       ...(field === "destinations"
