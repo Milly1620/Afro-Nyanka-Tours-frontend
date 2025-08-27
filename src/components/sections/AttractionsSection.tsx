@@ -85,11 +85,11 @@ export function AttractionsSection() {
           ))}
         </div>
 
-        <div className="text-center">
+        {/* <div className="text-center">
           <button className="text-[#6E7070] cursor-pointer hover:text-[#FFA75D] poppins-medium transition-colors poppins-medium text-base lg:text-lg">
             View more
           </button>
-        </div>
+        </div> */}
       </div>
     </section>
   );
@@ -127,7 +127,7 @@ const attractions: Attraction[] = [
   {
     id: "3",
     title: "Aburi Botanical Gardens",
-    location: "Tamale",
+    location: "Aburi",
     image: aburiImg,
     category: "Ghana",
     slug: "aburi-botanical-gardens",

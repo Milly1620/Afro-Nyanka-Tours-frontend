@@ -57,7 +57,7 @@ export function Footer() {
                   href="#attractions"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
-                  Ghana City Tours
+                  Cape Coast Castle
                 </a>
               </li>
               <li>
@@ -65,7 +65,7 @@ export function Footer() {
                   href="#attractions"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
-                  Cape Coast Heritage
+                  Independence Square
                 </a>
               </li>
               <li>
@@ -73,7 +73,7 @@ export function Footer() {
                   href="#attractions"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
-                  Ashanti Culture
+                  Aburi Botanical Gardens
                 </a>
               </li>
               <li>
@@ -81,7 +81,7 @@ export function Footer() {
                   href="#attractions"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
-                  Cote d'Ivoire Adventures
+                  Kakum National Park
                 </a>
               </li>
             </ul>
@@ -113,7 +113,7 @@ export function Footer() {
                   href="#services"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
-                  Vehicle rentle
+                  Vehicle rental
                 </a>
               </li>
             </ul>
