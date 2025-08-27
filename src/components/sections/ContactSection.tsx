@@ -148,7 +148,7 @@ export function ContactSection() {
     {
       icon: Mail,
       title: "Email",
-      content: "info@afronyanka.com",
+      content: "afronyankatours@gmail.com",
     },
     {
       icon: Phone,

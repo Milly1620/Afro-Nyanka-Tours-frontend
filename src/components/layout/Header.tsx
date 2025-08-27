@@ -8,6 +8,7 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const isBookingPage = location.pathname === "/booking";
 
   const navItems = [
     { name: "Home", href: "/", active: location.pathname === "/" },
@@ -15,15 +16,31 @@ export function Header() {
     { name: "Tours", href: "#attractions", active: false },
     { name: "About us", href: "#about", active: false },
     { name: "Contact us", href: "#contact", active: false },
-    { name: "Book a tour", active: false },
+    {
+      name: "Book a tour",
+      href: "/booking",
+      active: location.pathname === "/booking",
+    },
   ];
 
   const handleNavigation = (href: string) => {
     if (href.startsWith("#")) {
-      // Handle anchor links (scroll to section)
-      const element = document.querySelector(href);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
+      // If we're on the booking page, navigate to home first, then scroll to section
+      if (location.pathname === "/booking") {
+        navigate("/");
+        // Wait for navigation to complete, then scroll to section
+        setTimeout(() => {
+          const element = document.querySelector(href);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 100);
+      } else {
+        // Handle anchor links (scroll to section) when already on home page
+        const element = document.querySelector(href);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
       }
     } else {
       // Handle route navigation
@@ -38,7 +55,13 @@ export function Header() {
   };
 
   return (
-    <header className="absolute top-0 left-0 right-0 z-50 pt-[31px]">
+    <header
+      className={`${
+        isBookingPage
+          ? "relative bg-white shadow-md"
+          : "absolute top-0 left-0 right-0 z-50"
+      } pt-[31px]`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           {/* Logo */}
@@ -93,9 +116,9 @@ export function Header() {
                     }`}
                   >
                     {item.name === "Book a tour" ? (
-                      <Phone className="h-4 w-4 mr-2.5" />
-                    ) : (
                       <Calendar className="h-4 w-4 mr-2.5" />
+                    ) : (
+                      <Phone className="h-4 w-4 mr-2.5" />
                     )}
                     {item.name}
                   </Button>
@@ -109,7 +132,11 @@ export function Header() {
           <div className="lg:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-white p-2 rounded-lg bg-white/20 backdrop-blur-md"
+              className={`p-2 rounded-lg backdrop-blur-md ${
+                isBookingPage
+                  ? "text-gray-700 bg-gray-100"
+                  : "text-white bg-white/20"
+              }`}
             >
               {isMenuOpen ? (
                 <X className="h-6 w-6" />

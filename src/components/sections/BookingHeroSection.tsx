@@ -23,7 +23,6 @@ interface BookingForm {
   email: string;
   age: string;
   country: string;
-  date: string;
   additionalServices: string;
   numberOfPersons: string;
 }
@@ -201,12 +200,11 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
         customer_age: parseInt(data.age),
         customer_country: data.country,
         number_of_people: parseInt(data.numberOfPersons),
-        preferred_date: new Date(data.date).toISOString(),
+        preferred_date:
+          searchData.startDate?.toISOString() || new Date().toISOString(),
         additional_services: data.additionalServices || "",
         tour_selections: tourSelections,
       };
-
-      
 
       const response = await fetch("/api/bookings", {
         method: "POST",
@@ -283,13 +281,6 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
       required: true,
     },
     {
-      label: "Preferred date",
-      name: "date" as keyof BookingForm,
-      type: "date",
-      placeholder: "dd/mm/yyyy",
-      required: true,
-    },
-    {
       label: "Additional services",
       name: "additionalServices" as keyof BookingForm,
       placeholder: "Write your message",
@@ -320,7 +311,7 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
       <div className="absolute top-[302px] md:top-[322px] lg:top-[352px] left-0 right-0 z-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {/* Search Summary */}
-          <div className="mb-6 p-4 bg-orange-50 rounded-lg border border-orange-200">
+          {/* <div className="mb-6 p-4 bg-orange-50 rounded-lg border border-orange-200">
             <h3 className="text-lg font-semibold text-orange-800 mb-2">
               Tour Summary
             </h3>
@@ -341,7 +332,7 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
                 {searchData.endDate?.toLocaleDateString()}
               </p>
             </div>
-          </div>
+          </div> */}
 
           {/* Status Messages */}
           {submitStatus.type && (
@@ -385,22 +376,31 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
               />
             </div>
 
-            {/* Number of Persons and Date Row */}
+            {/* Number of Persons */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 {...formFields[4]}
                 errors={errors}
                 register={register}
               />
-              <FormField
-                {...formFields[5]}
-                errors={errors}
-                register={register}
-              />
+              <div className="flex items-center justify-center">
+                <div className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-sm font-medium text-gray-700 mb-1">
+                    Tour Dates
+                  </p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {searchData.startDate?.toLocaleDateString()} -{" "}
+                    {searchData.endDate?.toLocaleDateString()}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Selected from search
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Additional Services */}
-            <FormField {...formFields[6]} errors={errors} register={register} />
+            <FormField {...formFields[5]} errors={errors} register={register} />
 
             {/* Submit Button */}
             <div className="flex justify-end">
