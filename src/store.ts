@@ -1,33 +1,50 @@
 import { configureStore, createSlice } from "@reduxjs/toolkit";
+import { useDispatch, useSelector, TypedUseSelectorHook } from "react-redux";
+import { Tour } from "@/types/api";
 
-interface CounterState {
-  value: number;
+interface SearchData {
+  country: string;
+  destinations: string[];
+  activities: string[];
+  startDate: Date | null;
+  endDate: Date | null;
+  toursData: Tour[]; // Add tour data for mapping
 }
 
-const initialState: CounterState = { value: 0 };
+interface BookingState {
+  searchData: SearchData | null;
+}
 
-const counterSlice = createSlice({
-  name: "counter",
+const initialState: BookingState = {
+  searchData: null,
+};
+
+const bookingSlice = createSlice({
+  name: "booking",
   initialState,
   reducers: {
-    increment: (state) => {
-      state.value += 1;
+    setSearchData: (state, action) => {
+      state.searchData = action.payload;
     },
-    decrement: (state) => {
-      state.value -= 1;
+    clearSearchData: (state) => {
+      state.searchData = null;
     },
   },
 });
 
-export const { increment, decrement } = counterSlice.actions;
+export const { setSearchData, clearSearchData } = bookingSlice.actions;
 
 const store = configureStore({
   reducer: {
-    counter: counterSlice.reducer,
+    booking: bookingSlice.reducer,
   },
 });
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+
+// Use throughout your app instead of plain `useDispatch` and `useSelector`
+export const useAppDispatch: () => AppDispatch = useDispatch;
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 export default store;

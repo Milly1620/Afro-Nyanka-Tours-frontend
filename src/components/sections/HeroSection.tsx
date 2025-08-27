@@ -1,31 +1,28 @@
-import { useState } from "react";
-import heromain from "../../assets/heromain.svg";
-import carousel1 from "../../assets/carousel1.jpeg";
-import carousel2 from "../../assets/carousel2.jpeg";
-import carousel3 from "../../assets/carousel3.jpeg";
-import carousel4 from "../../assets/carousel4.jpeg";
-import nature from "../../assets/nature.jpeg";
 import frame1 from "../../assets/adinkrawhite.svg";
 import frame2 from "../../assets/agyindawuruwhite.svg";
 import frame3 from "../../assets/nyamewhite.svg";
 import frame4 from "../../assets/spiralwhite.svg";
+import { useCarousel } from "./CarouselContext";
 
 export function HeroSection() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const { currentIndex, isTransitioning, goToSlide, carouselCards } =
+    useCarousel();
 
-  const goToSlide = (index: number) => {
-    setCurrentIndex(index);
-  };
+  const currentImage = carouselCards[currentIndex].src;
 
   return (
     <div className="relative">
       <section
-        className="w-screen 
+        className={`w-screen 
     h-[450px] lg:h-[714px] 
     relative flex flex-col justify-center 
     overflow-hidden 
-    bg-[url('/src/assets/carousel3.jpeg')] 
-    bg-center bg-no-repeat bg-cover bg-blend-multiply"
+    bg-center bg-no-repeat bg-cover bg-blend-multiply transition-all duration-500 ease-in-out ${
+      isTransitioning ? "opacity-90" : "opacity-100"
+    }`}
+        style={{
+          backgroundImage: `url(${currentImage})`,
+        }}
       >
         {/* Main Content */}
         <div className="flex flex-col items-center justify-center text-white  ">
@@ -67,7 +64,13 @@ export function HeroSection() {
                 >
                   <div
                     key={index}
-                    className={`relative w-[100px] lg:w-[160px] xl:w-[214.45px] h-[100px] lg:h-[160px] xl:h-[212.38px] rounded-[16.79px] overflow-hidden bg-gradient-to-br ${card.bgColor} shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-3xl hover:border-2 hover:border-[#FFA75D] cursor-pointer`}
+                    className={`relative w-[100px] lg:w-[160px] xl:w-[214.45px] h-[100px] lg:h-[160px] xl:h-[212.38px] rounded-[16.79px] overflow-hidden bg-gradient-to-br ${
+                      card.bgColor
+                    } shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-3xl hover:border-2 hover:border-[#FFA75D] cursor-pointer ${
+                      index === currentIndex
+                        ? "border-2 border-[#FFA75D] scale-110"
+                        : ""
+                    }`}
                     onClick={() => goToSlide(index)}
                     style={{
                       boxShadow:
@@ -92,15 +95,15 @@ export function HeroSection() {
           </div>
 
           {/* Dots Indicator */}
-          <div className="flex justify-center space-x-3">
+          <div className="flex justify-center space-x-3 mt-4">
             {carouselCards.map((_, index) => (
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
                 className={`w-3 h-3 rounded-full transition-all duration-200 ${
                   index === currentIndex
-                    ? "bg-[#CB881C]"
-                    : "border border-[#482B11]"
+                    ? "bg-[#CB881C] scale-125"
+                    : "border border-[#482B11] hover:bg-[#CB881C]/50"
                 }`}
               />
             ))}
@@ -110,31 +113,3 @@ export function HeroSection() {
     </div>
   );
 }
-
-const carouselCards = [
-  {
-    src: nature,
-    title: "Nature",
-    bgColor: "from-orange-400 to-[#FFA75D]",
-  },
-  {
-    src: carousel1,
-    title: "History",
-    bgColor: "from-green-400 to-green-600",
-  },
-  {
-    src: carousel2,
-    title: "Discovery",
-    bgColor: "from-blue-400 to-blue-600",
-  },
-  {
-    src: carousel3,
-    title: "Scenery",
-    bgColor: "from-amber-400 to-amber-600",
-  },
-  {
-    src: carousel4,
-    title: "Adventure",
-    bgColor: "from-sky-400 to-sky-600",
-  },
-];

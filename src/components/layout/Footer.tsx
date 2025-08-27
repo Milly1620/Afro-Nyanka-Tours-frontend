@@ -136,7 +136,9 @@ export function Footer() {
                   href="tel:+233241234567"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
-                  +233 54866 5634 / +233 26225 1826 / +233 54920 2348
+                  <p>+233 548 665 634</p>
+                  <p>+233 549 202 348</p>
+                  <p>+233 262 251 826</p>
                 </a>
               </div>
               <div className="flex items-center space-x-3">

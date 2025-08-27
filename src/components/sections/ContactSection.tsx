@@ -1,4 +1,5 @@
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { Mail, Phone, Clock, LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -85,6 +86,12 @@ const FormField = ({
 };
 
 export function ContactSection() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: "success" | "error" | null;
+    message: string;
+  }>({ type: null, message: "" });
+
   const {
     register,
     handleSubmit,
@@ -92,9 +99,49 @@ export function ContactSection() {
     formState: { errors },
   } = useForm<ContactForm>();
 
-  const onSubmit = (data: ContactForm) => {
-    console.log("Contact form data:", data);
-    reset();
+  const onSubmit = async (data: ContactForm) => {
+    setIsSubmitting(true);
+    setSubmitStatus({ type: null, message: "" });
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          subject: data.subject,
+          message: data.message,
+        }),
+      });
+
+      if (response.ok) {
+        setSubmitStatus({
+          type: "success",
+          message:
+            "Thank you! Your message has been sent successfully. We'll get back to you soon.",
+        });
+        reset();
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        setSubmitStatus({
+          type: "error",
+          message:
+            errorData.message || "Failed to send message. Please try again.",
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setSubmitStatus({
+        type: "error",
+        message: "Network error. Please check your connection and try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactCards = [
@@ -106,17 +153,18 @@ export function ContactSection() {
     {
       icon: Phone,
       title: "Call Us",
-      content: "+233 24 123 4567",
+      content: (
+        <div className="space-y-1">
+          <p>+233 548 665 634</p>
+          <p>+233 549 202 348</p>
+          <p>+233 262 251 826</p>
+        </div>
+      ),
     },
     {
       icon: Clock,
       title: "Office Hours",
-      content: (
-        <div className="space-y-1">
-          <p>Mon - Fri: 8:00 AM - 6:00 PM</p>
-          <p>Sat: 9:00 AM - 4:00 PM</p>
-        </div>
-      ),
+      content: "24/7",
     },
   ];
 
@@ -146,11 +194,11 @@ export function ContactSection() {
       placeholder: "Enter your phone number",
       required: true,
     },
-
     {
       label: "Subject",
-      name: "phone" as keyof ContactForm,
+      name: "subject" as keyof ContactForm,
       placeholder: "Enter subject",
+      required: true,
     },
     {
       label: "Message",
@@ -183,6 +231,19 @@ export function ContactSection() {
 
           {/* Contact Form */}
           <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-sm lg:w-2/3">
+            {/* Status Messages */}
+            {submitStatus.type && (
+              <div
+                className={`mb-6 p-4 rounded-lg ${
+                  submitStatus.type === "success"
+                    ? "bg-green-50 border border-green-200 text-green-800"
+                    : "bg-red-50 border border-red-200 text-red-800"
+                }`}
+              >
+                <p className="text-sm font-medium">{submitStatus.message}</p>
+              </div>
+            )}
+
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="space-y-6 lg:space-y-8"
@@ -210,9 +271,10 @@ export function ContactSection() {
               <div className="flex justify-end">
                 <Button
                   type="submit"
-                  className="bg-[#FFA75D] cursor-pointer text-base lg:text-lg poppins-medium text-[#482B11] hover:bg-[#FFA75D]/80 p-4 lg:p-5 rounded-lg transition-colors flex items-center justify-center gap-2 h-12 lg:h-14"
+                  disabled={isSubmitting}
+                  className="bg-[#FFA75D] cursor-pointer text-base lg:text-lg poppins-medium text-[#482B11] hover:bg-[#FFA75D]/80 p-4 lg:p-5 rounded-lg transition-colors flex items-center justify-center gap-2 h-12 lg:h-14 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Send message
+                  {isSubmitting ? "Sending..." : "Send message"}
                   <Mail size={20} className="lg:w-6 lg:h-6" />
                 </Button>
               </div>

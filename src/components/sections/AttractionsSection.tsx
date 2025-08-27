@@ -7,6 +7,7 @@ import castleImg from "../../assets/castle.svg";
 import blackstarsquareImg from "../../assets/independenceSquare.jpeg";
 import mosqueImg from "../../assets/mosque.svg";
 import kakumImg from "../../assets/kakum.jpg";
+import aburiImg from "../../assets/nature.jpeg";
 
 const AttractionCard = ({ attraction }: AttractionCardProps) => (
   <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group">
@@ -97,9 +98,6 @@ interface Attraction {
   id: string;
   title: string;
   location: string;
-  price: number;
-  currency: string;
-  duration: string;
   image: string;
   category: string;
   slug: string;
@@ -114,9 +112,6 @@ const attractions: Attraction[] = [
     id: "1",
     title: "Cape coast castle",
     location: "Cape coast",
-    price: 600,
-    currency: "$",
-    duration: "5 Days",
     image: castleImg,
     category: "Ghana",
     slug: "cape-coast-castle",
@@ -125,31 +120,22 @@ const attractions: Attraction[] = [
     id: "2",
     title: "Independence square",
     location: "Accra",
-    price: 600,
-    currency: "$",
-    duration: "6 Days",
     image: blackstarsquareImg,
     category: "Ghana",
     slug: "independence-square",
   },
   {
     id: "3",
-    title: "Larabanga Mosque",
+    title: "Aburi Botanical Gardens",
     location: "Tamale",
-    price: 250,
-    currency: "$",
-    duration: "6 Days",
-    image: mosqueImg,
+    image: aburiImg,
     category: "Ghana",
-    slug: "larabanga-mosque",
+    slug: "aburi-botanical-gardens",
   },
   {
     id: "4",
     title: "Kakum national park",
     location: "Cape coast",
-    price: 569,
-    currency: "$",
-    duration: "3 Days",
     image: kakumImg,
     category: "Ghana",
     slug: "kakum-national-park",

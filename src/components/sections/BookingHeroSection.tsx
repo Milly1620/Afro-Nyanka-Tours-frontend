@@ -7,13 +7,22 @@ import { Calendar, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
+import { Tour } from "@/types/api";
+
+interface SearchData {
+  country: string;
+  destinations: string[];
+  activities: string[];
+  startDate: Date | null;
+  endDate: Date | null;
+  toursData: Tour[]; // Tour data from Redux
+}
 
 interface BookingForm {
   name: string;
   email: string;
   age: string;
   country: string;
-  destination: string;
   date: string;
   additionalServices: string;
   numberOfPersons: string;
@@ -30,6 +39,10 @@ interface FormFieldProps {
   register: any;
   rows?: number;
   options?: string[];
+}
+
+interface BookingHeroSectionProps {
+  searchData: SearchData;
 }
 
 const FormField = ({
@@ -130,7 +143,13 @@ const FormField = ({
   );
 };
 
-export function BookingHeroSection() {
+export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: "success" | "error" | null;
+    message: string;
+  }>({ type: null, message: "" });
+
   const {
     register,
     handleSubmit,
@@ -138,19 +157,90 @@ export function BookingHeroSection() {
     formState: { errors },
   } = useForm<BookingForm>();
 
-  const onSubmit = (data: BookingForm) => {
-    console.log("Booking form data:", data);
-    reset();
-  };
+  const onSubmit = async (data: BookingForm) => {
+    setIsSubmitting(true);
+    setSubmitStatus({ type: null, message: "" });
 
-  const destinations = [
-    "Accra City Tours",
-    "Cape Coast Heritage",
-    "Kumasi Cultural Experience",
-    "Tamale Northern Adventures",
-    "Volta Region Nature",
-    "Western Region Beaches",
-  ];
+    try {
+      // Map the form data to the API structure
+      const tourSelections = searchData.destinations
+        .map((destination, index) => {
+          // Find the tour by name to get the tour_id
+          const tour = searchData.toursData.find(
+            (t: Tour) => t.name === destination
+          );
+          if (!tour) return null;
+
+          // Get the location IDs for the selected activities
+          const locationIds = searchData.activities
+            .filter((activity) => {
+              // Check if this activity belongs to this tour
+              return tour.tour_locations.some(
+                (tl: any) => tl.location.name === activity
+              );
+            })
+            .map((activity) => {
+              const tourLocation = tour.tour_locations.find(
+                (tl: any) => tl.location.name === activity
+              );
+              return tourLocation?.location_id || 0;
+            })
+            .filter((id) => id > 0);
+
+          return {
+            locations: locationIds,
+            order: index + 1,
+            tour_id: tour.id,
+          };
+        })
+        .filter(Boolean);
+
+      const payload = {
+        customer_name: data.name,
+        customer_email: data.email,
+        customer_age: parseInt(data.age),
+        customer_country: data.country,
+        number_of_people: parseInt(data.numberOfPersons),
+        preferred_date: new Date(data.date).toISOString(),
+        additional_services: data.additionalServices || "",
+        tour_selections: tourSelections,
+      };
+
+      
+
+      const response = await fetch("/api/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        setSubmitStatus({
+          type: "success",
+          message:
+            "Booking submitted successfully! We'll confirm your tour details soon.",
+        });
+        reset();
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        setSubmitStatus({
+          type: "error",
+          message:
+            errorData.message || "Failed to submit booking. Please try again.",
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting booking:", error);
+      setSubmitStatus({
+        type: "error",
+        message: "Network error. Please check your connection and try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const formFields = [
     {
@@ -193,13 +283,6 @@ export function BookingHeroSection() {
       required: true,
     },
     {
-      label: "Destination",
-      name: "destination" as keyof BookingForm,
-      placeholder: "Select destination",
-      required: true,
-      options: destinations,
-    },
-    {
       label: "Preferred date",
       name: "date" as keyof BookingForm,
       type: "date",
@@ -236,6 +319,43 @@ export function BookingHeroSection() {
 
       <div className="absolute top-[302px] md:top-[322px] lg:top-[352px] left-0 right-0 z-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-2xl shadow-xl p-8">
+          {/* Search Summary */}
+          <div className="mb-6 p-4 bg-orange-50 rounded-lg border border-orange-200">
+            <h3 className="text-lg font-semibold text-orange-800 mb-2">
+              Tour Summary
+            </h3>
+            <div className="text-sm text-orange-700 space-y-1">
+              <p>
+                <strong>Country:</strong> {searchData.country}
+              </p>
+              <p>
+                <strong>Destinations:</strong>{" "}
+                {searchData.destinations.join(", ")}
+              </p>
+              <p>
+                <strong>Activities:</strong> {searchData.activities.join(", ")}
+              </p>
+              <p>
+                <strong>Dates:</strong>{" "}
+                {searchData.startDate?.toLocaleDateString()} -{" "}
+                {searchData.endDate?.toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+
+          {/* Status Messages */}
+          {submitStatus.type && (
+            <div
+              className={`mb-6 p-4 rounded-lg ${
+                submitStatus.type === "success"
+                  ? "bg-green-50 border border-green-200 text-green-800"
+                  : "bg-red-50 border border-red-200 text-red-800"
+              }`}
+            >
+              <p className="text-sm font-medium">{submitStatus.message}</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Name and Email Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -265,38 +385,32 @@ export function BookingHeroSection() {
               />
             </div>
 
-            {/* Destination and Date Row */}
+            {/* Number of Persons and Date Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* number of people */}
               <FormField
                 {...formFields[4]}
                 errors={errors}
                 register={register}
               />
-
               <FormField
                 {...formFields[5]}
-                errors={errors}
-                register={register}
-              />
-              <FormField
-                {...formFields[6]}
                 errors={errors}
                 register={register}
               />
             </div>
 
             {/* Additional Services */}
-            <FormField {...formFields[7]} errors={errors} register={register} />
+            <FormField {...formFields[6]} errors={errors} register={register} />
 
             {/* Submit Button */}
             <div className="flex justify-end">
               <Button
                 type="submit"
-                className="bg-[#FFA75D] hover:bg-[#FFA75D] text-white px-8 py-3 rounded-xl font-semibold text-base transition-colors duration-200 shadow-lg hover:shadow-xl"
+                disabled={isSubmitting}
+                className="bg-[#FFA75D] hover:bg-[#FFA75D] text-white px-8 py-3 rounded-xl font-semibold text-base transition-colors duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Calendar className="h-5 w-5 mr-2" />
-                Book now
+                {isSubmitting ? "Submitting..." : "Book now"}
               </Button>
             </div>
           </form>
