@@ -4,10 +4,9 @@ import { Button } from "@/components/ui/button";
 
 // Import attraction images
 import castleImg from "../../assets/castle.svg";
-import blackstarsquareImg from "../../assets/independenceSquare.jpeg";
-import mosqueImg from "../../assets/mosque.svg";
-import kakumImg from "../../assets/kakum.jpg";
-import aburiImg from "../../assets/nature.jpeg";
+import blackstarsquareImg from "../../assets/independenceSquare.webp";
+import aburiImg from "../../assets/nature.webp";
+import aksomboImg from "../../assets/akosombo.webp";
 
 const AttractionCard = ({ attraction }: AttractionCardProps) => (
   <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group">
@@ -15,7 +14,9 @@ const AttractionCard = ({ attraction }: AttractionCardProps) => (
       <img
         src={attraction.image}
         alt={attraction.title}
-        className="w-full h-48 lg:h-56 object-cover group-hover:scale-105 transition-transform duration-300"
+        className={`w-full h-48 lg:h-56 group-hover:scale-105 transition-transform duration-300 ${
+          attraction.title === "Accra City Tour" ? "object-center" : "object-cover"
+        }`}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
     </div>
@@ -33,6 +34,13 @@ const AttractionCard = ({ attraction }: AttractionCardProps) => (
       </div>
 
       <div className="flex items-center justify-between">
+        {/* TODO: Add duration */}
+        <div className="flex items-center text-[#6E7070] mb-2">
+          <Clock className="h-4 w-4 mr-2 flex-shrink-0" />
+          <span className="text-[14.76px] poppins-regular">
+            {attraction.duration}
+          </span>
+        </div>
         <Button className="p-3 lg:px-4 lg:py-2  bg-transparent text-[#482B11] hover:text-[#FFA75D] poppins-medium text-sm transition-colors group border border-[#E1E4E5]  hover:bg-transparent cursor-pointer">
           <span className="text-[14.76px] poppins-medium">Book Now</span>
           <ArrowRight className="h-6 w-6 ml-1 text-[#FFA75D] group-hover:translate-x-1 transition-transform" />
@@ -84,12 +92,6 @@ export function AttractionsSection() {
             <AttractionCard key={attraction.id} attraction={attraction} />
           ))}
         </div>
-
-        {/* <div className="text-center">
-          <button className="text-[#6E7070] cursor-pointer hover:text-[#FFA75D] poppins-medium transition-colors poppins-medium text-base lg:text-lg">
-            View more
-          </button>
-        </div> */}
       </div>
     </section>
   );
@@ -101,6 +103,7 @@ interface Attraction {
   image: string;
   category: string;
   slug: string;
+  duration: string;
 }
 
 interface AttractionCardProps {
@@ -110,35 +113,39 @@ interface AttractionCardProps {
 const attractions: Attraction[] = [
   {
     id: "1",
-    title: "Cape coast castle",
+    title: "Cape Coast Tour",
     location: "Cape coast",
     image: castleImg,
     category: "Ghana",
     slug: "cape-coast-castle",
+    duration: "10-11 hours",
   },
   {
     id: "2",
-    title: "Independence square",
+    title: "Accra City Tour",
     location: "Accra",
     image: blackstarsquareImg,
     category: "Ghana",
     slug: "independence-square",
+    duration: "6 hours",
   },
   {
     id: "3",
-    title: "Aburi Botanical Gardens",
+    title: "Aburi Tour",
     location: "Aburi",
     image: aburiImg,
     category: "Ghana",
     slug: "aburi-botanical-gardens",
+    duration: "8 hours",
   },
   {
     id: "4",
-    title: "Kakum national park",
-    location: "Cape coast",
-    image: kakumImg,
+    title: "Aksombo and Shai Hills Tour",
+    location: "Aksombo",
+    image: aksomboImg,
     category: "Ghana",
-    slug: "kakum-national-park",
+    slug: "aksombo-and-shai-hills",
+    duration: "8 hours",
   },
 ];
 

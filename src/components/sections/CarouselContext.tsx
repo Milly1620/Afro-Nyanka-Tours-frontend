@@ -10,7 +10,7 @@ import carousel1 from "../../assets/carousel1.jpeg";
 import carousel2 from "../../assets/carousel2.jpeg";
 import carousel3 from "../../assets/carousel3.jpeg";
 import carousel4 from "../../assets/carousel4.jpeg";
-import nature from "../../assets/nature.jpeg";
+import nature from "../../assets/nature.webp";
 
 interface CarouselContextType {
   currentIndex: number;
