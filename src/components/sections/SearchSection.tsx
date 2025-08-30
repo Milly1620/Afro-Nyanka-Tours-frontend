@@ -19,7 +19,6 @@ import { setSearchData, useAppDispatch } from "@/store";
 type SearchState = {
   country: string;
   destinations: string[];
-  activities: string[];
   startDate: Date | null;
   endDate: Date | null;
 };
@@ -28,13 +27,13 @@ export function SearchSection() {
   const [searchData, setLocalSearchData] = useState<SearchState>({
     country: "Country",
     destinations: [],
-    activities: [],
     startDate: null,
     endDate: null,
   });
 
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [isActivitiesOpen, setIsActivitiesOpen] = useState(false);
   const [countries, setCountries] = useState<string[]>([]);
   const [toursData, setToursData] = useState<Tour[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,24 +49,13 @@ export function SearchSection() {
   useEffect(() => {
     if (searchData.country !== "Country") {
       fetchToursData(searchData.country);
-      // Reset destinations and activities when country changes
+      // Reset destinations when country changes
       setLocalSearchData((prev) => ({
         ...prev,
         destinations: [],
-        activities: [],
       }));
     }
   }, [searchData.country]);
-
-  // Reset activities when destinations change
-  useEffect(() => {
-    if (searchData.destinations.length > 0) {
-      setLocalSearchData((prev) => ({
-        ...prev,
-        activities: [],
-      }));
-    }
-  }, [searchData.destinations]);
 
   const fetchCountries = async () => {
     setIsLoading(true);
@@ -145,7 +133,7 @@ export function SearchSection() {
       setSearchData({
         country: searchData.country !== "Country" ? searchData.country : "",
         destinations: searchData.destinations,
-        activities: searchData.activities,
+        activities: activities, // Use computed activities based on selected destinations
         startDate: searchData.startDate,
         endDate: searchData.endDate,
         toursData: toursData, // Include tour data for mapping
@@ -224,7 +212,7 @@ export function SearchSection() {
     options,
     placeholder,
   }: {
-    field: "destinations" | "activities";
+    field: "destinations";
     values: string[];
     icon: any;
     options: string[];
@@ -268,9 +256,6 @@ export function SearchSection() {
                     setLocalSearchData((prev) => ({
                       ...prev,
                       [field]: toggleFromArray(prev[field], option),
-                      ...(field === "destinations"
-                        ? { activities: [] } // clear activities when destinations change
-                        : {}),
                     }))
                   }
                   className="w-full px-4 lg:px-6 py-3 text-left text-xs lg:text-sm text-gray-700 cursor-pointer transition-colors duration-150 flex items-center gap-3 border-b border-gray-100 last:border-b-0"
@@ -295,6 +280,64 @@ export function SearchSection() {
               );
             })
           )}
+        </div>
+      )}
+    </div>
+  );
+
+  // Activities display field (read-only dropdown)
+  const ActivitiesDisplayField = ({
+    activities,
+    destinations,
+  }: {
+    activities: string[];
+    destinations: string[];
+  }) => (
+    <div className="relative flex-1">
+      <button
+        onClick={() =>
+          destinations.length > 0 &&
+          activities.length > 0 &&
+          setIsActivitiesOpen(!isActivitiesOpen)
+        }
+        disabled={destinations.length === 0 || activities.length === 0}
+        className={`w-full h-12 lg:h-16 px-4 lg:px-6 bg-transparent flex items-center justify-between transition-all duration-200 focus:outline-none ${
+          destinations.length === 0 || activities.length === 0
+            ? "cursor-not-allowed opacity-60"
+            : "cursor-pointer hover:bg-gray-50"
+        }`}
+      >
+        <div className="flex items-center space-x-2 lg:space-x-3">
+          <ActivityIcon className="h-4 w-4 lg:h-5 lg:w-5 text-[#FFA75D]" />
+          <span className="text-xs lg:text-sm font-medium text-gray-600 truncate">
+            {destinations.length === 0
+              ? "Activity(ies)"
+              : activities.length > 0
+              ? `${activities.length} activities available`
+              : "No activities available"}
+          </span>
+        </div>
+        <ChevronDown
+          className={`h-3 w-3 lg:h-4 lg:w-4 text-gray-400 transition-transform duration-200 ${
+            isActivitiesOpen ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+
+      {/* Dropdown content (only visible when clicked) */}
+      {isActivitiesOpen && destinations.length > 0 && activities.length > 0 && (
+        <div className="absolute top-12 lg:top-16 left-0 right-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl z-[1001] max-h-60 overflow-y-auto">
+          {activities.map((activity) => (
+            <div
+              key={activity}
+              className="px-4 lg:px-6 py-3 text-xs lg:text-sm text-gray-700 border-b border-gray-100 last:border-b-0 flex items-center gap-3"
+            >
+              <span className="inline-flex h-4 w-4 items-center justify-center rounded border border-gray-300 bg-gray-50">
+                <Check className="h-3 w-3 text-gray-400" />
+              </span>
+              <span className="text-gray-500">{activity}</span>
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -393,13 +436,10 @@ export function SearchSection() {
 
             <div className="w-full md:w-px h-px md:h-10 bg-gray-200"></div>
 
-            {/* Activities (Multi) */}
-            <MultiSelectField
-              field="activities"
-              values={searchData.activities}
-              icon={ActivityIcon}
-              options={activities}
-              placeholder="Activity(ies)"
+            {/* Activities (Display Only) */}
+            <ActivitiesDisplayField
+              activities={activities}
+              destinations={searchData.destinations}
             />
 
             <div className="w-full md:w-px h-px md:h-10 bg-gray-200"></div>
@@ -423,10 +463,13 @@ export function SearchSection() {
       </div>
 
       {/* Overlay to close dropdowns when clicking outside */}
-      {openDropdown && (
+      {(openDropdown || isActivitiesOpen) && (
         <div
           className="fixed inset-0 z-[900]" // behind dropdowns (1001)
-          onClick={() => setOpenDropdown(null)}
+          onClick={() => {
+            setOpenDropdown(null);
+            setIsActivitiesOpen(false);
+          }}
         />
       )}
     </section>

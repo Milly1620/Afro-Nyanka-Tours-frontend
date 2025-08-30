@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 // Import service images
 import countrymapImg from "../../assets/countrymap.svg";
 import vehicleImg from "../../assets/vehicle.svg";
-import touristImg from "../../assets/tourist.svg";
+import flight from "../../assets/flight.webp";
+import event from "../../assets/event.webp";
+import airport from "../../assets/airport.webp";
+import drone from "../../assets/drone.webp";
 
 const ServiceCard = ({ service, className = "" }: ServiceCardProps) => (
   <div
@@ -62,9 +65,17 @@ export function ServicesSection() {
           </div>
 
           {/* Right Column - Expert Tour Guiding (Full Height) */}
-          <div>
-            <ServiceCard service={services[2]} className="h-64 lg:h-full" />
+          <div className="flex flex-col gap-6 lg:gap-9">
+            <ServiceCard service={services[2]} className="h-64 lg:h-80" />
+            <ServiceCard service={services[3]} className="h-64 lg:h-80" />
           </div>
+          {/* Custom Itinerary Planning - Top */}
+
+          {/* Premium Vehicle Rental - Bottom */}
+          <ServiceCard service={services[4]} className="h-64 lg:h-80" />
+
+          {/* Premium Vehicle Rental - Bottom */}
+          <ServiceCard service={services[5]} className="h-64 lg:h-80" />
         </div>
       </div>
     </section>
@@ -97,16 +108,37 @@ const services: Service[] = [
   },
   {
     id: "2",
-    title: "Premium Vehicle Rental",
+    title: "Charter Flights and Coaches",
     description:
-      "Modern, comfortable, and reliable transportation options from city cars to safari vehicles, all maintained to highest standards.",
-    image: vehicleImg,
+      "Travel in style and comfort with our private charter flights and luxury coaches. Whether it’s a group trip, corporate retreat, or a family getaway, we make sure your journey is as seamless as your destination.",
+    image: flight,
   },
   {
     id: "3",
     title: "Expert Tour Guiding",
     description:
       "Our certified local guides bring destinations to life with deep cultural knowledge, historical insights, and authentic storytelling.",
-    image: touristImg,
+    image: vehicleImg,
+  },
+  {
+    id: "4",
+    title: "Event Planning for Travelers",
+    description:
+      "Turn your trip into an unforgettable experience. From destination weddings to corporate events and adventure retreats, we handle all the details so you can simply enjoy the moment.",
+    image: event,
+  },
+  {
+    id: "5",
+    title: "Airport Transfer and Accomodation Booking",
+    description:
+      "Skip the stress of travel logistics. We’ll pick you up right from the airport and secure the perfect accommodation tailored to your style and budget.",
+    image: airport,
+  },
+  {
+    id: "6",
+    title: "Drone and Photography Coverage",
+    description:
+      "Capture every magical moment from breathtaking angles. Our professional drone and photography services ensure your travels are remembered in cinematic style.",
+    image: drone,
   },
 ];
