@@ -2,12 +2,14 @@ import frame1 from "../../assets/adinkrawhite.svg";
 import frame2 from "../../assets/agyindawuruwhite.svg";
 import frame3 from "../../assets/nyamewhite.svg";
 import frame4 from "../../assets/spiralwhite.svg";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { Tour } from "@/types/api";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 interface SearchData {
   country: string;
@@ -148,6 +150,15 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
     type: "success" | "error" | null;
     message: string;
   }>({ type: null, message: "" });
+  const [startDate, setStartDate] = useState<Date | null>(searchData.startDate);
+  const [endDate, setEndDate] = useState<Date | null>(searchData.endDate);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+
+  // Update dates when searchData changes
+  useEffect(() => {
+    setStartDate(searchData.startDate);
+    setEndDate(searchData.endDate);
+  }, [searchData.startDate, searchData.endDate]);
 
   const {
     register,
@@ -200,8 +211,7 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
         customer_age: parseInt(data.age),
         customer_country: data.country,
         number_of_people: parseInt(data.numberOfPersons),
-        preferred_date:
-          searchData.startDate?.toISOString() || new Date().toISOString(),
+        preferred_date: startDate?.toISOString() || new Date().toISOString(),
         additional_services: data.additionalServices || "",
         tour_selections: tourSelections,
       };
@@ -384,16 +394,33 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
                 register={register}
               />
               <div className="flex items-center justify-center">
-                <div className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="text-sm font-medium text-gray-700 mb-1">
+                <div className="w-full p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-sm font-medium text-gray-700 mb-3">
                     Tour Dates
                   </p>
-                  <p className="text-lg font-semibold text-gray-900">
-                    {searchData.startDate?.toLocaleDateString()} -{" "}
-                    {searchData.endDate?.toLocaleDateString()}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Selected from search
+                  <DatePicker
+                    selected={startDate}
+                    onChange={(dates: [Date | null, Date | null]) => {
+                      const [start, end] = dates;
+                      setStartDate(start);
+                      setEndDate(end);
+                    }}
+                    startDate={startDate}
+                    endDate={endDate}
+                    selectsRange
+                    placeholderText="Select tour dates"
+                    dateFormat="MMM dd, yyyy"
+                    minDate={new Date()}
+                    open={isDatePickerOpen}
+                    onInputClick={() => setIsDatePickerOpen(true)}
+                    onClickOutside={() => setIsDatePickerOpen(false)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFA75D] focus:border-transparent outline-none"
+                    wrapperClassName="w-full"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    {startDate && endDate
+                      ? "Dates selected"
+                      : "Please select your tour dates"}
                   </p>
                 </div>
               </div>
