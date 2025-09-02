@@ -179,7 +179,7 @@ export function SearchSection() {
       </button>
 
       {openDropdown === field && (
-        <div className="absolute top-12 lg:top-16 left-0 right-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl z-[1001] max-h-60 overflow-y-auto">
+        <div className="absolute top-12 lg:top-16 left-0 right-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl z-[1] max-h-60 overflow-y-auto">
           {isLoading && options.length === 0 ? (
             <div className="px-4 py-3 text-xs lg:text-sm text-gray-500">
               Loading...
@@ -237,7 +237,7 @@ export function SearchSection() {
       </button>
 
       {openDropdown === field && (
-        <div className="absolute top-12 lg:top-16 left-0 right-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl z-[1001] max-h-60 overflow-y-auto">
+        <div className="absolute top-12 lg:top-16 left-0 right-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl z-[1] max-h-60 overflow-y-auto">
           {isLoading ? (
             <div className="px-4 py-3 text-xs lg:text-sm text-gray-500">
               Loading...
@@ -326,7 +326,7 @@ export function SearchSection() {
 
       {/* Dropdown content (only visible when clicked) */}
       {isActivitiesOpen && destinations.length > 0 && activities.length > 0 && (
-        <div className="absolute top-12 lg:top-16 left-0 right-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl z-[1001] max-h-60 overflow-y-auto">
+        <div className="absolute top-12 lg:top-16 left-0 right-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl z-[1] max-h-60 overflow-y-auto">
           {activities.map((activity) => (
             <div
               key={activity}
@@ -359,7 +359,7 @@ export function SearchSection() {
           onClickOutside={() => setIsDatePickerOpen(false)}
           className="flex-1 bg-transparent text-xs lg:text-sm font-medium text-gray-600 focus:outline-none cursor-pointer"
           wrapperClassName="flex-1"
-          popperClassName="z-[1002]"
+          popperClassName="z-[1]"
           popperPlacement="bottom-start"
           showPopperArrow={false}
           customInput={
@@ -406,10 +406,10 @@ export function SearchSection() {
   );
 
   return (
-    <section className="relative mt-5 md:10 lg:mt-[204.73px] z-[1000]">
+    <section className=" mt-5 md:10 lg:mt-[204.73px] z-[1000]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main bordered container */}
-        <div className="bg-white border-2 border-[#FFA75D] rounded-2xl lg:rounded-3xl relative">
+        <div className="bg-white border-2 border-[#FFA75D] rounded-2xl lg:rounded-3xl ">
           <div className="flex flex-col md:flex-row items-center justify-center">
             {/* Country */}
             <DropdownField
@@ -462,7 +462,7 @@ export function SearchSection() {
       {/* Overlay to close dropdowns when clicking outside */}
       {(openDropdown || isActivitiesOpen) && (
         <div
-          className="fixed inset-0 z-[900]" // behind dropdowns (1001)
+          className="fixed inset-0 z-[1]" // behind dropdowns (1001)
           onClick={() => {
             setOpenDropdown(null);
             setIsActivitiesOpen(false);

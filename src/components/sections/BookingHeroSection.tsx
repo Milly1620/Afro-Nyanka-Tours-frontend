@@ -299,7 +299,7 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
   ];
 
   return (
-    <section className="h-[400px] lg:h-[450px] flex flex-col justify-center overflow-hidden bg-black/40 bg-[url('/src/assets/heromain.svg')] bg-cover bg-no-repeat bg-blend-multiply mb-[850px] md:mb-[582.19px]">
+    <section className="h-[400px] lg:h-[450px] flex flex-col justify-center overflow-hidden bg-black/40 bg-[url('/src/assets/heromain.svg')] bg-cover bg-no-repeat bg-blend-multiply mb-[870px] md:mb-[582.19px]">
       {/* Main Content */}
       <div className="flex flex-col items-center justify-center text-white">
         <div className="md:flex items-center justify-between mb-6 lg:w-[1204px]">
@@ -318,33 +318,8 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
         </div>
       </div>
 
-      <div className="absolute top-[302px] md:top-[322px] lg:top-[352px] left-0 right-0 z-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="absolute top-[392px] md:top-[322px] lg:top-[352px] left-0 right-0 z-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          {/* Search Summary */}
-          {/* <div className="mb-6 p-4 bg-orange-50 rounded-lg border border-orange-200">
-            <h3 className="text-lg font-semibold text-orange-800 mb-2">
-              Tour Summary
-            </h3>
-            <div className="text-sm text-orange-700 space-y-1">
-              <p>
-                <strong>Country:</strong> {searchData.country}
-              </p>
-              <p>
-                <strong>Destinations:</strong>{" "}
-                {searchData.destinations.join(", ")}
-              </p>
-              <p>
-                <strong>Activities:</strong> {searchData.activities.join(", ")}
-              </p>
-              <p>
-                <strong>Dates:</strong>{" "}
-                {searchData.startDate?.toLocaleDateString()} -{" "}
-                {searchData.endDate?.toLocaleDateString()}
-              </p>
-            </div>
-          </div> */}
-
-          {/* Status Messages */}
           {submitStatus.type && (
             <div
               className={`mb-6 p-4 rounded-lg ${
