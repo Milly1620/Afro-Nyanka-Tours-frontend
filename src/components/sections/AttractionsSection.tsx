@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "@/store";
 import { MapPin, Clock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { setSearchData } from "@/store";
 
 // Import attraction images
 import castleImg from "../../assets/castle.svg";
@@ -8,14 +11,19 @@ import blackstarsquareImg from "../../assets/independenceSquare.webp";
 import aburiImg from "../../assets/nature.webp";
 import aksomboImg from "../../assets/akosombo.webp";
 
-const AttractionCard = ({ attraction }: AttractionCardProps) => (
+const AttractionCard = ({
+  attraction,
+  onBookNow,
+}: AttractionCardProps & { onBookNow: (attraction: Attraction) => void }) => (
   <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group">
     <div className="relative overflow-hidden">
       <img
         src={attraction.image}
         alt={attraction.title}
-        className={`w-full h-48 lg:h-56 group-hover:scale-105 transition-transform duration-300 ${
-          attraction.title === "Accra City Tour" ? "object-center" : "object-cover"
+        className={`w-full h-48 lg:h-[290px] group-hover:scale-105 transition-transform duration-300 ${
+          attraction.title === "Accra City Tour"
+            ? "object-cover"
+            : "object-cover"
         }`}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -41,7 +49,10 @@ const AttractionCard = ({ attraction }: AttractionCardProps) => (
             {attraction.duration}
           </span>
         </div>
-        <Button className="p-3 lg:px-4 lg:py-2  bg-transparent text-[#482B11] hover:text-[#FFA75D] poppins-medium text-sm transition-colors group border border-[#E1E4E5]  hover:bg-transparent cursor-pointer">
+        <Button
+          onClick={() => onBookNow(attraction)}
+          className="p-3 lg:px-4 lg:py-2  bg-transparent text-[#482B11] hover:text-[#FFA75D] poppins-medium text-sm transition-colors group border border-[#E1E4E5]  hover:bg-transparent cursor-pointer"
+        >
           <span className="text-[14.76px] poppins-medium">Book Now</span>
           <ArrowRight className="h-6 w-6 ml-1 text-[#FFA75D] group-hover:translate-x-1 transition-transform" />
         </Button>
@@ -52,10 +63,30 @@ const AttractionCard = ({ attraction }: AttractionCardProps) => (
 
 export function AttractionsSection() {
   const [activeCategory, setActiveCategory] = useState("Ghana");
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const filteredAttractions = attractions.filter(
     (attraction) => attraction.category === activeCategory
   );
+
+  const handleBookNow = (attraction: Attraction) => {
+    // Create search data from the attraction
+    const searchData = {
+      country: attraction.category,
+      destinations: [attraction.title],
+      activities: [], // Will be populated based on destinations
+      startDate: null,
+      endDate: null,
+      toursData: [], // Will be populated when we have the actual tour data
+    };
+
+    // Store in Redux
+    dispatch(setSearchData(searchData));
+
+    // Navigate to booking page
+    navigate("/booking");
+  };
 
   return (
     <section id="attractions" className="py-5 lg:py-10 bg-[#E6E6E6]">
@@ -89,7 +120,11 @@ export function AttractionsSection() {
         {/* Attractions Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-7.5 mb-5 lg:mb-6">
           {filteredAttractions.map((attraction) => (
-            <AttractionCard key={attraction.id} attraction={attraction} />
+            <AttractionCard
+              key={attraction.id}
+              attraction={attraction}
+              onBookNow={handleBookNow}
+            />
           ))}
         </div>
       </div>
@@ -113,8 +148,8 @@ interface AttractionCardProps {
 const attractions: Attraction[] = [
   {
     id: "1",
-    title: "Cape Coast Tour",
-    location: "Cape coast",
+    title: "Cape Coast Castle Tour",
+    location: "Cape Coast, Ghana",
     image: castleImg,
     category: "Ghana",
     slug: "cape-coast-castle",
@@ -122,8 +157,8 @@ const attractions: Attraction[] = [
   },
   {
     id: "2",
-    title: "Accra City Tour",
-    location: "Accra",
+    title: "Accra Independence Square Tour",
+    location: "Accra, Ghana",
     image: blackstarsquareImg,
     category: "Ghana",
     slug: "independence-square",
@@ -131,8 +166,8 @@ const attractions: Attraction[] = [
   },
   {
     id: "3",
-    title: "Aburi Tour",
-    location: "Aburi",
+    title: "Aburi Botanical Gardens Tour",
+    location: "Aburi, Ghana",
     image: aburiImg,
     category: "Ghana",
     slug: "aburi-botanical-gardens",
@@ -140,8 +175,8 @@ const attractions: Attraction[] = [
   },
   {
     id: "4",
-    title: "Aksombo and Shai Hills Tour",
-    location: "Aksombo",
+    title: "Aksombo Dam & Shai Hills Tour",
+    location: "Aksombo, Ghana",
     image: aksomboImg,
     category: "Ghana",
     slug: "aksombo-and-shai-hills",

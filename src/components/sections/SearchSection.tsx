@@ -332,9 +332,6 @@ export function SearchSection() {
               key={activity}
               className="px-4 lg:px-6 py-3 text-xs lg:text-sm text-gray-700 border-b border-gray-100 last:border-b-0 flex items-center gap-3"
             >
-              <span className="inline-flex h-4 w-4 items-center justify-center rounded border border-gray-300 bg-gray-50">
-                <Check className="h-3 w-3 text-gray-400" />
-              </span>
               <span className="text-gray-500">{activity}</span>
             </div>
           ))}
