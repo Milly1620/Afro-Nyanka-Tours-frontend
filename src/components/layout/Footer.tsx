@@ -24,21 +24,16 @@ export function Footer() {
             </p>
             <div className="flex space-x-3">
               <a
-                href="#"
+                href="https://www.facebook.com/share/17526YsqjL/?mibextid=wwXIfr"
+                target="_blank"
                 className="w-10 h-10 lg:w-12 lg:h-12 bg-orange-100 rounded-full flex items-center justify-center text-[#FFA75D] hover:bg-orange-200 transition-colors"
                 aria-label="Facebook"
               >
                 <Facebook className="h-4 w-4 lg:h-5 lg:w-5" />
               </a>
               <a
-                href="#"
-                className="w-10 h-10 lg:w-12 lg:h-12 bg-orange-100 rounded-full flex items-center justify-center text-[#FFA75D] hover:bg-orange-200 transition-colors"
-                aria-label="Twitter"
-              >
-                <Twitter className="h-4 w-4 lg:h-5 lg:w-5" />
-              </a>
-              <a
-                href="#"
+                href="https://www.instagram.com/afronyankatours?igsh=MWZsbmxoemR0YzNjcg=="
+                target="_blank"
                 className="w-10 h-10 lg:w-12 lg:h-12 bg-orange-100 rounded-full flex items-center justify-center text-[#FFA75D] hover:bg-orange-200 transition-colors"
                 aria-label="Instagram"
               >
@@ -57,7 +52,7 @@ export function Footer() {
                   href="#attractions"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
-                  Cape Coast Castle
+                  Cape Coast Tour
                 </a>
               </li>
               <li>
@@ -65,7 +60,7 @@ export function Footer() {
                   href="#attractions"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
-                  Independence Square
+                  Accra City Tour
                 </a>
               </li>
               <li>
@@ -73,7 +68,7 @@ export function Footer() {
                   href="#attractions"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
-                  Aburi Botanical Gardens
+                  Aburi Tour
                 </a>
               </li>
               <li>
@@ -81,7 +76,7 @@ export function Footer() {
                   href="#attractions"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
-                  Kakum National Park
+                  Akosombo and Shai Hills Tour
                 </a>
               </li>
             </ul>
@@ -97,7 +92,7 @@ export function Footer() {
                   href="#services"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
-                  Custom itinerary planning
+                  Charter Flights and Coaches
                 </a>
               </li>
               <li>
@@ -105,7 +100,7 @@ export function Footer() {
                   href="#services"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
-                  Expert tour guiding
+                  Airport Transfer and Accommodation Booking
                 </a>
               </li>
               <li>
@@ -113,7 +108,15 @@ export function Footer() {
                   href="#services"
                   className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
                 >
-                  Vehicle rental
+                  Event Planning for Travelers
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#services"
+                  className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
+                >
+                  Drone and Photography Coverage
                 </a>
               </li>
             </ul>

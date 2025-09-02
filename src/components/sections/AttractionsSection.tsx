@@ -14,8 +14,8 @@ const AttractionCard = ({ attraction }: AttractionCardProps) => (
       <img
         src={attraction.image}
         alt={attraction.title}
-        className={`w-full h-48 lg:h-56 group-hover:scale-105 transition-transform duration-300 ${
-          attraction.title === "Accra City Tour" ? "object-center" : "object-cover"
+        className={`w-full h-48 lg:h-[290px] group-hover:scale-105 transition-transform duration-300 ${
+          attraction.title === "Accra City Tour" ? "object-cover" : "object-cover"
         }`}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
