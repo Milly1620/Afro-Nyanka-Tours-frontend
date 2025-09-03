@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import { setSearchData } from "@/store";
 
 // Import attraction images
-import castleImg from "../../assets/castle.svg";
+import castleImg from "../../assets/cape-coast-castle-front-view.jpg";
 import blackstarsquareImg from "../../assets/independenceSquare.webp";
-import aburiImg from "../../assets/nature.webp";
-import aksomboImg from "../../assets/akosombo.webp";
+import aburiImg from "../../assets/aburi-gardens.jpg";
+import akosomboImg from "../../assets/akosombo.webp";
 
 const AttractionCard = ({
   attraction,
@@ -96,7 +96,7 @@ export function AttractionsSection() {
             Popular attractions
           </h2>
           <p className="text-sm md:text-base lg:text-lg text-gray-600 poppins-regular max-w-2xl mx-auto">
-            Explore the best destinations across West Africa
+            Explore the best destinations across Africa
           </p>
         </div>
 
@@ -175,9 +175,9 @@ const attractions: Attraction[] = [
   },
   {
     id: "4",
-    title: "Aksombo Tour",
-    location: "Aksombo, Ghana",
-    image: aksomboImg,
+    title: "Akosombo Tour",
+    location: "Akosombo, Ghana",
+    image: akosomboImg,
     category: "Ghana",
     slug: "aksombo-and-shai-hills",
     duration: "8 hours",

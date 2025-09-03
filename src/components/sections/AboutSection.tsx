@@ -32,7 +32,7 @@ export function AboutSection() {
             />
             <p className="text-base lg:text-lg text-[#6E7070] leading-relaxed poppins-regular text-center max-w-4xl">
               We are passionate about showcasing the beauty and diversity of
-              West Africa. With years of experience and deep local knowledge, we
+               Africa. With years of experience and deep local knowledge, we
               create authentic experiences that connect travelers with the heart
               of African culture.
             </p>

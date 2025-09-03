@@ -17,7 +17,7 @@ export function HeroSection() {
     h-[450px] lg:h-[714px] 
     relative flex flex-col justify-center 
     overflow-hidden 
-    bg-center bg-no-repeat bg-cover bg-blend-multiply transition-all duration-500 ease-in-out ${
+    bg-center bg-no-repeat bg-cover aspect-auto bg-blend-multiply transition-all duration-500 ease-in-out ${
       isTransitioning ? "opacity-90" : "opacity-100"
     }`}
         style={{
