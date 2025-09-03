@@ -148,7 +148,7 @@ interface AttractionCardProps {
 const attractions: Attraction[] = [
   {
     id: "1",
-    title: "Cape Coast Castle Tour",
+    title: "Cape Coast Tour",
     location: "Cape Coast, Ghana",
     image: castleImg,
     category: "Ghana",
@@ -157,7 +157,7 @@ const attractions: Attraction[] = [
   },
   {
     id: "2",
-    title: "Accra Independence Square Tour",
+    title: "Accra City Tour",
     location: "Accra, Ghana",
     image: blackstarsquareImg,
     category: "Ghana",
@@ -166,7 +166,7 @@ const attractions: Attraction[] = [
   },
   {
     id: "3",
-    title: "Aburi Botanical Gardens Tour",
+    title: "Aburi Tour",
     location: "Aburi, Ghana",
     image: aburiImg,
     category: "Ghana",
@@ -175,7 +175,7 @@ const attractions: Attraction[] = [
   },
   {
     id: "4",
-    title: "Aksombo Dam & Shai Hills Tour",
+    title: "Aksombo Tour",
     location: "Aksombo, Ghana",
     image: aksomboImg,
     category: "Ghana",

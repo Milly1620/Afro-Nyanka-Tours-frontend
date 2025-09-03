@@ -149,49 +149,58 @@ export function Header() {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="lg:hidden absolute top-0  left-0 right-0 z-[1001]">
-            <button
+          <>
+            {/* Backdrop overlay */}
+            <div
+              className="lg:hidden fixed inset-0 bg-black/50 z-[9998]"
               onClick={() => setIsMenuOpen(false)}
-              className="absolute top-4 right-4"
-            >
-              <X className="h-6 w-6" />
-            </button>
-            <div className="bg-white shadow p-4 space-y-2 h-[100vh] pt-[50px]">
-              {navItems.map((item) => (
-                <button
-                  key={item.name}
-                  onClick={() =>
-                    item.name === "Book a tour"
-                      ? handleBookTour()
-                      : handleNavigation(item?.href || "")
-                  }
-                  className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-200 poppins-medium ${
-                    item.active
-                      ? "bg-[#FFA75D] text-white"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  {item.name}
-                </button>
-              ))}
-              <div className="pt-2 space-y-2">
-                <Button
-                  variant="outline"
-                  className="w-full border-orange-200 text-[#FFA75D] hover:bg-orange-50"
-                >
-                  <Phone className="h-4 w-4 mr-2" />
-                  Contact us
-                </Button>
-                <Button
-                  onClick={handleBookTour}
-                  className="w-full bg-[#FFA75D] hover:bg-[#FFA75D] text-white"
-                >
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Book a tour
-                </Button>
+            />
+
+            {/* Mobile menu */}
+            <div className="lg:hidden absolute top-0 left-0 right-0 z-[9999]">
+              <button
+                onClick={() => setIsMenuOpen(false)}
+                className="absolute top-4 right-4 z-[10000] bg-white rounded-full p-2 shadow-lg"
+              >
+                <X className="h-6 w-6 text-gray-700" />
+              </button>
+              <div className="bg-white shadow-xl p-4 space-y-2 h-[100vh] pt-[50px] border-l border-gray-200">
+                {navItems.map((item) => (
+                  <button
+                    key={item.name}
+                    onClick={() =>
+                      item.name === "Book a tour"
+                        ? handleBookTour()
+                        : handleNavigation(item?.href || "")
+                    }
+                    className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-200 poppins-medium ${
+                      item.active
+                        ? "bg-[#FFA75D] text-white"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    {item.name}
+                  </button>
+                ))}
+                <div className="pt-2 space-y-2">
+                  <Button
+                    variant="outline"
+                    className="w-full border-orange-200 text-[#FFA75D] hover:bg-orange-50"
+                  >
+                    <Phone className="h-4 w-4 mr-2" />
+                    Contact us
+                  </Button>
+                  <Button
+                    onClick={handleBookTour}
+                    className="w-full bg-[#FFA75D] hover:bg-[#FFA75D] text-white"
+                  >
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Book a tour
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
       </div>
     </header>
