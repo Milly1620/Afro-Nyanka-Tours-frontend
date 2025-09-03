@@ -24,8 +24,11 @@ export function HeroSection() {
           backgroundImage: `url(${currentImage})`,
         }}
       >
+        {/* Dark overlay for better text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60"></div>
+
         {/* Main Content */}
-        <div className="flex flex-col items-center justify-center text-white  ">
+        <div className="flex flex-col items-center justify-center text-white relative z-10">
           <div className="md:flex items-center justify-between mb-6 lg:w-[1204px]">
             <img src={frame1} alt="frame1" className="hidden md:block" />
             <h2 className="text-2xl md:text-4xl lg:text-5xl poppins-bold text-center">

@@ -84,8 +84,9 @@ export function AttractionsSection() {
     // Store in Redux
     dispatch(setSearchData(searchData));
 
-    // Navigate to booking page
+    // Navigate to booking page and scroll to top
     navigate("/booking");
+    window.scrollTo(0, 0);
   };
 
   return (
