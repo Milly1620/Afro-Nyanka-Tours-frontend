@@ -19,7 +19,7 @@ export function Footer() {
               <img src={footerLogo} alt="Afro Nyanka Tours" />
             </div>
             <p className="mb-6 leading-relaxed text-sm lg:text-base poppins-regular">
-              Discover the authentic beauty of West Africa with our expert
+              Discover the authentic beauty of Africa with our expert
               guided tours and personalized experiences.
             </p>
             <div className="flex space-x-3">

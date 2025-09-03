@@ -370,8 +370,8 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
               />
               <div className="flex items-center justify-center">
                 <div className="w-full p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="text-sm font-medium text-gray-700 mb-3">
-                    Tour Dates
+                  <p className="text-sm font-medium text-gray-700">
+                    Selected Tour Dates
                   </p>
                   <DatePicker
                     selected={startDate}
@@ -389,14 +389,9 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
                     open={isDatePickerOpen}
                     onInputClick={() => setIsDatePickerOpen(true)}
                     onClickOutside={() => setIsDatePickerOpen(false)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFA75D] focus:border-transparent outline-none"
+                    className="w-full py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFA75D] focus:border-transparent outline-none"
                     wrapperClassName="w-full"
                   />
-                  <p className="text-xs text-gray-500 mt-2">
-                    {startDate && endDate
-                      ? "Dates selected"
-                      : "Please select your tour dates"}
-                  </p>
                 </div>
               </div>
             </div>
