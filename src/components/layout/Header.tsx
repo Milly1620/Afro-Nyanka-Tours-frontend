@@ -58,7 +58,7 @@ export function Header() {
     <header
       className={`${
         isBookingPage
-          ? "relative bg-white shadow-md"
+          ? "bg-white shadow-md"
           : "absolute top-0 left-0 right-0 z-50"
       } pt-[31px]`}
     >
@@ -149,8 +149,14 @@ export function Header() {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="lg:hidden mt-4">
-            <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 space-y-2">
+          <div className="lg:hidden absolute top-0  left-0 right-0 z-[1001]">
+            <button
+              onClick={() => setIsMenuOpen(false)}
+              className="absolute top-4 right-4"
+            >
+              <X className="h-6 w-6" />
+            </button>
+            <div className="bg-white shadow p-4 space-y-2 h-[100vh] pt-[50px]">
               {navItems.map((item) => (
                 <button
                   key={item.name}
