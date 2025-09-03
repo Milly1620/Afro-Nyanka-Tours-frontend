@@ -148,16 +148,35 @@ export function ContactSection() {
     {
       icon: Mail,
       title: "Email",
-      content: "afronyankatours@gmail.com",
+      content: (
+        <a
+          href="mailto:afronyankatours@gmail.com"
+          className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
+        >
+          afronyankatours@gmail.com
+        </a>
+      ),
     },
     {
       icon: Phone,
       title: "Call Us",
       content: (
-        <div className="space-y-1">
-          <p>+233 548 665 634</p>
-          <p>+233 549 202 348</p>
-          <p>+233 262 251 826</p>
+        <div className="flex flex-col space-y-1">
+          <a
+            href="tel:+233548665634"
+            className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
+          >
+            <p>+233 548 665 634</p>
+          </a>
+          <a
+            href="tel:+233549202348"
+            className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
+          >
+            <p>+233 549 202 348</p>
+          </a>
+          <a href="tel:+233262251826">
+            <p>+233 262 251 826</p>
+          </a>
         </div>
       ),
     },
