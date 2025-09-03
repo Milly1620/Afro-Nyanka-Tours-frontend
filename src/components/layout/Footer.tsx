@@ -148,7 +148,10 @@ export function Footer() {
                   >
                     <p>+233 549 202 348</p>
                   </a>
-                  <a href="tel:+233262251826">
+                  <a
+                    href="tel:+233262251826"
+                    className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
+                  >
                     <p>+233 262 251 826</p>
                   </a>
                 </div>

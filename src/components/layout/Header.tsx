@@ -52,6 +52,8 @@ export function Header() {
   const handleBookTour = () => {
     navigate("/booking");
     setIsMenuOpen(false);
+    // Ensure we scroll to the top of the page
+    window.scrollTo(0, 0);
   };
 
   return (

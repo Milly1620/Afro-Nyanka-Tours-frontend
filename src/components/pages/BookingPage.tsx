@@ -20,6 +20,11 @@ export function BookingPage() {
   // Use search data if available, otherwise use default
   const bookingData = searchData || defaultSearchData;
 
+  // Ensure the page scrolls to the top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <>
       {/* Booking Hero Section */}

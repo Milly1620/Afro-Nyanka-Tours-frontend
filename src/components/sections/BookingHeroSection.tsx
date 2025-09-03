@@ -404,6 +404,7 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
               <Button
                 type="submit"
                 disabled={isSubmitting}
+                onClick={() => window.scrollTo(0, 0)}
                 className="bg-[#FFA75D] hover:bg-[#FFA75D] text-white px-8 py-3 rounded-xl font-semibold text-base transition-colors duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Calendar className="h-5 w-5 mr-2" />

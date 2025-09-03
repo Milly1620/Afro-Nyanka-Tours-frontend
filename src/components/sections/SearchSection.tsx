@@ -143,6 +143,7 @@ export function SearchSection() {
 
     // Navigate to booking page
     navigate("/booking");
+    window.scrollTo(0, 0);
   };
 
   // Single select dropdown
