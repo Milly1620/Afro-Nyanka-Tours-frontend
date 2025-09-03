@@ -19,8 +19,8 @@ export function Footer() {
               <img src={footerLogo} alt="Afro Nyanka Tours" />
             </div>
             <p className="mb-6 leading-relaxed text-sm lg:text-base poppins-regular">
-              Discover the authentic beauty of Africa with our expert
-              guided tours and personalized experiences.
+              Discover the authentic beauty of Africa with our expert guided
+              tours and personalized experiences.
             </p>
             <div className="flex space-x-3">
               <a
@@ -135,14 +135,23 @@ export function Footer() {
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="h-4 w-4 lg:h-5 lg:w-5 text-[#FFA75D] flex-shrink-0" />
-                <a
-                  href="tel:+233241234567"
-                  className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
-                >
-                  <p>+233 548 665 634</p>
-                  <p>+233 549 202 348</p>
-                  <p>+233 262 251 826</p>
-                </a>
+                <div className="flex flex-col space-y-1">
+                  <a
+                    href="tel:+233548665634"
+                    className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
+                  >
+                    <p>+233 548 665 634</p>
+                  </a>
+                  <a
+                    href="tel:+233549202348"
+                    className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
+                  >
+                    <p>+233 549 202 348</p>
+                  </a>
+                  <a href="tel:+233262251826">
+                    <p>+233 262 251 826</p>
+                  </a>
+                </div>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-4 w-4 lg:h-5 lg:w-5 text-[#FFA75D] flex-shrink-0" />
