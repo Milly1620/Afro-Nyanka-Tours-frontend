@@ -1,29 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "@/store";
+import { setSearchData, useAppDispatch } from "@/store";
 import { MapPin, Clock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { setSearchData } from "@/store";
+import { toursApi } from "@/services/api";
+import type { Tour } from "@/types/api";
 
-// Import attraction images
-import castleImg from "../../assets/cape-coast-castle-front-view.jpg";
-import blackstarsquareImg from "../../assets/independenceSquare.webp";
-import aburiImg from "../../assets/aburi-gardens.jpg";
-import akosomboImg from "../../assets/akosombo.webp";
+// Placeholder image for tours without images
+import placeholderImg from "../../assets/nature.webp";
 
 const AttractionCard = ({
-  attraction,
+  tour,
   onBookNow,
-}: AttractionCardProps & { onBookNow: (attraction: Attraction) => void }) => (
+}: {
+  tour: Tour;
+  onBookNow: (tour: Tour) => void;
+}) => (
   <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group">
     <div className="relative overflow-hidden">
       <img
-        src={attraction.image}
-        alt={attraction.title}
+        src={placeholderImg}
+        alt={tour.name}
         className={`w-full h-48 lg:h-[290px] group-hover:scale-105 transition-transform duration-300 ${
-          attraction.title === "Accra City Tour"
-            ? "object-cover"
-            : "object-cover"
+          "object-cover"
         }`}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -31,26 +30,25 @@ const AttractionCard = ({
 
     <div className="p-6">
       <h3 className="text-sm lg:text-[16.61px] poppins-semibold text-[#0D0D0C] mb-[7.3px] group-hover:text-[#FFA75D] transition-colors poppins-medium">
-        {attraction.title}
+        {tour.name}
       </h3>
 
       <div className="flex items-center text-[#6E7070] mb-2">
         <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
         <span className="text-[14.76px] poppins-regular">
-          {attraction.location}
+          {tour.country}
         </span>
       </div>
 
       <div className="flex items-center justify-between">
-        {/* TODO: Add duration */}
         <div className="flex items-center text-[#6E7070] mb-2">
           <Clock className="h-4 w-4 mr-2 flex-shrink-0" />
           <span className="text-[14.76px] poppins-regular">
-            {attraction.duration}
+            {`${tour.tour_locations?.length || 0} activities`}
           </span>
         </div>
         <Button
-          onClick={() => onBookNow(attraction)}
+          onClick={() => onBookNow(tour)}
           className="p-3 lg:px-4 lg:py-2  bg-transparent text-[#482B11] hover:text-[#FFA75D] poppins-medium text-sm transition-colors group border border-[#E1E4E5]  hover:bg-transparent cursor-pointer"
         >
           <span className="text-[14.76px] poppins-medium">Book Now</span>
@@ -62,29 +60,61 @@ const AttractionCard = ({
 );
 
 export function AttractionsSection() {
-  const [activeCategory, setActiveCategory] = useState("Ghana");
+  const [countries, setCountries] = useState<string[]>([]);
+  const [activeCountry, setActiveCountry] = useState<string>("Ghana");
+  const [tours, setTours] = useState<Tour[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const filteredAttractions = attractions.filter(
-    (attraction) => attraction.category === activeCategory
-  );
+  // Fetch countries (tabs)
+  useEffect(() => {
+    (async () => {
+      try {
+        const c = await toursApi.getCountries();
+        const sorted = [...c].sort((a, b) => {
+          if (a === "Ghana") return -1;
+          if (b === "Ghana") return 1;
+          return a.localeCompare(b);
+        });
+        setCountries(sorted);
+        if (sorted.length && !sorted.includes(activeCountry)) {
+          setActiveCountry(sorted[0]);
+        }
+      } catch (e) {
+        setCountries(["Ghana"]);
+      }
+    })();
+  }, []);
 
-  const handleBookNow = (attraction: Attraction) => {
-    // Create search data from the attraction
+  // Fetch tours for active country
+  useEffect(() => {
+    if (!activeCountry) return;
+    setIsLoading(true);
+    (async () => {
+      try {
+        const t = await toursApi.getToursByCountry(activeCountry);
+        setTours(t);
+      } catch (e) {
+        setTours([]);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, [activeCountry]);
+
+  const handleBookNow = (tour: Tour) => {
+    // Pre-fill booking: country, destination, activities, and tours list
+    const activities = tour.tour_locations?.map((tl) => tl.location.name) || [];
     const searchData = {
-      country: attraction.category,
-      destinations: [attraction.title],
-      activities: [], // Will be populated based on destinations
+      country: tour.country,
+      destinations: [tour.name],
+      activities,
       startDate: null,
       endDate: null,
-      toursData: [], // Will be populated when we have the actual tour data
+      toursData: tours, // provide all tours for the country so Booking page has context
     };
-
-    // Store in Redux
     dispatch(setSearchData(searchData));
-
-    // Navigate to booking page and scroll to top
     navigate("/booking");
     window.scrollTo(0, 0);
   };
@@ -101,88 +131,33 @@ export function AttractionsSection() {
           </p>
         </div>
 
-        {/* Category Tabs */}
+        {/* Country Tabs (from API) */}
         <div className="flex flex-wrap gap-3 lg:gap-4 mb-5 lg:mb-10">
-          {categories.map((category) => (
+          {countries.map((country) => (
             <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
+              key={country}
+              onClick={() => setActiveCountry(country)}
               className={`p-3 lg:px-4 lg:py-2 text-sm md:text-base lg:text-base font-medium transition-all duration-200 rounded-xl poppins-medium ${
-                activeCategory === category
+                activeCountry === country
                   ? "bg-[#101010A1] text-white"
                   : "bg-white text-[#482B11] "
-              }`}
+              } cursor-pointer`}
             >
-              {category}
+              {country}
             </button>
           ))}
         </div>
 
-        {/* Attractions Grid */}
+        {/* Tours Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-7.5 mb-5 lg:mb-6">
-          {filteredAttractions.map((attraction) => (
-            <AttractionCard
-              key={attraction.id}
-              attraction={attraction}
-              onBookNow={handleBookNow}
-            />
+          {(!isLoading && tours.length === 0) && (
+            <div className="col-span-full text-center text-gray-500">No tours available</div>
+          )}
+          {tours.map((tour) => (
+            <AttractionCard key={tour.id} tour={tour} onBookNow={handleBookNow} />
           ))}
         </div>
       </div>
     </section>
   );
 }
-interface Attraction {
-  id: string;
-  title: string;
-  location: string;
-  image: string;
-  category: string;
-  slug: string;
-  duration: string;
-}
-
-interface AttractionCardProps {
-  attraction: Attraction;
-}
-
-const attractions: Attraction[] = [
-  {
-    id: "1",
-    title: "Cape Coast Tour",
-    location: "Cape Coast, Ghana",
-    image: castleImg,
-    category: "Ghana",
-    slug: "cape-coast-castle",
-    duration: "10-11 hours",
-  },
-  {
-    id: "2",
-    title: "Accra City Tour",
-    location: "Accra, Ghana",
-    image: blackstarsquareImg,
-    category: "Ghana",
-    slug: "independence-square",
-    duration: "6 hours",
-  },
-  {
-    id: "3",
-    title: "Aburi Tour",
-    location: "Aburi, Ghana",
-    image: aburiImg,
-    category: "Ghana",
-    slug: "aburi-botanical-gardens",
-    duration: "8 hours",
-  },
-  {
-    id: "4",
-    title: "Akosombo Tour",
-    location: "Akosombo, Ghana",
-    image: akosomboImg,
-    category: "Ghana",
-    slug: "aksombo-and-shai-hills",
-    duration: "8 hours",
-  },
-];
-
-const categories = ["Ghana", "Côte d'Ivoire", "Togo", "Burkina Faso"];
