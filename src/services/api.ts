@@ -28,6 +28,16 @@ export const toursApi = {
       return [];
     }
   },
+
+  createBooking: async (booking: any): Promise<any> => {
+    try {
+      const response = await api.post(`/api/bookings/`, booking);
+      return response.data;
+    } catch (error) {
+      console.error("Error creating booking:", error);
+      throw error;
+    }
+  },
 };
 
 export default api;

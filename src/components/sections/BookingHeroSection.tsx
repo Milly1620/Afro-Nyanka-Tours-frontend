@@ -3,13 +3,12 @@ import frame2 from "../../assets/agyindawuruwhite.svg";
 import frame3 from "../../assets/nyamewhite.svg";
 import frame4 from "../../assets/spiralwhite.svg";
 import { useState, useEffect } from "react";
-import { Calendar, ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
 import { Tour } from "@/types/api";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { BookingForm } from "./BookingForm";
+import { BookingSummary } from "./BookingSummary";
+import { Congratulations } from "./Congratulations";
+import { useNavigate } from "react-router-dom";
+import { toursApi } from "@/services/api";
 
 interface SearchData {
   country: string;
@@ -21,6 +20,10 @@ interface SearchData {
 }
 
 interface BookingForm {
+  selectedCountry: string;
+  selectedDestinations: string[];
+  startDate: Date | null;
+  endDate: Date | null;
   name: string;
   email: string;
   age: string;
@@ -29,120 +32,9 @@ interface BookingForm {
   numberOfPersons: string;
 }
 
-interface FormFieldProps {
-  label: string;
-  name: keyof BookingForm;
-  type?: string;
-  placeholder: string;
-  required?: boolean;
-  validation?: object;
-  errors: any;
-  register: any;
-  rows?: number;
-  options?: string[];
-}
-
 interface BookingHeroSectionProps {
   searchData: SearchData;
 }
-
-const FormField = ({
-  label,
-  name,
-  type = "text",
-  placeholder,
-  required = false,
-  validation = {},
-  errors,
-  register,
-  rows,
-  options,
-}: FormFieldProps) => {
-  const [openDropdown, setOpenDropdown] = useState(false);
-
-  const inputClasses =
-    "w-full px-4 py-3 lg:py-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#FFA75D] placeholder:text-[#ADADAD] focus:border-transparent outline-none transition-colors";
-
-  const validationRules = {
-    ...(required && { required: `${label} is required` }),
-    ...validation,
-  };
-
-  if (options) {
-    return (
-      <div className="relative">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          {label}
-        </label>
-        <button
-          type="button"
-          onClick={() => setOpenDropdown(!openDropdown)}
-          className="w-full h-12 px-4 bg-white border border-gray-300 rounded-lg flex items-center justify-between hover:border-gray-400 focus:outline-none focus:border-[#FFA75D] focus:ring-2 focus:ring-orange-100"
-        >
-          <span className="text-sm text-gray-900">
-            {register(name).value || placeholder}
-          </span>
-          <ChevronDown
-            className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${
-              openDropdown ? "rotate-180" : ""
-            }`}
-          />
-        </button>
-
-        {openDropdown && (
-          <div className="absolute top-20 left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
-            {options.map((option, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => {
-                  register(name).onChange({ target: { value: option } });
-                  setOpenDropdown(false);
-                }}
-                className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-orange-50 hover:text-[#FFA75D] transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg"
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-        )}
-        {errors[name] && (
-          <p className="text-sm text-red-600 mt-1 poppins-regular">
-            {errors[name].message}
-          </p>
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        {label}
-      </label>
-      {rows ? (
-        <textarea
-          {...register(name, validationRules)}
-          rows={rows}
-          placeholder={placeholder}
-          className={`${inputClasses} resize-none`}
-        />
-      ) : (
-        <Input
-          {...register(name, validationRules)}
-          type={type}
-          placeholder={placeholder}
-          className={inputClasses}
-        />
-      )}
-      {errors[name] && (
-        <p className="text-sm text-red-600 mt-1 poppins-regular">
-          {errors[name].message}
-        </p>
-      )}
-    </div>
-  );
-};
 
 export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -150,39 +42,90 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
     type: "success" | "error" | null;
     message: string;
   }>({ type: null, message: "" });
-  const [startDate, setStartDate] = useState<Date | null>(searchData.startDate);
-  const [endDate, setEndDate] = useState<Date | null>(searchData.endDate);
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const [formData, setFormData] = useState<BookingForm | null>(null);
+  const [showCongratulations, setShowCongratulations] = useState(false);
+  const navigate = useNavigate();
+  // Data for activities computation
+  const [toursData, setToursData] = useState<Tour[]>([]);
+  const [activities, setActivities] = useState<string[]>([]);
 
-  // Update dates when searchData changes
+  // Seed initial data from searchData
   useEffect(() => {
-    setStartDate(searchData.startDate);
-    setEndDate(searchData.endDate);
-  }, [searchData.startDate, searchData.endDate]);
+    if (searchData.toursData && searchData.toursData.length > 0) {
+      setToursData(searchData.toursData);
+    }
+  }, [searchData.toursData]);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<BookingForm>();
+  // Compute activities based on selected destinations
+  useEffect(() => {
+    if (
+      !formData?.selectedDestinations ||
+      formData.selectedDestinations.length === 0 ||
+      toursData.length === 0
+    ) {
+      setActivities([]);
+      return;
+    }
+
+    const selectedTours = toursData.filter((tour) =>
+      formData.selectedDestinations.includes(tour.name)
+    );
+
+    const allActivities = selectedTours.flatMap((tour) =>
+      tour.tour_locations.map((tl) => tl.location.name)
+    );
+
+    const uniqueActivities = [...new Set(allActivities)];
+    setActivities(uniqueActivities);
+  }, [formData?.selectedDestinations, toursData]);
 
   const onSubmit = async (data: BookingForm) => {
+    // Ensure we have toursData for the selected country
+    let availableTours = toursData;
+    if (!availableTours || availableTours.length === 0) {
+      try {
+        availableTours = await toursApi.getToursByCountry(data.selectedCountry);
+        setToursData(availableTours);
+      } catch (e) {
+        availableTours = [];
+      }
+    }
+
+    // Compute activities from selected destinations against availableTours
+    if (data.selectedDestinations?.length && availableTours?.length) {
+      const selectedTours = availableTours.filter((t) =>
+        data.selectedDestinations.includes(t.name)
+      );
+      const allActivities = selectedTours.flatMap((tour) =>
+        tour.tour_locations.map((tl) => tl.location.name)
+      );
+      const unique = [...new Set(allActivities)];
+      setActivities(unique);
+    } else {
+      setActivities([]);
+    }
+
+    setFormData(data);
+    setShowSummaryModal(true);
+  };
+
+  const handleCompleteBooking = async () => {
+    if (!formData) return;
+
     setIsSubmitting(true);
     setSubmitStatus({ type: null, message: "" });
 
     try {
       // Map the form data to the API structure
-      const tourSelections = searchData.destinations
+      const tourSelections = formData.selectedDestinations
         .map((destination, index) => {
           // Find the tour by name to get the tour_id
-          const tour = searchData.toursData.find(
-            (t: Tour) => t.name === destination
-          );
+          const tour = toursData.find((t: Tour) => t.name === destination);
           if (!tour) return null;
 
           // Get the location IDs for the selected activities
-          const locationIds = searchData.activities
+          const locationIds = activities
             .filter((activity) => {
               // Check if this activity belongs to this tour
               return tour.tour_locations.some(
@@ -206,39 +149,21 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
         .filter(Boolean);
 
       const payload = {
-        customer_name: data.name,
-        customer_email: data.email,
-        customer_age: parseInt(data.age),
-        customer_country: data.country,
-        number_of_people: parseInt(data.numberOfPersons),
-        preferred_date: startDate?.toISOString() || new Date().toISOString(),
-        additional_services: data.additionalServices || "",
+        customer_name: formData.name,
+        customer_email: formData.email,
+        customer_age: parseInt(formData.age),
+        customer_country: formData.country,
+        number_of_people: parseInt(formData.numberOfPersons),
+        start_date: formData.startDate?.toISOString() || null,
+        end_date: formData.endDate?.toISOString() || null,
+        additional_services: formData.additionalServices || "",
         tour_selections: tourSelections,
       };
 
-      const response = await fetch("/api/bookings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      await toursApi.createBooking(payload);
 
-      if (response.ok) {
-        setSubmitStatus({
-          type: "success",
-          message:
-            "Booking submitted successfully! We'll confirm your tour details soon.",
-        });
-        reset();
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        setSubmitStatus({
-          type: "error",
-          message:
-            errorData.message || "Failed to submit booking. Please try again.",
-        });
-      }
+      setShowSummaryModal(false);
+      setShowCongratulations(true);
     } catch (error) {
       console.error("Error submitting booking:", error);
       setSubmitStatus({
@@ -249,54 +174,6 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
       setIsSubmitting(false);
     }
   };
-
-  const formFields = [
-    {
-      label: "Name",
-      name: "name" as keyof BookingForm,
-      placeholder: "Enter your name",
-      required: true,
-    },
-    {
-      label: "Email",
-      name: "email" as keyof BookingForm,
-      type: "email",
-      placeholder: "Enter your email",
-      required: true,
-      validation: {
-        pattern: {
-          value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-          message: "Invalid email address",
-        },
-      },
-    },
-    {
-      label: "Age",
-      name: "age" as keyof BookingForm,
-      type: "number",
-      placeholder: "Enter your age",
-      required: true,
-    },
-    {
-      label: "Country of origin",
-      name: "country" as keyof BookingForm,
-      placeholder: "Enter your country",
-      required: true,
-    },
-    {
-      label: "Number of Persons",
-      name: "numberOfPersons" as keyof BookingForm,
-      type: "number",
-      placeholder: "Enter number of Persons",
-      required: true,
-    },
-    {
-      label: "Additional services",
-      name: "additionalServices" as keyof BookingForm,
-      placeholder: "Write your message",
-      rows: 6,
-    },
-  ];
 
   return (
     <section className="h-[400px] lg:h-[450px] flex flex-col justify-center overflow-hidden bg-black/40 bg-[url('/src/assets/heromain.svg')] bg-cover bg-no-repeat bg-blend-multiply mb-[870px] md:mb-[582.19px]">
@@ -318,101 +195,30 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
         </div>
       </div>
 
-      <div className="absolute top-[392px] md:top-[322px] lg:top-[352px] left-0 right-0 z-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          {submitStatus.type && (
-            <div
-              className={`mb-6 p-4 rounded-lg ${
-                submitStatus.type === "success"
-                  ? "bg-green-50 border border-green-200 text-green-800"
-                  : "bg-red-50 border border-red-200 text-red-800"
-              }`}
-            >
-              <p className="text-sm font-medium">{submitStatus.message}</p>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Name and Email Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                {...formFields[0]}
-                errors={errors}
-                register={register}
-              />
-              <FormField
-                {...formFields[1]}
-                errors={errors}
-                register={register}
-              />
-            </div>
-
-            {/* Age and Country Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                {...formFields[2]}
-                errors={errors}
-                register={register}
-              />
-              <FormField
-                {...formFields[3]}
-                errors={errors}
-                register={register}
-              />
-            </div>
-
-            {/* Number of Persons */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                {...formFields[4]}
-                errors={errors}
-                register={register}
-              />
-              <div className="flex items-center justify-center">
-                <div className="w-full p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="text-sm font-medium text-gray-700">
-                    Selected Tour Dates
-                  </p>
-                  <DatePicker
-                    selected={startDate}
-                    onChange={(dates: [Date | null, Date | null]) => {
-                      const [start, end] = dates;
-                      setStartDate(start);
-                      setEndDate(end);
-                    }}
-                    startDate={startDate}
-                    endDate={endDate}
-                    selectsRange
-                    placeholderText="Select tour dates"
-                    dateFormat="MMM dd, yyyy"
-                    minDate={new Date()}
-                    open={isDatePickerOpen}
-                    onInputClick={() => setIsDatePickerOpen(true)}
-                    onClickOutside={() => setIsDatePickerOpen(false)}
-                    className="w-full py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFA75D] focus:border-transparent outline-none"
-                    wrapperClassName="w-full"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Additional Services */}
-            <FormField {...formFields[5]} errors={errors} register={register} />
-
-            {/* Submit Button */}
-            <div className="flex justify-end">
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                onClick={() => window.scrollTo(0, 0)}
-                className="bg-[#FFA75D] hover:bg-[#FFA75D] text-white px-8 py-3 rounded-xl font-semibold text-base transition-colors duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Calendar className="h-5 w-5 mr-2" />
-                {isSubmitting ? "Submitting..." : "Book now"}
-              </Button>
-            </div>
-          </form>
-        </div>
+      <div className="absolute top-[392px] md:top-[322px] lg:top-[452px] left-0 right-0 z-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {!showSummaryModal && !showCongratulations ? (
+          <BookingForm
+            searchData={searchData}
+            onSubmit={onSubmit}
+            isSubmitting={isSubmitting}
+            initialFormData={formData}
+          />
+        ) : showSummaryModal ? (
+          <BookingSummary
+            formData={formData!}
+            activities={activities}
+            onBack={() => setShowSummaryModal(false)}
+            onCompleteBooking={handleCompleteBooking}
+            isSubmitting={isSubmitting}
+          />
+        ) : showCongratulations ? (
+          <Congratulations
+            onDone={() => {
+              // Navigate first to avoid briefly rendering the form again
+              navigate("/", { replace: true });
+            }}
+          />
+        ) : null}
       </div>
     </section>
   );
