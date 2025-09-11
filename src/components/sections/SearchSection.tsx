@@ -62,7 +62,12 @@ export function SearchSection() {
     setIsLoading(true);
     try {
       const countriesData = await toursApi.getCountries();
-      setCountries(countriesData);
+      const ghanaFirst = [...countriesData].sort((a, b) => {
+        if (a === "Ghana") return -1;
+        if (b === "Ghana") return 1;
+        return a.localeCompare(b);
+      });
+      setCountries(ghanaFirst);
     } catch (error) {
       console.error("Error fetching countries:", error);
       setCountries([]);
@@ -87,7 +92,7 @@ export function SearchSection() {
   // Extract destinations (tour names) for selected country
   const destinations = useMemo(() => {
     if (searchData.country === "Country") return [];
-    return toursData.map((tour) => tour.name);
+    return toursData.sort((a, b) => a.name.localeCompare(b.name)).map((tour) => tour.name);
   }, [toursData, searchData.country]);
 
   // Extract activities (tour locations) for selected destinations
