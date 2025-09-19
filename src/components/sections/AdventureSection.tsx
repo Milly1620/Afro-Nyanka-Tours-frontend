@@ -1,5 +1,5 @@
 import { Check } from "lucide-react";
-import jumpSvg from "../../assets/jump.svg";
+import adowa from "../../assets/heromain.svg";
 import kwamenkrumahSvg from "../../assets/kwamenkrumah.svg";
 import elephantSvg from "../../assets/elephant.svg";
 
@@ -44,7 +44,7 @@ export function AdventureSection() {
             {/* Large Image - Left Side */}
             <div className="h-full">
               <img
-                src={jumpSvg}
+                src={adowa}
                 alt="Cultural Experience - Traditional African Community"
                 className="w-full h-full object-cover rounded-2xl shadow-lg"
               />
