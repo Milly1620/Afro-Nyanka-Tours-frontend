@@ -24,6 +24,7 @@ export interface Tour {
   created_at: string;
   updated_at: string | null;
   tour_locations: TourLocation[];
+  main_image_url: string;
 }
 
 export interface ApiResponse {

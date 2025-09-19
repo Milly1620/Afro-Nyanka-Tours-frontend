@@ -416,7 +416,7 @@ export function BookingForm({
 
       setIsLoadingTours(true);
       try {
-        const tours = await toursApi.getToursByCountry(selectedCountry);
+        const tours = await toursApi.getToursByCountry(selectedCountry, false);
         setToursData(tours);
         setDestinations(tours.sort((a, b) => a.name.localeCompare(b.name)).map((tour) => tour.name));
       } catch (error) {

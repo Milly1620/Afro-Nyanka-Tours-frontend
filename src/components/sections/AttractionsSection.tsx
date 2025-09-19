@@ -6,8 +6,6 @@ import { Button } from "@/components/ui/button";
 import { toursApi } from "@/services/api";
 import type { Tour } from "@/types/api";
 
-// Placeholder image for tours without images
-import placeholderImg from "../../assets/nature.webp";
 
 const AttractionCard = ({
   tour,
@@ -19,7 +17,7 @@ const AttractionCard = ({
   <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group">
     <div className="relative overflow-hidden">
       <img
-        src={placeholderImg}
+        src={tour.main_image_url}
         alt={tour.name}
         className={`w-full h-48 lg:h-[290px] group-hover:scale-105 transition-transform duration-300 ${
           "object-cover"

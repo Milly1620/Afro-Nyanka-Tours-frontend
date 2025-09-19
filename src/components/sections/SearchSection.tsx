@@ -79,7 +79,7 @@ export function SearchSection() {
   const fetchToursData = async (country: string) => {
     setIsLoading(true);
     try {
-      const tours = await toursApi.getToursByCountry(country);
+      const tours = await toursApi.getToursByCountry(country, false);
       setToursData(tours);
     } catch (error) {
       console.error("Error fetching tours:", error);

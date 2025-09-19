@@ -19,9 +19,11 @@ export const toursApi = {
     }
   },
 
-  getToursByCountry: async (country: string): Promise<Tour[]> => {
+  getToursByCountry: async (country: string, is_popular: boolean = true): Promise<Tour[]> => {
     try {
-      const response = await api.get(`/api/tours/country/${country}`);
+      const response = await api.get(
+        `/api/tours/country/${country}?is_popular=${is_popular}`
+      );
       return response.data;
     } catch (error) {
       console.error("Error fetching tours:", error);
