@@ -85,7 +85,7 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
     let availableTours = toursData;
     if (!availableTours || availableTours.length === 0) {
       try {
-        availableTours = await toursApi.getToursByCountry(data.selectedCountry);
+        availableTours = await toursApi.getToursByCountry(data.selectedCountry, false);
         setToursData(availableTours);
       } catch (e) {
         availableTours = [];
