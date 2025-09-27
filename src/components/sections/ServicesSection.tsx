@@ -6,6 +6,7 @@ import flight from "../../assets/flight.webp";
 import event from "../../assets/event.webp";
 import airport from "../../assets/airport.webp";
 import drone from "../../assets/drone.webp";
+import planning from "../../assets/planningandpackages.webp";
 
 const ServiceCard = ({ service, className = "" }: ServiceCardProps) => (
   <div
@@ -53,16 +54,17 @@ export function ServicesSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-9">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-9 mb-6">
           <div className="flex flex-col gap-6 lg:gap-9">
             <ServiceCard service={services[0]} className="h-64 lg:h-80" />
             <ServiceCard service={services[1]} className="h-64 lg:h-80" />
           </div>
 
-          <div className="flex flex-col gap-6 lg:gap-9">
-            <ServiceCard service={services[2]} className="h-64 lg:h-80 " />
-            <ServiceCard service={services[3]} className="h-64 lg:h-80" />
-          </div>
+          <ServiceCard service={services[4]} className="h-64 lg:h-full" />
+        </div>
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-9">
+          <ServiceCard service={services[2]} className="h-64 lg:h-80 " />
+          <ServiceCard service={services[3]} className="h-64 lg:h-80" />
         </div>
       </div>
     </section>
@@ -113,5 +115,12 @@ const services: Service[] = [
     description:
       "Capture every magical moment from breathtaking angles. Our professional drone and photography services ensure your travels are remembered in cinematic style.",
     image: drone,
+  },
+  {
+    id: "5",
+    title: "Tour Planning and Packages",
+    description:
+      "Let us take the stress out of planning your dream trip! Our expert team crafts personalized tour packages tailored to your interests, budget, and preferences.",
+    image: planning,
   },
 ];
