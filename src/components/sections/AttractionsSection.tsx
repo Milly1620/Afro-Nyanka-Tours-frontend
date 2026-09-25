@@ -5,6 +5,7 @@ import { MapPin, Clock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toursApi } from "@/services/api";
 import type { Tour } from "@/types/api";
+import { getFallbackTours } from "@/data/fallbackTours";
 
 
 const AttractionCard = ({
@@ -92,9 +93,9 @@ export function AttractionsSection() {
     (async () => {
       try {
         const t = await toursApi.getToursByCountry(activeCountry);
-        setTours(t);
+        setTours(t.length ? t : getFallbackTours(activeCountry));
       } catch (e) {
-        setTours([]);
+        setTours(getFallbackTours(activeCountry));
       } finally {
         setIsLoading(false);
       }
