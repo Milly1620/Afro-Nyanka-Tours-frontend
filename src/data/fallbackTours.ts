@@ -1,5 +1,6 @@
 import beninImage from "@/assets/benin.jpeg";
 import togoImage from "@/assets/togo.jpeg";
+import burkinaImage from "@/assets/burkina.jpeg";
 import type { Tour, TourLocation } from "@/types/api";
 
 const CREATED_AT = "2026-09-25T00:00:00Z";
@@ -61,12 +62,29 @@ const TOGO_PLACES = [
   "Sacred Heart Cathedral",
 ];
 
+const BURKINA_FASO_PLACES = [
+  "Independence Monument",
+  "Thomas Sankara Mausoleum",
+  "Ouagadougou National Museum",
+  "Ouagadougou Cathedral",
+  "Woko Grand Marché",
+];
+
 export const FALLBACK_TOURS: Record<string, Tour[]> = {
   Benin: [
     buildTour(-1, "Cotonou City Tour", "Benin", beninImage, BENIN_PLACES),
   ],
   Togo: [
     buildTour(-2, "Lomé City Tour", "Togo", togoImage, TOGO_PLACES),
+  ],
+  "Burkina Faso": [
+    buildTour(
+      -3,
+      "Ouagadougou City Tour",
+      "Burkina Faso",
+      burkinaImage,
+      BURKINA_FASO_PLACES
+    ),
   ],
 };
 
