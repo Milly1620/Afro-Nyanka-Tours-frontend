@@ -45,15 +45,20 @@ const buildTour = (
   tour_locations: buildLocations(id, country, locations),
 });
 
+const BENIN_PLACES = [
+  "Amazon Statue",
+  "Ganvie Stilt Village",
+  "Ouidah Python Temple",
+  "Ouidah Door of No Return",
+  "The Sacred Forest of Kpassè",
+];
+
 export const FALLBACK_TOURS: Record<string, Tour[]> = {
   Benin: [
-    buildTour(-1, "Cotonou City Tour", "Benin", beninImage, [
-      "Amazon Statue",
-      "Ganvie Stilt Village",
-      "Ouidah Python Temple",
-      "Ouidah Door of No Return",
-      "The Sacred Forest of Kpassè",
-    ]),
+    buildTour(-1, "Cotonou City Tour", "Benin", beninImage, BENIN_PLACES),
+    ...BENIN_PLACES.map((place, index) =>
+      buildTour(-(index + 11), place, "Benin", beninImage, [place])
+    ),
   ],
   Togo: [
     buildTour(-2, "Lomé City Tour", "Togo", togoImage, [

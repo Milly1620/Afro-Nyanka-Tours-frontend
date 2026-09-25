@@ -43,7 +43,9 @@ const AttractionCard = ({
         <div className="flex items-center text-[#6E7070] mb-2">
           <Clock className="h-4 w-4 mr-2 flex-shrink-0" />
           <span className="text-[14.76px] poppins-regular">
-            {`${tour.tour_locations?.length || 0} activities`}
+            {`${tour.tour_locations?.length || 0} ${
+              tour.tour_locations?.length === 1 ? "activity" : "activities"
+            }`}
           </span>
         </div>
         <Button
