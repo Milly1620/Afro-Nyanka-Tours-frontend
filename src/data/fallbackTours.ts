@@ -64,15 +64,9 @@ const TOGO_PLACES = [
 export const FALLBACK_TOURS: Record<string, Tour[]> = {
   Benin: [
     buildTour(-1, "Cotonou City Tour", "Benin", beninImage, BENIN_PLACES),
-    ...BENIN_PLACES.map((place, index) =>
-      buildTour(-(index + 11), place, "Benin", beninImage, [place])
-    ),
   ],
   Togo: [
     buildTour(-2, "Lomé City Tour", "Togo", togoImage, TOGO_PLACES),
-    ...TOGO_PLACES.map((place, index) =>
-      buildTour(-(index + 21), place, "Togo", togoImage, [place])
-    ),
   ],
 };
 
