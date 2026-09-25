@@ -53,6 +53,14 @@ const BENIN_PLACES = [
   "The Sacred Forest of Kpassè",
 ];
 
+const TOGO_PLACES = [
+  "Palais de Lomé",
+  "Lomé Grand Marché",
+  "Independence Monument",
+  "Akodessewa Fetish Market",
+  "Sacred Heart Cathedral",
+];
+
 export const FALLBACK_TOURS: Record<string, Tour[]> = {
   Benin: [
     buildTour(-1, "Cotonou City Tour", "Benin", beninImage, BENIN_PLACES),
@@ -61,13 +69,10 @@ export const FALLBACK_TOURS: Record<string, Tour[]> = {
     ),
   ],
   Togo: [
-    buildTour(-2, "Lomé City Tour", "Togo", togoImage, [
-      "Palais de Lomé",
-      "Lomé Grand Marché",
-      "Independence Monument",
-      "Akodessewa Fetish Market",
-      "Sacred Heart Cathedral",
-    ]),
+    buildTour(-2, "Lomé City Tour", "Togo", togoImage, TOGO_PLACES),
+    ...TOGO_PLACES.map((place, index) =>
+      buildTour(-(index + 21), place, "Togo", togoImage, [place])
+    ),
   ],
 };
 
