@@ -162,7 +162,7 @@ export function Footer() {
                   href="mailto:afronyankatours@gmail.com"
                   className="text-sm lg:text-base poppins-regular break-all hover:text-[#FFA75D] transition-colors"
                 >
-                  afronyankatours@gmail.com
+                  info@afronyankatours.com{" "}
                 </a>
               </div>
             </div>

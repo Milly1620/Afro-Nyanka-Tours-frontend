@@ -5,6 +5,7 @@ import { MapPin, Clock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toursApi } from "@/services/api";
 import type { Tour } from "@/types/api";
+import { getFallbackTours } from "@/data/fallbackTours";
 
 
 const AttractionCard = ({
@@ -42,7 +43,9 @@ const AttractionCard = ({
         <div className="flex items-center text-[#6E7070] mb-2">
           <Clock className="h-4 w-4 mr-2 flex-shrink-0" />
           <span className="text-[14.76px] poppins-regular">
-            {`${tour.tour_locations?.length || 0} activities`}
+            {`${tour.tour_locations?.length || 0} ${
+              tour.tour_locations?.length === 1 ? "activity" : "activities"
+            }`}
           </span>
         </div>
         <Button
@@ -92,9 +95,9 @@ export function AttractionsSection() {
     (async () => {
       try {
         const t = await toursApi.getToursByCountry(activeCountry);
-        setTours(t);
+        setTours(t.length ? t : getFallbackTours(activeCountry));
       } catch (e) {
-        setTours([]);
+        setTours(getFallbackTours(activeCountry));
       } finally {
         setIsLoading(false);
       }
