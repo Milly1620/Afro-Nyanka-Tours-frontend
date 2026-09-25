@@ -4,6 +4,18 @@ import { Mail, Phone, Clock, LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ContactForm } from "@/types";
+import { contactApi } from "@/services/api";
+import { isAxiosError } from "axios";
+
+const getContactErrorMessage = (error: unknown): string => {
+  if (!isAxiosError(error) || !error.response) {
+    return "Network error. Please check your connection and try again.";
+  }
+  const detail = error.response.data?.detail;
+  return typeof detail === "string"
+    ? detail
+    : "Failed to send message. Please try again.";
+};
 
 interface ContactCardProps {
   icon: LucideIcon;
@@ -104,40 +116,24 @@ export function ContactSection() {
     setSubmitStatus({ type: null, message: "" });
 
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: data.name,
-          email: data.email,
-          phone: data.phone,
-          subject: data.subject,
-          message: data.message,
-        }),
+      await contactApi.sendMessage({
+        name: data.name,
+        email: data.email,
+        subject: data.subject ?? "",
+        message: data.phone
+          ? `${data.message}\n\nPhone: ${data.phone}`
+          : data.message,
       });
-
-      if (response.ok) {
-        setSubmitStatus({
-          type: "success",
-          message:
-            "Thank you! Your message has been sent successfully. We'll get back to you soon.",
-        });
-        reset();
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        setSubmitStatus({
-          type: "error",
-          message:
-            errorData.message || "Failed to send message. Please try again.",
-        });
-      }
+      setSubmitStatus({
+        type: "success",
+        message:
+          "Thank you! Your message has been sent successfully. We'll get back to you soon.",
+      });
+      reset();
     } catch (error) {
-      console.error("Error submitting form:", error);
       setSubmitStatus({
         type: "error",
-        message: "Network error. Please check your connection and try again.",
+        message: getContactErrorMessage(error),
       });
     } finally {
       setIsSubmitting(false);

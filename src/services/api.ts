@@ -42,4 +42,23 @@ export const toursApi = {
   },
 };
 
+export interface ContactPayload {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
+export const contactApi = {
+  sendMessage: async (payload: ContactPayload): Promise<any> => {
+    try {
+      const response = await api.post(`/api/contact/`, payload);
+      return response.data;
+    } catch (error) {
+      console.error("Error sending contact message:", error);
+      throw error;
+    }
+  },
+};
+
 export default api;
