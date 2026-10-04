@@ -4,8 +4,9 @@ import { Footer } from "./components/layout/Footer";
 import { BookingPage } from "./components/pages/BookingPage";
 import { HomePage } from "./components/pages/HomePage";
 import { CarouselProvider } from "./components/sections/CarouselContext";
+import { AdminRoutes } from "./components/admin/AdminRoutes";
 
-function App() {
+function PublicSite() {
   const location = useLocation();
   const isBookingPage = location.pathname === "/booking";
 
@@ -22,6 +23,15 @@ function App() {
         <Footer />
       </div>
     </CarouselProvider>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/admin/*" element={<AdminRoutes />} />
+      <Route path="/*" element={<PublicSite />} />
+    </Routes>
   );
 }
 

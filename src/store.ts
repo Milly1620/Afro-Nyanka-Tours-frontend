@@ -1,6 +1,7 @@
 import { configureStore, createSlice } from "@reduxjs/toolkit";
 import { useDispatch, useSelector, TypedUseSelectorHook } from "react-redux";
 import { Tour } from "@/types/api";
+import adminReducer from "@/adminSlice";
 
 interface SearchData {
   country: string;
@@ -37,6 +38,7 @@ export const { setSearchData, clearSearchData } = bookingSlice.actions;
 const store = configureStore({
   reducer: {
     booking: bookingSlice.reducer,
+    admin: adminReducer,
   },
 });
 
