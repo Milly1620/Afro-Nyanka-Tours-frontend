@@ -2,6 +2,7 @@ import { configureStore, createSlice } from "@reduxjs/toolkit";
 import { useDispatch, useSelector, TypedUseSelectorHook } from "react-redux";
 import { Tour } from "@/types/api";
 import adminReducer from "@/adminSlice";
+import { saveAdminSession } from "@/lib/adminSession";
 
 interface SearchData {
   country: string;
@@ -41,6 +42,8 @@ const store = configureStore({
     admin: adminReducer,
   },
 });
+
+store.subscribe(() => saveAdminSession(store.getState().admin.isSignedIn));
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

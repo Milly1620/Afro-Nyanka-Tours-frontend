@@ -8,6 +8,7 @@ import {
   initialTours,
 } from "@/data/adminMockData";
 import { parseAmount } from "@/lib/adminFormat";
+import { loadAdminSession } from "@/lib/adminSession";
 import type {
   AdminEvent,
   AdminTour,
@@ -29,7 +30,7 @@ export interface AdminState {
 }
 
 const initialState: AdminState = {
-  isSignedIn: false,
+  isSignedIn: loadAdminSession(),
   events: initialEvents,
   tours: initialTours,
   eventDraft: initialEventDraft,
