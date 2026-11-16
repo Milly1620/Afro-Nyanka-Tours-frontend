@@ -3,8 +3,8 @@ import { Field } from "@/components/admin/ui/Field";
 import { Panel } from "@/components/admin/ui/Panel";
 import { RadioOption } from "@/components/admin/ui/RadioOption";
 import { DateField } from "@/components/admin/forms/DateField";
+import type { PublishMode } from "@/components/admin/listings/listingMapping";
 import { cn } from "@/lib/utils";
-import type { PublishMode } from "@/types/admin";
 
 interface PublishingPanelProps {
   mode: PublishMode;
@@ -13,7 +13,8 @@ interface PublishingPanelProps {
   onPublishOnChange: (value: string) => void;
   onSaveDraft: () => void;
   publishLabel: string;
-  canSubmit: boolean;
+  submitting: boolean;
+  error: string | null;
   className?: string;
 }
 
@@ -24,7 +25,8 @@ export function PublishingPanel({
   onPublishOnChange,
   onSaveDraft,
   publishLabel,
-  canSubmit,
+  submitting,
+  error,
   className,
 }: PublishingPanelProps) {
   return (
@@ -42,7 +44,7 @@ export function PublishingPanel({
         checked={mode === "schedule"}
         onSelect={() => onModeChange("schedule")}
         title="Schedule for later"
-        description="Choose a future date and time"
+        description="Goes live by itself at the time you choose"
       />
       <Field label="Publish on">
         {(id) => (
@@ -57,12 +59,17 @@ export function PublishingPanel({
         )}
       </Field>
       <div className="h-px w-full bg-admin-divider-plain" />
+      {error && (
+        <p role="alert" className="text-[12.5px] font-medium text-admin-danger">
+          {error}
+        </p>
+      )}
       <div className="flex gap-[10px]">
-        <AdminButton variant="secondary" size="lg" className="flex-1" onClick={onSaveDraft} disabled={!canSubmit}>
+        <AdminButton variant="secondary" size="lg" className="flex-1" onClick={onSaveDraft} disabled={submitting}>
           Save as draft
         </AdminButton>
-        <AdminButton type="submit" size="lg" className="flex-1" disabled={!canSubmit}>
-          {mode === "schedule" ? "Schedule" : publishLabel}
+        <AdminButton type="submit" size="lg" className="flex-1" disabled={submitting}>
+          {submitting ? "Saving..." : mode === "schedule" ? "Schedule" : publishLabel}
         </AdminButton>
       </div>
     </Panel>

@@ -69,3 +69,36 @@ export function countdownTo(isoTarget: string, now: Date): Countdown {
 export function padTwo(value: number): string {
   return value.toString().padStart(2, "0");
 }
+
+export function avatarToneFor(name: string): 1 | 2 | 3 | 4 | 5 {
+  const total = [...name].reduce((sum, character) => sum + character.charCodeAt(0), 0);
+  return ((total % 5) + 1) as 1 | 2 | 3 | 4 | 5;
+}
+
+export function formatPrice(amount: number | null): string {
+  return amount === null ? "Price on request" : formatGhs(amount);
+}
+
+export function toDateTimeLocal(isoDateTime: string | null): string {
+  if (!isoDateTime) return "";
+  const date = new Date(isoDateTime);
+  if (Number.isNaN(date.getTime())) return "";
+  const offset = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+}
+
+export function fromDateTimeLocal(value: string): string | null {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+}
+
+export function relativeTime(isoDateTime: string, now: Date = new Date()): string {
+  const elapsed = Math.max(now.getTime() - new Date(isoDateTime).getTime(), 0);
+  const minutes = Math.floor(elapsed / 60000);
+  if (minutes < 1) return "now";
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h`;
+  return `${Math.floor(hours / 24)}d`;
+}

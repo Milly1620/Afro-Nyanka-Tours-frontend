@@ -21,6 +21,7 @@ describe("AdminSidebar", () => {
     ["/admin", "Dashboard"],
     ["/admin/events", "Events"],
     ["/admin/tours", "Tours"],
+    ["/admin/extras", "Extras"],
     ["/admin/bookings", "Bookings"],
     ["/admin/settings", "Settings"],
   ])("gives %s the same active treatment on its %s link", (path, label) => {

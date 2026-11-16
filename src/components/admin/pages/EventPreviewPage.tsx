@@ -1,24 +1,26 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Eye } from "lucide-react";
 import { FeaturedTripPreview } from "@/components/admin/FeaturedTripPreview";
 import { useAppSelector } from "@/store";
 
 export function EventPreviewPage() {
-  const draft = useAppSelector((state) => state.admin.eventDraft);
+  const draft = useAppSelector((state) => state.listingDraft.eventDraft);
+  const navigate = useNavigate();
 
   return (
     <div className="flex min-h-screen flex-col bg-admin-preview-bg font-admin">
       <header className="flex h-[60px] items-center justify-between border-b border-admin-border bg-white px-4 md:px-7">
-        <Link
-          to="/admin/events/new"
-          className="flex items-center gap-2 text-[14px] font-semibold text-admin-text-2 hover:text-admin-text"
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="flex cursor-pointer items-center gap-2 text-[14px] font-semibold text-admin-text-2 hover:text-admin-text"
         >
           <ChevronLeft size={18} strokeWidth={1.85} absoluteStrokeWidth />
           Back to editor
-        </Link>
+        </button>
         <p className="flex items-center gap-[7px] text-[12px] text-admin-subtle">
           <Eye size={15} strokeWidth={1.85} absoluteStrokeWidth />
-          Preview mode — not published
+          Preview mode — changes are not published until you save
         </p>
       </header>
 
@@ -31,7 +33,7 @@ export function EventPreviewPage() {
           <FeaturedTripPreview draft={draft} />
           <p className="flex items-center gap-[7px] text-[12px] text-admin-note">
             <Eye size={14} strokeWidth={1.85} absoluteStrokeWidth />
-            This preview reflects your current draft. Visitors will not see it until you publish.
+            This preview reflects your current edits. Visitors will not see them until you publish.
           </p>
         </div>
       </main>

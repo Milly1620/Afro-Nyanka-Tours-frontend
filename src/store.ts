@@ -2,7 +2,10 @@ import { configureStore, createSlice } from "@reduxjs/toolkit";
 import { useDispatch, useSelector, TypedUseSelectorHook } from "react-redux";
 import { Tour } from "@/types/api";
 import adminReducer from "@/adminSlice";
-import { saveAdminSession } from "@/lib/adminSession";
+import listingDraftReducer from "@/listingDraftSlice";
+import { clearAdminSession } from "@/lib/adminSession";
+import { setUnauthorizedHandler } from "@/services/api";
+import { signOut } from "@/adminSlice";
 
 interface SearchData {
   country: string;
@@ -40,10 +43,15 @@ const store = configureStore({
   reducer: {
     booking: bookingSlice.reducer,
     admin: adminReducer,
+    listingDraft: listingDraftReducer,
   },
 });
 
-store.subscribe(() => saveAdminSession(store.getState().admin.isSignedIn));
+setUnauthorizedHandler(() => store.dispatch(signOut()));
+
+store.subscribe(() => {
+  if (!store.getState().admin.isSignedIn) clearAdminSession();
+});
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

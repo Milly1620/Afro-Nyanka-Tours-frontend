@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ContactForm } from "@/types";
 import { contactApi } from "@/services/api";
+import { usePublicSettings } from "@/hooks/usePublicSettings";
 import { isAxiosError } from "axios";
 
 const getContactErrorMessage = (error: unknown): string => {
@@ -98,6 +99,7 @@ const FormField = ({
 };
 
 export function ContactSection() {
+  const settings = usePublicSettings();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null;
@@ -141,41 +143,38 @@ export function ContactSection() {
   };
 
   const contactCards = [
-    {
-      icon: Mail,
-      title: "Email",
-      content: (
-        <a
-          href="mailto:afronyankatours@gmail.com"
-          className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
-        >
-          info@afronyankatours.com{" "}
-        </a>
-      ),
-    },
-    {
-      icon: Phone,
-      title: "Call Us",
-      content: (
-        <div className="flex flex-col space-y-1">
-          <a
-            href="tel:+233548665634"
-            className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
-          >
-            <p>+233 548 665 634</p>
-          </a>
-          <a
-            href="tel:+233549202348"
-            className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
-          >
-            <p>+233 549 202 348</p>
-          </a>
-          <a href="tel:+233262251826">
-            <p>+233 262 251 826</p>
-          </a>
-        </div>
-      ),
-    },
+    ...(settings?.contact_email
+      ? [
+          {
+            icon: Mail,
+            title: "Email",
+            content: (
+              <a
+                href={`mailto:${settings.contact_email}`}
+                className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
+              >
+                {settings.contact_email}
+              </a>
+            ),
+          },
+        ]
+      : []),
+    ...(settings?.phone
+      ? [
+          {
+            icon: Phone,
+            title: "Call Us",
+            content: (
+              <a
+                href={`tel:${settings.phone.replace(/\s+/g, "")}`}
+                className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
+              >
+                {settings.phone}
+              </a>
+            ),
+          },
+        ]
+      : []),
     {
       icon: Clock,
       title: "Office Hours",

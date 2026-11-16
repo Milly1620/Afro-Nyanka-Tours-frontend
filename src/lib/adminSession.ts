@@ -1,20 +1,43 @@
-const SESSION_KEY = "admin:isSignedIn";
+const SESSION_KEY = "admin:session";
 
-export function loadAdminSession(): boolean {
+interface StoredSession {
+  token: string;
+  expiresAt: number;
+}
+
+function readSession(): StoredSession | null {
   try {
-    return localStorage.getItem(SESSION_KEY) === "true";
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<StoredSession>;
+    if (typeof parsed.token !== "string" || typeof parsed.expiresAt !== "number") return null;
+    if (parsed.expiresAt <= Date.now()) return null;
+    return { token: parsed.token, expiresAt: parsed.expiresAt };
   } catch {
-    return false;
+    return null;
   }
 }
 
-export function saveAdminSession(isSignedIn: boolean): void {
+export function getAdminToken(): string | null {
+  return readSession()?.token ?? null;
+}
+
+export function hasAdminSession(): boolean {
+  return readSession() !== null;
+}
+
+export function saveAdminSession(token: string, expiresInSeconds: number): void {
   try {
-    if (isSignedIn) {
-      localStorage.setItem(SESSION_KEY, "true");
-    } else {
-      localStorage.removeItem(SESSION_KEY);
-    }
+    const session: StoredSession = { token, expiresAt: Date.now() + expiresInSeconds * 1000 };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  } catch {
+    return;
+  }
+}
+
+export function clearAdminSession(): void {
+  try {
+    localStorage.removeItem(SESSION_KEY);
   } catch {
     return;
   }

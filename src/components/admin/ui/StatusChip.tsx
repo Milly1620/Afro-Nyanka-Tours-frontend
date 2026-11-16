@@ -2,8 +2,6 @@ import { cn } from "@/lib/utils";
 import type { PublishStatus, StatusChipVariant } from "@/types/admin";
 
 const chipStyles: Record<StatusChipVariant, string> = {
-  new: "bg-admin-status-new-bg text-admin-status-new-ink",
-  replied: "bg-admin-status-paid-bg text-admin-status-paid-ink",
   paid: "bg-admin-status-paid-bg text-admin-status-paid-ink",
   confirmed: "bg-admin-status-paid-bg text-admin-status-paid-ink",
   pending: "bg-admin-status-pending-bg text-admin-status-pending-ink",
@@ -11,8 +9,6 @@ const chipStyles: Record<StatusChipVariant, string> = {
 };
 
 const chipLabels: Record<StatusChipVariant, string> = {
-  new: "New",
-  replied: "Replied",
   paid: "Paid",
   confirmed: "Confirmed",
   pending: "Pending",
@@ -43,6 +39,11 @@ const publishStyles: Record<PublishStatus, { chip: string; dot: string; label: s
     chip: "bg-admin-draft-bg text-admin-subtle",
     dot: "bg-admin-faint",
     label: "Draft",
+  },
+  scheduled: {
+    chip: "bg-admin-status-pending-bg text-admin-status-pending-ink",
+    dot: "bg-admin-orange",
+    label: "Scheduled",
   },
 };
 

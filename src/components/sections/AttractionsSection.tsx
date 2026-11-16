@@ -5,7 +5,7 @@ import { MapPin, Clock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toursApi } from "@/services/api";
 import type { Tour } from "@/types/api";
-import { getFallbackTours } from "@/data/fallbackTours";
+import { formatPrice } from "@/lib/adminFormat";
 
 
 const AttractionCard = ({
@@ -17,13 +17,15 @@ const AttractionCard = ({
 }) => (
   <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group">
     <div className="relative overflow-hidden">
-      <img
-        src={tour.main_image_url}
-        alt={tour.name}
-        className={`w-full h-48 lg:h-[290px] group-hover:scale-105 transition-transform duration-300 ${
-          "object-cover"
-        }`}
-      />
+      {tour.main_image_url ? (
+        <img
+          src={tour.main_image_url}
+          alt={tour.name}
+          className="w-full h-48 lg:h-[290px] group-hover:scale-105 transition-transform duration-300 object-cover"
+        />
+      ) : (
+        <div className="w-full h-48 lg:h-[290px] bg-[#F5F5F5]" role="img" aria-label={tour.name} />
+      )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
     </div>
 
@@ -39,15 +41,25 @@ const AttractionCard = ({
         </span>
       </div>
 
+      <div className="flex items-center text-[#6E7070] mb-2">
+        <Clock className="h-4 w-4 mr-2 flex-shrink-0" />
+        <span className="text-[14.76px] poppins-regular">
+          {tour.duration_days !== null
+            ? `${tour.duration_days} ${tour.duration_days === 1 ? "day" : "days"} · `
+            : ""}
+          {`${tour.tour_locations?.length || 0} ${
+            tour.tour_locations?.length === 1 ? "activity" : "activities"
+          }`}
+        </span>
+      </div>
+
       <div className="flex items-center justify-between">
-        <div className="flex items-center text-[#6E7070] mb-2">
-          <Clock className="h-4 w-4 mr-2 flex-shrink-0" />
-          <span className="text-[14.76px] poppins-regular">
-            {`${tour.tour_locations?.length || 0} ${
-              tour.tour_locations?.length === 1 ? "activity" : "activities"
-            }`}
-          </span>
-        </div>
+        <p className="text-[16.61px] poppins-semibold text-[#0D0D0C]">
+          {formatPrice(tour.price_ghs)}
+          {tour.price_ghs !== null && (
+            <span className="text-[14.76px] poppins-regular text-[#6E7070]"> /person</span>
+          )}
+        </p>
         <Button
           onClick={() => onBookNow(tour)}
           className="p-3 lg:px-4 lg:py-2  bg-transparent text-[#482B11] hover:text-[#FFA75D] poppins-medium text-sm transition-colors group border border-[#E1E4E5]  hover:bg-transparent cursor-pointer"
@@ -83,7 +95,7 @@ export function AttractionsSection() {
           setActiveCountry(sorted[0]);
         }
       } catch (e) {
-        setCountries(["Ghana"]);
+        setCountries([]);
       }
     })();
   }, []);
@@ -95,9 +107,9 @@ export function AttractionsSection() {
     (async () => {
       try {
         const t = await toursApi.getToursByCountry(activeCountry);
-        setTours(t.length ? t : getFallbackTours(activeCountry));
+        setTours(t);
       } catch (e) {
-        setTours(getFallbackTours(activeCountry));
+        setTours([]);
       } finally {
         setIsLoading(false);
       }

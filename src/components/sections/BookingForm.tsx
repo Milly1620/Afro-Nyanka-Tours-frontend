@@ -8,20 +8,20 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toursApi } from "@/services/api";
 import { ALL_COUNTRIES } from "@/data/countries";
+import { EstimatedTotal } from "@/components/booking/EstimatedTotal";
+import { ExtrasPicker } from "@/components/booking/ExtrasPicker";
+import { SelectedTours } from "@/components/booking/SelectedTours";
+import {
+  chosenExtras,
+  estimateTotal,
+  groupSizeLimit,
+  offeredExtras,
+  selectedTours,
+  type BookingFormValues,
+} from "@/lib/booking";
 import countryCodes from "@/data/country-codes.json";
 
-interface BookingForm {
-  selectedCountry: string;
-  selectedDestinations: string[];
-  startDate: Date | null;
-  endDate: Date | null;
-  name: string;
-  email: string;
-  age: string;
-  country: string;
-  additionalServices: string;
-  numberOfPersons: string;
-}
+type BookingForm = BookingFormValues;
 
 interface SearchData {
   country: string;
@@ -48,6 +48,7 @@ interface FormFieldProps {
   isMultiSelect?: boolean;
   isDisplayOnly?: boolean;
   displayValue?: string;
+  hint?: string;
 }
 
 interface BookingFormProps {
@@ -73,6 +74,7 @@ const FormField = ({
   isMultiSelect = false,
   isDisplayOnly = false,
   displayValue,
+  hint,
 }: FormFieldProps) => {
   const [openDropdown, setOpenDropdown] = useState(false);
   const [filterTerm, setFilterTerm] = useState("");
@@ -281,6 +283,9 @@ const FormField = ({
           className={inputClasses}
         />
       )}
+      {hint && !errors[name] && (
+        <p className="text-xs text-gray-600 mt-1 poppins-regular">{hint}</p>
+      )}
       {errors[name] && (
         <p className="text-sm text-red-600 mt-1 poppins-regular">
           {errors[name].message}
@@ -346,7 +351,7 @@ export function BookingForm({
         setTourCountries(ghanaFirst);
       } catch (error) {
         console.error("Error fetching countries:", error);
-        setTourCountries(["Ghana"]); // minimal fallback if API fails
+        setTourCountries([]);
       } finally {
         setIsLoadingCountries(false);
       }
@@ -380,12 +385,27 @@ export function BookingForm({
       country: initialFormData?.country || "",
       additionalServices: initialFormData?.additionalServices || "",
       numberOfPersons: initialFormData?.numberOfPersons || "",
+      extraIds: initialFormData?.extraIds || [],
     },
   });
 
   // Watch for country and destinations changes
   const selectedCountry = watch("selectedCountry");
   const selectedDestinations = watch("selectedDestinations");
+  const numberOfPersons = watch("numberOfPersons");
+  const extraIds = watch("extraIds");
+
+  const chosenTours = useMemo(
+    () => selectedTours(toursData, selectedDestinations),
+    [toursData, selectedDestinations],
+  );
+  const availableExtras = useMemo(() => offeredExtras(chosenTours), [chosenTours]);
+  const groupLimit = groupSizeLimit(chosenTours.map((tour) => tour.capacity));
+  const estimatedTotal = estimateTotal(
+    chosenTours,
+    parseInt(numberOfPersons, 10),
+    chosenExtras(availableExtras, extraIds),
+  );
 
   // Reset form when initialFormData changes (when navigating back from summary)
   useEffect(() => {
@@ -401,6 +421,7 @@ export function BookingForm({
         country: initialFormData.country || "",
         additionalServices: initialFormData.additionalServices || "",
         numberOfPersons: initialFormData.numberOfPersons || "",
+        extraIds: initialFormData.extraIds || [],
       });
     }
   }, [initialFormData, reset]);
@@ -535,6 +556,13 @@ export function BookingForm({
       type: "number",
       placeholder: "1",
       required: true,
+      validation: {
+        min: { value: 1, message: "At least 1 person is required" },
+        ...(groupLimit !== null && {
+          max: { value: groupLimit, message: `Group size cannot exceed ${groupLimit}` },
+        }),
+      },
+      hint: groupLimit !== null ? `Maximum group size: ${groupLimit}` : undefined,
     },
     {
       label: "Additional services",
@@ -630,6 +658,8 @@ export function BookingForm({
           </div>
         </div>
 
+        {chosenTours.length > 0 && <SelectedTours tours={chosenTours} />}
+
         {/* Name and Email Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
@@ -668,6 +698,20 @@ export function BookingForm({
           />
         </div>
 
+        {availableExtras.length > 0 && (
+          <Controller
+            name="extraIds"
+            control={control}
+            render={({ field }) => (
+              <ExtrasPicker
+                extras={availableExtras}
+                selectedIds={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
+        )}
+
         {/* Additional Services */}
         <FormField
           {...formFields[8]}
@@ -675,6 +719,8 @@ export function BookingForm({
           register={register}
           control={control}
         />
+
+        {chosenTours.length > 0 && <EstimatedTotal total={estimatedTotal} />}
 
         {/* Submit Button */}
         <div className="flex justify-end">

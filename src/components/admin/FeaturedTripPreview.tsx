@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, CalendarDays, MapPin } from "lucide-react";
-import homowoFestival from "@/assets/admin/homowo-festival.png";
+import { ArrowRight, CalendarDays, Check, ImageIcon, MapPin } from "lucide-react";
 import kenteChevron from "@/assets/admin/kente-chevron.svg";
-import { highlightIcons } from "@/components/admin/forms/HighlightsEditor";
+import { cleanHighlights, inclusiveDays, type ListingDraft } from "@/components/admin/listings/listingMapping";
 import { countdownTo, formatDateRange, padTwo } from "@/lib/adminFormat";
-import type { ListingDraft } from "@/types/admin";
 
 const chevronRows = [0, 1, 2, 3, 4];
 
@@ -16,8 +14,10 @@ export function FeaturedTripPreview({ draft }: { draft: ListingDraft }) {
     return () => window.clearInterval(timer);
   }, []);
 
-  const countdown = countdownTo(draft.firstDeparture, now);
-  const days = Number(draft.durationDays) || 1;
+  const countdown = countdownTo(draft.startDate ? `${draft.startDate}T00:00:00` : "", now);
+  const days = inclusiveDays(draft.startDate, draft.endDate) ?? (Number(draft.durationDays) || 1);
+  const highlights = cleanHighlights(draft.highlights);
+  const location = draft.destination || [draft.region, draft.country].filter(Boolean).join(", ");
   const units = [
     { value: countdown.days, label: "Days" },
     { value: countdown.hours, label: "Hours" },
@@ -43,35 +43,32 @@ export function FeaturedTripPreview({ draft }: { draft: ListingDraft }) {
             UPCOMING <span className="text-landing-orange">TOURS</span>
           </p>
           <h2 className="font-admin text-[28px] leading-[1.2] font-bold text-landing-brown md:text-[36px]">
-            {draft.name || "Untitled tour"}
+            {draft.name || "Untitled event"}
           </h2>
           <div className="flex flex-wrap items-center gap-[18px]">
             <span className="flex items-center gap-[6px] text-[18px] font-semibold text-landing-brown">
               <MapPin size={18} strokeWidth={1.5} absoluteStrokeWidth className="text-landing-orange" />
-              {draft.destination}
+              {location}
             </span>
-            <span className="flex items-center gap-[6px] text-[13.5px] text-landing-grey">
-              <CalendarDays size={18} strokeWidth={1.5} absoluteStrokeWidth className="text-landing-orange" />
-              {formatDateRange(draft.firstDeparture, days)}
-            </span>
+            {draft.startDate && (
+              <span className="flex items-center gap-[6px] text-[13.5px] text-landing-grey">
+                <CalendarDays size={18} strokeWidth={1.5} absoluteStrokeWidth className="text-landing-orange" />
+                {formatDateRange(draft.startDate, days)}
+              </span>
+            )}
           </div>
           <p className="max-w-[456.75px] font-inter text-[13.5px] leading-[1.2] text-landing-grey">
             {draft.description}
           </p>
         </div>
-        {draft.highlights.length > 0 && (
+        {highlights.length > 0 && (
           <ul className="flex flex-wrap gap-6">
-            {draft.highlights.slice(0, 3).map((highlight) => {
-              const Icon = highlightIcons[highlight.icon].icon;
-              return (
-                <li key={highlight.id} className="flex items-center gap-3">
-                  <Icon size={30} strokeWidth={1.5} absoluteStrokeWidth className="shrink-0 text-landing-orange" />
-                  <span className="max-w-[92px] text-[12px] leading-none text-landing-grey-dark">
-                    {highlight.label}
-                  </span>
-                </li>
-              );
-            })}
+            {highlights.slice(0, 3).map((highlight) => (
+              <li key={highlight} className="flex items-center gap-3">
+                <Check size={30} strokeWidth={1.5} absoluteStrokeWidth className="shrink-0 text-landing-orange" />
+                <span className="max-w-[92px] text-[12px] leading-none text-landing-grey-dark">{highlight}</span>
+              </li>
+            ))}
           </ul>
         )}
         <div className="flex gap-3">
@@ -86,11 +83,13 @@ export function FeaturedTripPreview({ draft }: { draft: ListingDraft }) {
       </div>
 
       <div className="relative h-[316.5px] w-full max-w-[485.25px] shrink-0 overflow-hidden rounded-[12px]">
-        <img
-          src={draft.coverImage ?? homowoFestival}
-          alt=""
-          className="absolute inset-0 size-full object-cover"
-        />
+        {draft.coverImage ? (
+          <img src={draft.coverImage} alt="" className="absolute inset-0 size-full object-cover" />
+        ) : (
+          <div className="admin-cover-stripes absolute inset-0 flex items-center justify-center">
+            <ImageIcon size={32} strokeWidth={1.5} absoluteStrokeWidth className="text-admin-cover-icon" />
+          </div>
+        )}
         <div className="absolute top-[9px] right-[9px] flex flex-col items-center gap-[7.5px] rounded-[12px] bg-landing-sand/80 px-[18px] py-[7.5px] font-inter leading-[1.2]">
           <span className="text-[10.5px] font-semibold text-landing-brown">Count Down</span>
           <div className="flex gap-[30px]">

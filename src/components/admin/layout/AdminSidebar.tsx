@@ -3,6 +3,7 @@ import {
   Calendar,
   Compass,
   LayoutDashboard,
+  Package,
   LogOut,
   Settings,
   Ticket,
@@ -11,9 +12,9 @@ import {
 } from "lucide-react";
 import logo from "@/assets/footer_logo.svg";
 import { cn } from "@/lib/utils";
-import { useAppDispatch } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { signOut } from "@/adminSlice";
-import { adminUser } from "@/data/adminMockData";
+import { avatarToneFor } from "@/lib/adminFormat";
 import { Avatar } from "@/components/admin/ui/Avatar";
 
 interface NavItem {
@@ -38,6 +39,7 @@ const navGroups: NavGroup[] = [
     items: [
       { to: "/admin/events", label: "Events", icon: Calendar },
       { to: "/admin/tours", label: "Tours", icon: Compass },
+      { to: "/admin/extras", label: "Extras", icon: Package },
       { to: "/admin/bookings", label: "Bookings", icon: Ticket },
     ],
   },
@@ -55,6 +57,7 @@ interface AdminSidebarProps {
 export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const email = useAppSelector((state) => state.admin.email) ?? "Administrator";
 
   const handleSignOut = () => {
     dispatch(signOut());
@@ -110,10 +113,10 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
         <div className="flex-1" />
 
         <div className="flex items-center gap-[10px]">
-          <Avatar name={adminUser.name} tone={adminUser.avatarTone} size={36} />
+          <Avatar name={email} tone={avatarToneFor(email)} size={36} />
           <div className="flex min-w-0 flex-1 flex-col gap-px whitespace-nowrap">
-            <span className="truncate text-[13px] font-semibold text-admin-text">{adminUser.name}</span>
-            <span className="truncate text-[11px] font-medium text-admin-subtle">{adminUser.role}</span>
+            <span className="truncate text-[13px] font-semibold text-admin-text">{email}</span>
+            <span className="truncate text-[11px] font-medium text-admin-subtle">Administrator</span>
           </div>
           <button
             type="button"

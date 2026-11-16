@@ -1,21 +1,28 @@
-import { useId, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { Image } from "lucide-react";
 
 interface CoverImageFieldProps {
   value: string | null;
-  onChange: (value: string | null) => void;
+  onSelect: (file: File, previewUrl: string) => void;
   className?: string;
 }
 
-export function CoverImageField({ value, onChange, className }: CoverImageFieldProps) {
+export function CoverImageField({ value, onSelect, className }: CoverImageFieldProps) {
   const id = useId();
   const createdUrl = useRef<string | null>(null);
+
+  useEffect(
+    () => () => {
+      if (createdUrl.current) URL.revokeObjectURL(createdUrl.current);
+    },
+    [],
+  );
 
   const handleFile = (file: File | undefined) => {
     if (!file) return;
     if (createdUrl.current) URL.revokeObjectURL(createdUrl.current);
     createdUrl.current = URL.createObjectURL(file);
-    onChange(createdUrl.current);
+    onSelect(file, createdUrl.current);
   };
 
   return (
@@ -27,9 +34,7 @@ export function CoverImageField({ value, onChange, className }: CoverImageFieldP
         htmlFor={id}
         className="flex h-[42px] cursor-pointer items-center gap-[10px] rounded-[10px] border border-admin-border bg-admin-field px-[14px] text-[14px] text-admin-text-2 focus-within:border-admin-orange-line-strong hover:border-admin-orange-line-strong"
       >
-        {value ? (
-          <img src={value} alt="" className="h-7 w-10 shrink-0 rounded-[6px] object-cover" />
-        ) : null}
+        {value ? <img src={value} alt="" className="h-7 w-10 shrink-0 rounded-[6px] object-cover" /> : null}
         <span className="min-w-0 flex-1 truncate">
           {value ? "Cover image selected · click to replace" : "Upload cover image · PNG or JPG"}
         </span>

@@ -1,123 +1,177 @@
-import { useState, type FormEvent } from "react";
-import logo from "@/assets/footer_logo.svg";
+import { useEffect, useState, type FormEvent } from "react";
+import fallbackLogo from "@/assets/footer_logo.svg";
 import { AdminPage } from "@/components/admin/layout/AdminPage";
 import { AdminButton } from "@/components/admin/ui/AdminButton";
+import { AsyncState } from "@/components/admin/ui/AsyncState";
 import { Field, TextInput } from "@/components/admin/ui/Field";
 import { Panel, PanelHeading } from "@/components/admin/ui/Panel";
 import { Toggle } from "@/components/admin/ui/Toggle";
-import { setNotificationPreference, updateCompanyProfile } from "@/adminSlice";
-import { useAppDispatch, useAppSelector } from "@/store";
-import type { CompanyProfile, NotificationPreferences } from "@/types/admin";
-
-const profileFields: { key: keyof CompanyProfile; label: string; type: string }[] = [
-  { key: "name", label: "Company name", type: "text" },
-  { key: "email", label: "Contact email", type: "email" },
-  { key: "phone", label: "Phone", type: "tel" },
-  { key: "location", label: "Location", type: "text" },
-];
-
-const notificationOptions: { key: keyof NotificationPreferences; title: string; description: string }[] = [
-  { key: "inquiryAlerts", title: "New inquiry alerts", description: "Email me when a traveller sends an inquiry" },
-  {
-    key: "bookingConfirmations",
-    title: "Booking confirmations",
-    description: "Notify me when a booking is paid or confirmed",
-  },
-  { key: "weeklySummary", title: "Weekly summary email", description: "A Monday digest of the week ahead" },
-];
+import { PasswordResetPanel } from "@/components/admin/settings/PasswordResetPanel";
+import {
+  normaliseSettings,
+  notificationOptions,
+  profileFields,
+  validateSettings,
+} from "@/components/admin/settings/settingsForm";
+import { useResource } from "@/hooks/useResource";
+import { adminSettingsApi } from "@/services/adminApi";
+import { getErrorMessage } from "@/services/api";
+import type { AdminSettings } from "@/types/api";
 
 export function SettingsPage() {
-  const company = useAppSelector((state) => state.admin.company);
-  const notifications = useAppSelector((state) => state.admin.notifications);
-  const dispatch = useAppDispatch();
-  const [profile, setProfile] = useState(company);
-  const [logoPreview, setLogoPreview] = useState<string>(logo);
-  const [saved, setSaved] = useState(false);
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    dispatch(updateCompanyProfile(profile));
-    setSaved(true);
-  };
-
-  const handleLogo = (file: File | undefined) => {
-    if (file) setLogoPreview(URL.createObjectURL(file));
-  };
+  const remote = useResource(() => adminSettingsApi.get());
 
   return (
     <AdminPage title="Settings" subtitle="Company profile and preferences">
-      <div className="flex flex-col gap-5 xl:flex-row xl:items-start">
-        <Panel className="flex min-w-0 flex-1 p-[22px]">
-          <form onSubmit={handleSubmit} className="flex w-full flex-col gap-[18px]">
-            <PanelHeading title="Company profile" subtitle="This information appears on your public site" />
-            <div className="flex items-center gap-[14px]">
-              <span className="flex size-[60px] shrink-0 items-center justify-center overflow-hidden rounded-[14px] border border-admin-border bg-white">
-                <img src={logoPreview} alt="Brand logo" className="h-[42px] w-[35.8px] object-contain" />
-              </span>
-              <div className="flex flex-col gap-[6px]">
-                <span className="text-[14px] font-semibold text-admin-ink-900">Brand logo</span>
-                <label className="inline-flex w-fit cursor-pointer items-center justify-center rounded-[9px] border border-admin-border bg-white px-[13px] py-2 text-[12.5px] font-semibold text-admin-text-2 hover:bg-admin-field">
-                  Change logo
-                  <input
-                    type="file"
-                    accept="image/png,image/jpeg,image/svg+xml"
-                    className="sr-only"
-                    onChange={(event) => handleLogo(event.target.files?.[0])}
-                  />
-                </label>
-              </div>
-            </div>
-            {profileFields.map((field) => (
-              <Field key={field.key} label={field.label} labelClassName="font-semibold">
-                {(id) => (
-                  <TextInput
-                    id={id}
-                    type={field.type}
-                    value={profile[field.key]}
-                    onChange={(event) => {
-                      setSaved(false);
-                      setProfile({ ...profile, [field.key]: event.target.value });
-                    }}
-                    wrapperClassName="h-[47px]"
-                  />
-                )}
-              </Field>
-            ))}
-            <div className="flex items-center gap-3">
-              <AdminButton type="submit" size="lg" className="px-[18px] py-3 text-[13.5px]">
-                Save changes
-              </AdminButton>
-              {saved && (
-                <span role="status" className="text-[12.5px] font-medium text-admin-published-ink">
-                  Changes saved
-                </span>
-              )}
-            </div>
-          </form>
-        </Panel>
-
-        <Panel className="flex w-full flex-col gap-[18px] p-[22px] xl:w-[430px] xl:shrink-0">
-          <PanelHeading title="Notification preferences" subtitle="Choose what Afro Nyanka tells you about" />
-          <ul>
-            {notificationOptions.map((option) => (
-              <li
-                key={option.key}
-                className="flex items-center gap-4 border-b border-admin-divider pt-1 pb-4 not-first:pt-5 last:border-b-0"
-              >
-                <div className="flex min-w-0 flex-1 flex-col gap-[3px]">
-                  <span className="text-[14px] font-semibold text-admin-ink-900">{option.title}</span>
-                  <span className="text-[12px] text-admin-ink-500">{option.description}</span>
-                </div>
-                <Toggle
-                  label={option.title}
-                  checked={notifications[option.key]}
-                  onChange={(value) => dispatch(setNotificationPreference({ key: option.key, value }))}
-                />
-              </li>
-            ))}
-          </ul>
-        </Panel>
-      </div>
+      <AsyncState loading={remote.loading} error={remote.error} onRetry={remote.reload}>
+        {remote.data && <SettingsForm initial={remote.data} onLogoChanged={remote.reload} />}
+      </AsyncState>
     </AdminPage>
+  );
+}
+
+interface SettingsFormProps {
+  initial: AdminSettings;
+  onLogoChanged: () => void;
+}
+
+function SettingsForm({ initial, onLogoChanged }: SettingsFormProps) {
+  const [settings, setSettings] = useState(initial);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
+  const [logoError, setLogoError] = useState("");
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+
+  useEffect(() => {
+    setSettings((current) => ({ ...current, logo_url: initial.logo_url }));
+  }, [initial.logo_url]);
+
+  const change = (changes: Partial<AdminSettings>) => {
+    setSaved(false);
+    setSettings((current) => ({ ...current, ...changes }));
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const problem = validateSettings(settings);
+    if (problem) {
+      setError(problem);
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      const updated = await adminSettingsApi.update(normaliseSettings(settings));
+      setSettings(updated);
+      setSaved(true);
+    } catch (reason) {
+      setError(getErrorMessage(reason, "We couldn't save your settings."));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleLogo = async (file: File | undefined) => {
+    if (!file) return;
+    setUploadingLogo(true);
+    setLogoError("");
+    try {
+      await adminSettingsApi.uploadLogo(file);
+      onLogoChanged();
+    } catch (reason) {
+      setLogoError(getErrorMessage(reason, "We couldn't upload the logo."));
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5 xl:flex-row xl:items-start">
+      <Panel className="flex min-w-0 flex-1 flex-col gap-[18px] p-[22px]">
+        <PanelHeading title="Company profile" subtitle="This information appears on your public site" />
+        <div className="flex items-center gap-[14px]">
+          <span className="flex size-[60px] shrink-0 items-center justify-center overflow-hidden rounded-[14px] border border-admin-border bg-white">
+            <img
+              src={settings.logo_url || fallbackLogo}
+              alt="Brand logo"
+              className="h-[42px] w-[42px] object-contain"
+            />
+          </span>
+          <div className="flex flex-col gap-[6px]">
+            <span className="text-[14px] font-semibold text-admin-ink-900">Brand logo</span>
+            <label className="inline-flex w-fit cursor-pointer items-center justify-center rounded-[9px] border border-admin-border bg-white px-[13px] py-2 text-[12.5px] font-semibold text-admin-text-2 hover:bg-admin-field">
+              {uploadingLogo ? "Uploading..." : "Change logo"}
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/svg+xml"
+                disabled={uploadingLogo}
+                className="sr-only"
+                onChange={(event) => handleLogo(event.target.files?.[0])}
+              />
+            </label>
+            {logoError && (
+              <span role="alert" className="text-[12px] font-medium text-admin-danger">
+                {logoError}
+              </span>
+            )}
+          </div>
+        </div>
+        {profileFields.map((field) => (
+          <Field key={field.key} label={field.label} labelClassName="font-semibold">
+            {(id) => (
+              <TextInput
+                id={id}
+                type={field.type}
+                value={settings[field.key]}
+                onChange={(event) => change({ [field.key]: event.target.value })}
+                wrapperClassName="h-[47px]"
+              />
+            )}
+          </Field>
+        ))}
+        <div className="flex items-center gap-3">
+          <AdminButton type="submit" size="lg" className="px-[18px] py-3 text-[13.5px]" disabled={saving}>
+            {saving ? "Saving..." : "Save changes"}
+          </AdminButton>
+          {saved && (
+            <span role="status" className="text-[12.5px] font-medium text-admin-published-ink">
+              Changes saved
+            </span>
+          )}
+          {error && (
+            <span role="alert" className="text-[12.5px] font-medium text-admin-danger">
+              {error}
+            </span>
+          )}
+        </div>
+      </Panel>
+
+      <div className="flex w-full flex-col gap-5 xl:w-[430px] xl:shrink-0">
+      <Panel className="flex w-full flex-col gap-[18px] p-[22px]">
+        <PanelHeading title="Notification preferences" subtitle="Choose what Afro Nyanka tells you about" />
+        <ul>
+          {notificationOptions.map((option) => (
+            <li
+              key={option.key}
+              className="flex items-center gap-4 border-b border-admin-divider pt-1 pb-4 not-first:pt-5 last:border-b-0"
+            >
+              <div className="flex min-w-0 flex-1 flex-col gap-[3px]">
+                <span className="text-[14px] font-semibold text-admin-ink-900">{option.title}</span>
+                <span className="text-[12px] text-admin-ink-500">{option.description}</span>
+              </div>
+              <Toggle
+                label={option.title}
+                checked={settings[option.key]}
+                onChange={(value) => change({ [option.key]: value })}
+              />
+            </li>
+          ))}
+        </ul>
+        <p className="text-[12px] text-admin-subtle">Notification choices are saved with the company profile.</p>
+      </Panel>
+      <PasswordResetPanel />
+      </div>
+    </form>
   );
 }

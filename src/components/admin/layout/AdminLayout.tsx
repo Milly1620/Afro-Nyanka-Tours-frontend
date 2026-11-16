@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, Outlet, useLocation, useOutletContext } from "react-router-dom";
-import { useAppSelector } from "@/store";
+import { adminAuthApi } from "@/services/adminApi";
+import { setAdminEmail } from "@/adminSlice";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { AdminSidebar } from "@/components/admin/layout/AdminSidebar";
 
 interface AdminLayoutContext {
@@ -22,6 +24,14 @@ export function RequireAdmin() {
 
 export function AdminLayout() {
   const [navigationOpen, setNavigationOpen] = useState(false);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    adminAuthApi
+      .me()
+      .then((profile) => dispatch(setAdminEmail(profile.email)))
+      .catch(() => undefined);
+  }, [dispatch]);
 
   return (
     <div className="flex min-h-screen bg-admin-app font-admin">

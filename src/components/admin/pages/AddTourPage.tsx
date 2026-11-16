@@ -1,50 +1,84 @@
 import { Fragment, useEffect, useRef, useState, type FormEvent, type RefObject } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { AdminPage } from "@/components/admin/layout/AdminPage";
-import { ActivitiesEditor } from "@/components/admin/forms/ActivitiesEditor";
 import { CoverImageField } from "@/components/admin/forms/CoverImageField";
+import { HighlightsEditor } from "@/components/admin/forms/HighlightsEditor";
 import { ListingDetailsFields } from "@/components/admin/forms/ListingDetailsFields";
 import { PublishingPanel } from "@/components/admin/forms/PublishingPanel";
+import { ExtrasEditor } from "@/components/admin/listings/ExtrasEditor";
+import { GalleryField } from "@/components/admin/listings/GalleryField";
+import { StopsEditor } from "@/components/admin/listings/StopsEditor";
+import { draftFromTour, tourInputFromDraft } from "@/components/admin/listings/listingMapping";
+import { useListingEditor } from "@/components/admin/listings/useListingEditor";
 import { TourCardPreview } from "@/components/admin/TourCardPreview";
+import { AsyncState } from "@/components/admin/ui/AsyncState";
 import { BackLink } from "@/components/admin/ui/BackLink";
 import { Divider, Panel, SectionEyebrow } from "@/components/admin/ui/Panel";
-import { DraftBadge } from "@/components/admin/ui/StatusChip";
-import { editTour, saveTourDraft, startNewTour, updateTourDraft } from "@/adminSlice";
+import { DraftBadge, PublishChip } from "@/components/admin/ui/StatusChip";
+import { loadTourDraft, resetTourDraft, updateTourDraft } from "@/listingDraftSlice";
+import { useResource } from "@/hooks/useResource";
 import { cn } from "@/lib/utils";
+import { adminExtrasApi, adminLocationsApi, adminToursApi } from "@/services/adminApi";
 import { useAppDispatch, useAppSelector } from "@/store";
-import type { ListingDraft, PublishStatus } from "@/types/admin";
+import type { Location } from "@/types/api";
 
-const steps = ["Tour details", "Activities", "Publish"];
+const steps = ["Tour details", "Stops & extras", "Publish"];
 
 export function AddTourPage() {
   const { tourId } = useParams();
-  const draft = useAppSelector((state) => state.admin.tourDraft);
-  const editingTourId = useAppSelector((state) => state.admin.editingTourId);
+  const id = tourId ? Number(tourId) : null;
+  const draft = useAppSelector((state) => state.listingDraft.tourDraft);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const warnings = (location.state as { warnings?: string[] } | null)?.warnings ?? [];
   const [activeStep, setActiveStep] = useState(0);
+  const [ready, setReady] = useState(false);
+  const [createdLocations, setCreatedLocations] = useState<Location[]>([]);
   const detailsRef = useRef<HTMLElement>(null);
-  const activitiesRef = useRef<HTMLDivElement>(null);
+  const stopsRef = useRef<HTMLDivElement>(null);
   const publishRef = useRef<HTMLDivElement>(null);
-  const stepTargets: RefObject<HTMLElement | null>[] = [detailsRef, activitiesRef, publishRef];
+  const stepTargets: RefObject<HTMLElement | null>[] = [detailsRef, stopsRef, publishRef];
+
+  const tour = useResource(() => (id === null ? Promise.resolve(null) : adminToursApi.get(id)), [id]);
+  const catalog = useResource(() => adminExtrasApi.list({ limit: 200 }), []);
+  const locations = useResource(() => adminLocationsApi.list(), []);
 
   useEffect(() => {
-    if (tourId && editingTourId !== tourId) dispatch(editTour(tourId));
-    if (!tourId && editingTourId) dispatch(startNewTour());
-  }, [tourId, editingTourId, dispatch]);
+    if (id !== null) {
+      setReady(false);
+      return;
+    }
+    dispatch(resetTourDraft());
+    setReady(true);
+  }, [id, dispatch]);
 
-  const change = (changes: Partial<ListingDraft>) => dispatch(updateTourDraft(changes));
-  const canSubmit = Boolean(draft.name.trim() && draft.destination.trim());
+  useEffect(() => {
+    if (id === null || !tour.data || tour.data.id !== id) return;
+    dispatch(loadTourDraft(draftFromTour(tour.data)));
+    setReady(true);
+  }, [id, tour.data, dispatch]);
 
-  const save = (status: PublishStatus) => {
-    if (!canSubmit) return;
-    dispatch(saveTourDraft(status));
-    navigate("/admin/tours");
-  };
+  const loadedTour = id !== null && tour.data?.id === id ? tour.data : null;
+
+  const editor = useListingEditor({
+    kind: "tour",
+    api: adminToursApi,
+    id,
+    draft,
+    existingExtras: loadedTour?.extras ?? [],
+    catalog: catalog.data?.items ?? [],
+    buildInput: tourInputFromDraft,
+    listPath: "/admin/tours",
+    editPath: (savedId) => `/admin/tours/${savedId}/edit`,
+    onFollowUpFailure: tour.reload,
+  });
+
+  const change = (changes: Partial<typeof draft>) => dispatch(updateTourDraft(changes));
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    save("published");
+    void editor.save("publish");
   };
 
   const goToStep = (index: number) => {
@@ -52,104 +86,151 @@ export function AddTourPage() {
     stepTargets[index].current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const allLocations = [...(locations.data ?? []), ...createdLocations];
+  const visibleGallery = draft.galleryImages.filter((url) => !editor.removedGalleryImages.includes(url));
+
   return (
     <AdminPage
-      title={tourId ? "Edit tour" : "Add tour"}
-      subtitle={tourId ? "Update this tour and its activities" : "Create a tour and its activities"}
+      title={id !== null ? "Edit tour" : "Add tour"}
+      subtitle={id !== null ? "Update this tour, its stops and extras" : "Create a tour with its stops and extras"}
       contentClassName="gap-[18px] py-[22px]"
     >
       <div className="flex items-center justify-between gap-3">
         <BackLink to="/admin/tours" label="Tours" />
-        <DraftBadge label="Draft — not saved" className="text-[13px]" />
+        {loadedTour ? (
+          <PublishChip status={loadedTour.status} withDot />
+        ) : (
+          id === null && <DraftBadge label="Not saved yet" className="text-[13px]" />
+        )}
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6 xl:flex-row xl:items-start">
-        <Panel className="flex min-w-0 flex-1 flex-col gap-[18px] rounded-[18px] px-[26px] pt-[22px] pb-6">
-          <ol className="flex items-center">
-            {steps.map((step, index) => (
-              <Fragment key={step}>
-                {index > 0 && (
-                  <li aria-hidden className="flex flex-1 px-[14px]">
-                    <span className="h-[2px] flex-1 rounded-[2px] bg-admin-step-line" />
-                  </li>
-                )}
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => goToStep(index)}
-                    aria-current={index === activeStep ? "step" : undefined}
-                    className="flex cursor-pointer items-center gap-[9px]"
-                  >
-                    <span
-                      className={cn(
-                        "flex size-[26px] items-center justify-center rounded-full text-[12px] font-bold",
-                        index <= activeStep ? "bg-admin-orange text-white" : "bg-admin-step-idle-bg text-admin-step-idle",
-                      )}
-                    >
-                      {index + 1}
-                    </span>
-                    <span
-                      className={cn(
-                        "hidden text-[13.5px] font-bold whitespace-nowrap sm:inline",
-                        index <= activeStep ? "text-admin-text" : "text-admin-step-idle",
-                      )}
-                    >
-                      {step}
-                    </span>
-                  </button>
-                </li>
-              </Fragment>
-            ))}
-          </ol>
-          <Divider />
-          <section ref={detailsRef} aria-label="Tour details" className="flex scroll-mt-6 flex-col gap-3">
-            <SectionEyebrow>TOUR DETAILS</SectionEyebrow>
-            <ListingDetailsFields
-              draft={draft}
-              onChange={change}
-              durationLabel="Duration (days)"
-              compactColumnClassName="w-[110px]"
-              fieldClassName="gap-[6px]"
-            />
-          </section>
-          <Divider />
-          <div ref={activitiesRef} className="scroll-mt-6">
-            <ActivitiesEditor activities={draft.activities} onChange={(activities) => change({ activities })} />
-          </div>
-          <Divider />
-          <CoverImageField
-            value={draft.coverImage}
-            onChange={(coverImage) => change({ coverImage })}
-            className="gap-[6px]"
-          />
-        </Panel>
+      {warnings.length > 0 && (
+        <p role="alert" className="rounded-[12px] bg-admin-danger-bg px-4 py-3 text-[13px] font-medium text-admin-danger">
+          Saved, but some changes did not apply. {warnings.join(" ")}
+        </p>
+      )}
 
-        <div className="flex w-full flex-col gap-[18px] xl:w-[384px] xl:shrink-0">
-          <section
-            aria-label="Live preview"
-            className="flex flex-col items-center gap-[10px] rounded-[18px] border border-admin-thead-border bg-admin-thead px-[18px] pt-4 pb-[18px]"
-          >
-            <p className="flex w-full items-center gap-[6px] text-[11px] font-bold tracking-[0.5px] text-admin-subtle">
-              <span className="size-[6px] rounded-[3px] bg-admin-orange" />
-              LIVE PREVIEW
-            </p>
-            <TourCardPreview draft={draft} />
-          </section>
+      <AsyncState
+        loading={id !== null && (tour.loading || !ready)}
+        error={id !== null ? tour.error : null}
+        onRetry={tour.reload}
+      >
+        {ready && (
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6 xl:flex-row xl:items-start">
+            <Panel className="flex min-w-0 flex-1 flex-col gap-[18px] rounded-[18px] px-[26px] pt-[22px] pb-6">
+              <ol className="flex items-center">
+                {steps.map((step, index) => (
+                  <Fragment key={step}>
+                    {index > 0 && (
+                      <li aria-hidden className="flex flex-1 px-[14px]">
+                        <span className="h-[2px] flex-1 rounded-[2px] bg-admin-step-line" />
+                      </li>
+                    )}
+                    <li>
+                      <button
+                        type="button"
+                        onClick={() => goToStep(index)}
+                        aria-current={index === activeStep ? "step" : undefined}
+                        className="flex cursor-pointer items-center gap-[9px]"
+                      >
+                        <span
+                          className={cn(
+                            "flex size-[26px] items-center justify-center rounded-full text-[12px] font-bold",
+                            index <= activeStep ? "bg-admin-orange text-white" : "bg-admin-step-idle-bg text-admin-step-idle",
+                          )}
+                        >
+                          {index + 1}
+                        </span>
+                        <span
+                          className={cn(
+                            "hidden text-[13.5px] font-bold whitespace-nowrap sm:inline",
+                            index <= activeStep ? "text-admin-text" : "text-admin-step-idle",
+                          )}
+                        >
+                          {step}
+                        </span>
+                      </button>
+                    </li>
+                  </Fragment>
+                ))}
+              </ol>
+              <Divider />
+              <section ref={detailsRef} aria-label="Tour details" className="flex scroll-mt-6 flex-col gap-3">
+                <SectionEyebrow>TOUR DETAILS</SectionEyebrow>
+                <ListingDetailsFields kind="tour" draft={draft} onChange={change} fieldClassName="gap-[6px]" />
+                <HighlightsEditor highlights={draft.highlights} onChange={(highlights) => change({ highlights })} />
+              </section>
+              <Divider />
+              <div ref={stopsRef} className="flex scroll-mt-6 flex-col gap-[18px]">
+                <AsyncState loading={locations.loading} error={locations.error} onRetry={locations.reload}>
+                  <StopsEditor
+                    locations={allLocations}
+                    value={draft.locationIds}
+                    defaultCountry={draft.country}
+                    onChange={(locationIds) => change({ locationIds })}
+                    onCreateLocation={async (input) => {
+                      const created = await adminLocationsApi.create(input);
+                      setCreatedLocations((current) => [...current, created]);
+                      return created;
+                    }}
+                  />
+                </AsyncState>
+                <Divider />
+                <AsyncState loading={catalog.loading} error={catalog.error} onRetry={catalog.reload}>
+                  <ExtrasEditor
+                    catalog={catalog.data?.items ?? []}
+                    value={draft.extras}
+                    onChange={(extras) => change({ extras })}
+                  />
+                </AsyncState>
+              </div>
+              <Divider />
+              <CoverImageField
+                value={draft.coverImage}
+                onSelect={(file, coverImage) => {
+                  editor.selectMainImage(file);
+                  change({ coverImage });
+                }}
+                className="gap-[6px]"
+              />
+              <GalleryField
+                existing={visibleGallery}
+                pending={editor.galleryFiles}
+                onRemoveExisting={editor.removeExistingGallery}
+                onAddFiles={editor.addGalleryFiles}
+                onRemovePending={editor.removePendingGallery}
+              />
+            </Panel>
 
-          <div ref={publishRef} className="scroll-mt-6">
-            <PublishingPanel
-              mode={draft.publishMode}
-              publishOn={draft.publishOn}
-              onModeChange={(publishMode) => change({ publishMode })}
-              onPublishOnChange={(publishOn) => change({ publishOn })}
-              onSaveDraft={() => save("draft")}
-              publishLabel={tourId ? "Save tour" : "Publish tour"}
-              canSubmit={canSubmit}
-              className="rounded-[18px] px-[18px] pt-4 pb-[18px]"
-            />
-          </div>
-        </div>
-      </form>
+            <div className="flex w-full flex-col gap-[18px] xl:w-[384px] xl:shrink-0">
+              <section
+                aria-label="Live preview"
+                className="flex flex-col items-center gap-[10px] rounded-[18px] border border-admin-thead-border bg-admin-thead px-[18px] pt-4 pb-[18px]"
+              >
+                <p className="flex w-full items-center gap-[6px] text-[11px] font-bold tracking-[0.5px] text-admin-subtle">
+                  <span className="size-[6px] rounded-[3px] bg-admin-orange" />
+                  LIVE PREVIEW
+                </p>
+                <TourCardPreview draft={draft} />
+              </section>
+
+              <div ref={publishRef} className="scroll-mt-6">
+                <PublishingPanel
+                  mode={draft.publishMode}
+                  publishOn={draft.publishOn}
+                  onModeChange={(publishMode) => change({ publishMode })}
+                  onPublishOnChange={(publishOn) => change({ publishOn })}
+                  onSaveDraft={() => void editor.save("draft")}
+                  publishLabel={id !== null ? "Save tour" : "Publish tour"}
+                  submitting={editor.submitting}
+                  error={editor.error}
+                  className="rounded-[18px] px-[18px] pt-4 pb-[18px]"
+                />
+              </div>
+            </div>
+          </form>
+        )}
+      </AsyncState>
     </AdminPage>
   );
 }

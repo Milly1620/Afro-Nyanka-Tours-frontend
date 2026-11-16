@@ -1,20 +1,22 @@
-import { ArrowRight, Clock, Locate } from "lucide-react";
-import capeCoastCastle from "@/assets/admin/cape-coast-castle.jpg";
-import { formatGhs, parseAmount } from "@/lib/adminFormat";
-import type { ListingDraft } from "@/types/admin";
+import { ArrowRight, Clock, ImageIcon, Locate } from "lucide-react";
+import { parseOptionalWhole, type ListingDraft } from "@/components/admin/listings/listingMapping";
+import { formatGhs } from "@/lib/adminFormat";
 
 export function TourCardPreview({ draft }: { draft: ListingDraft }) {
-  const location = draft.destination.split(",")[0]?.trim() || "Destination";
+  const location = [draft.region, draft.country].filter(Boolean).join(", ") || "Destination";
   const days = Number(draft.durationDays) || 1;
+  const price = parseOptionalWhole(draft.price).value;
 
   return (
     <div className="relative h-[445.6px] w-[287.86px] overflow-hidden rounded-[14.76px] border-x-[0.92px] border-b-[0.92px] border-landing-card-border bg-white font-inter">
       <div className="absolute inset-x-0 top-0 h-[251.17px] overflow-hidden rounded-t-[14.76px]">
-        <img
-          src={draft.coverImage ?? capeCoastCastle}
-          alt=""
-          className="size-full object-cover"
-        />
+        {draft.coverImage ? (
+          <img src={draft.coverImage} alt="" className="size-full object-cover" />
+        ) : (
+          <div className="admin-cover-stripes flex size-full items-center justify-center">
+            <ImageIcon size={32} strokeWidth={1.5} absoluteStrokeWidth className="text-admin-cover-icon" />
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 to-[88%]" />
       </div>
       <div className="absolute top-[268px] left-[22.14px] flex w-[241.73px] flex-col gap-2">
@@ -28,9 +30,9 @@ export function TourCardPreview({ draft }: { draft: ListingDraft }) {
           </p>
           <p className="flex items-center py-[3px]">
             <span className="text-[22.14px] leading-[33.2px] font-medium tracking-[0.44px] text-landing-ink">
-              {formatGhs(parseAmount(draft.price))}
+              {price === null ? "Price on request" : formatGhs(price)}
             </span>
-            <span className="text-[16.6px] text-landing-grey">/Person</span>
+            {price !== null && <span className="text-[16.6px] text-landing-grey">/Person</span>}
           </p>
         </div>
       </div>
