@@ -66,6 +66,14 @@ export interface Event {
   extras: ListingExtra[];
 }
 
+export interface Testimonial {
+  id: number;
+  author_name: string;
+  tour_name: string | null;
+  rating: number;
+  quote: string;
+}
+
 export interface PublicSettings {
   company_name: string;
   logo_url: string | null;

@@ -4,7 +4,15 @@ _Draft, 15 Nov 2026. Tested end to end against the live API with the admin accou
 
 ## Summary
 
-**No backend change is required to ship.** Every flow in the handoff works as documented, and the frontend is already adapted to the differences below. The items are ordered by how much they would help.
+**No backend change is required for the admin flows.** Every flow in the handoff works as documented, and the frontend is already adapted to the differences below. The one new request is the testimonials endpoint in section 0. The items are ordered by how much they would help.
+
+## 0. Testimonials for the landing page ("What travellers say")
+
+The new landing page design has a testimonials section after "Our services". The API has no endpoint for it, so the frontend shows the three quotes from the Figma design until this endpoint returns testimonials, then switches to the API automatically.
+
+- `GET /api/testimonials/` (public) returns `[{id, author_name, tour_name, rating, quote}]`, where `rating` is 1 to 5 and `tour_name` may be null. The landing page shows the first three, so the API should return them in display order.
+- Admin CRUD under `/api/admin/testimonials` (list, create, update, delete, and a published or hidden flag) so the client can manage the quotes. The admin screen for it is not built yet.
+
 
 ## 1. Handoff doc corrections (no code change)
 

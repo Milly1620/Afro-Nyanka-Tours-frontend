@@ -17,6 +17,7 @@ import { BackLink } from "@/components/admin/ui/BackLink";
 import { Divider, Panel, SectionEyebrow } from "@/components/admin/ui/Panel";
 import { DraftBadge, PublishChip } from "@/components/admin/ui/StatusChip";
 import { loadEventDraft, resetEventDraft, updateEventDraft } from "@/listingDraftSlice";
+import { holdDraft, peekHeldDraft, releaseHeldDraft } from "@/lib/draftHold";
 import { useResource } from "@/hooks/useResource";
 import { adminEventsApi, adminExtrasApi, adminLocationsApi } from "@/services/adminApi";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -28,6 +29,7 @@ export function CreateEventPage() {
   const draft = useAppSelector((state) => state.listingDraft.eventDraft);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [heldFiles] = useState(() => peekHeldDraft("event"));
   const [ready, setReady] = useState(false);
   const [createdLocations, setCreatedLocations] = useState<Location[]>([]);
 
@@ -37,19 +39,27 @@ export function CreateEventPage() {
   const allLocations = [...(locations.data ?? []), ...createdLocations];
 
   useEffect(() => {
+    if (heldFiles) {
+      setReady(true);
+      return;
+    }
     if (id !== null) {
       setReady(false);
       return;
     }
     dispatch(resetEventDraft());
     setReady(true);
-  }, [id, dispatch]);
+  }, [id, dispatch, heldFiles]);
 
   useEffect(() => {
-    if (id === null || !event.data || event.data.id !== id) return;
+    if (heldFiles || id === null || !event.data || event.data.id !== id) return;
     dispatch(loadEventDraft(draftFromEvent(event.data)));
     setReady(true);
-  }, [id, event.data, dispatch]);
+  }, [id, event.data, dispatch, heldFiles]);
+
+  useEffect(() => {
+    releaseHeldDraft("event");
+  }, []);
 
   const loadedEvent = id !== null && event.data?.id === id ? event.data : null;
 
@@ -65,9 +75,20 @@ export function CreateEventPage() {
     listPath: "/admin/events",
     editPath: (savedId) => `/admin/events/${savedId}/edit`,
     onFollowUpFailure: event.reload,
+    heldFiles,
   });
 
   const change = (changes: Partial<typeof draft>) => dispatch(updateEventDraft(changes));
+
+  const openPreview = () => {
+    holdDraft("event", {
+      mainImage: editor.mainImage,
+      galleryFiles: editor.galleryFiles,
+      removedGalleryImages: editor.removedGalleryImages,
+    });
+    if (editor.mainImage) change({ coverImage: URL.createObjectURL(editor.mainImage) });
+    navigate("/admin/events/preview");
+  };
 
   const handleSubmit = (submitEvent: FormEvent<HTMLFormElement>) => {
     submitEvent.preventDefault();
@@ -157,7 +178,7 @@ export function CreateEventPage() {
                 <p className="text-[14px] leading-[1.4] text-admin-text-2">
                   See how this event appears on your landing page before you publish it.
                 </p>
-                <AdminButton variant="tinted" className="w-full py-3" onClick={() => navigate("/admin/events/preview")}>
+                <AdminButton variant="tinted" className="w-full py-3" onClick={openPreview}>
                   <Eye size={17} strokeWidth={1.85} absoluteStrokeWidth />
                   Open preview
                   <ArrowRight size={15} strokeWidth={1.85} absoluteStrokeWidth />

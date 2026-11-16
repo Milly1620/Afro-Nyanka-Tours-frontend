@@ -135,7 +135,7 @@ export function eventPeopleLimit(event: Pick<EventListing, "seats_left">): numbe
   return event.seats_left;
 }
 
-function parseCalendarDate(value: string): Date {
+export function parseCalendarDate(value: string): Date {
   return new Date(`${value.slice(0, 10)}T00:00:00`);
 }
 

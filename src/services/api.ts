@@ -5,6 +5,7 @@ import type {
   BookingPayload,
   Event,
   PublicSettings,
+  Testimonial,
   Tour,
 } from "@/types/api";
 
@@ -110,6 +111,13 @@ export const eventsApi = {
 
   get: async (id: number): Promise<Event> => {
     const response = await api.get<Event>(`/api/events/${id}`);
+    return response.data;
+  },
+};
+
+export const testimonialsApi = {
+  list: async (): Promise<Testimonial[]> => {
+    const response = await api.get<Testimonial[]>(`/api/testimonials/`);
     return response.data;
   },
 };

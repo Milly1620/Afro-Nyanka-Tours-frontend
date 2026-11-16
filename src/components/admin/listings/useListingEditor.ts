@@ -10,6 +10,7 @@ import {
   type PublishIntent,
 } from "@/components/admin/listings/listingMapping";
 import { saveListing, type ListingApi } from "@/components/admin/listings/saveListing";
+import type { HeldFiles } from "@/lib/draftHold";
 import { toast } from "@/lib/toast";
 import { getErrorMessage } from "@/services/api";
 import type { AdminExtra, ListingExtra, PublishStatus } from "@/types/api";
@@ -26,6 +27,7 @@ interface UseListingEditorOptions<TInput, TEntity extends { id: number }> {
   listPath: string;
   editPath: (id: number) => string;
   onFollowUpFailure: () => void;
+  heldFiles?: HeldFiles | null;
 }
 
 export interface ListingEditor {
@@ -37,6 +39,7 @@ export interface ListingEditor {
   addGalleryFiles: (files: File[]) => void;
   removePendingGallery: (index: number) => void;
   removeExistingGallery: (url: string) => void;
+  mainImage: File | null;
   save: (intent: PublishIntent) => Promise<void>;
 }
 
@@ -46,9 +49,9 @@ export function useListingEditor<TInput, TEntity extends { id: number }>(
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [mainImage, setMainImage] = useState<File | null>(null);
-  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
-  const [removedGalleryImages, setRemovedGalleryImages] = useState<string[]>([]);
+  const [mainImage, setMainImage] = useState<File | null>(options.heldFiles?.mainImage ?? null);
+  const [galleryFiles, setGalleryFiles] = useState<File[]>(options.heldFiles?.galleryFiles ?? []);
+  const [removedGalleryImages, setRemovedGalleryImages] = useState<string[]>(options.heldFiles?.removedGalleryImages ?? []);
 
   const save = async (intent: PublishIntent) => {
     const status = resolveStatus(options.draft, intent);
@@ -103,6 +106,7 @@ export function useListingEditor<TInput, TEntity extends { id: number }>(
     error,
     galleryFiles,
     removedGalleryImages,
+    mainImage,
     selectMainImage: setMainImage,
     addGalleryFiles: (files) => setGalleryFiles((current) => [...current, ...files]),
     removePendingGallery: (index) => setGalleryFiles((current) => current.filter((_, position) => position !== index)),
