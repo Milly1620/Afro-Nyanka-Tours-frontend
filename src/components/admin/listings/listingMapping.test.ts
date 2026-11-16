@@ -5,6 +5,7 @@ import {
   emptyDraft,
   eventInputFromDraft,
   inclusiveDays,
+  savedMessage,
   moveItem,
   parseOptionalWhole,
   resolveStatus,
@@ -262,5 +263,23 @@ describe("moveItem", () => {
     expect(moveItem([1, 2, 3], 0, 1)).toEqual([2, 1, 3]);
     expect(moveItem([1, 2, 3], 0, -1)).toEqual([1, 2, 3]);
     expect(moveItem([1, 2, 3], 2, 3)).toEqual([1, 2, 3]);
+  });
+});
+
+describe("savedMessage", () => {
+  it("says a draft was saved", () => {
+    expect(savedMessage("tour", "draft", true)).toBe("Tour saved as a draft.");
+  });
+
+  it("says a new published listing was published", () => {
+    expect(savedMessage("event", "published", true)).toBe("Event published.");
+  });
+
+  it("says an edited published listing was updated", () => {
+    expect(savedMessage("tour", "published", false)).toBe("Tour updated.");
+  });
+
+  it("says a scheduled listing was scheduled", () => {
+    expect(savedMessage("event", "scheduled", false)).toBe("Event scheduled.");
   });
 });

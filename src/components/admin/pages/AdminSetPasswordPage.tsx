@@ -6,6 +6,7 @@ import {
   authInputShell,
   authSubmitClass,
 } from "@/components/admin/layout/AdminAuthLayout";
+import { toast } from "@/lib/toast";
 import { adminAuthApi } from "@/services/adminApi";
 import { getErrorMessage, getErrorStatus } from "@/services/api";
 
@@ -41,13 +42,15 @@ export function AdminSetPasswordPage() {
     setError("");
     try {
       await adminAuthApi.setPassword(token, password);
+      toast.success("Password updated, please sign in");
       navigate("/admin/login", { replace: true });
     } catch (reason) {
-      setError(
+      const message =
         getErrorStatus(reason) === 400
           ? "This link is invalid, already used or has expired. Request a new one."
-          : getErrorMessage(reason, "We couldn't set your password. Please try again."),
-      );
+          : getErrorMessage(reason, "We couldn't set your password. Please try again.");
+      setError(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }

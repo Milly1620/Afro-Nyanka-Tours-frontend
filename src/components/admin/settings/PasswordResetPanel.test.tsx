@@ -3,6 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { Provider } from "react-redux";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PasswordResetPanel, resetRequestError } from "@/components/admin/settings/PasswordResetPanel";
+import { Toaster } from "@/components/ui/Toaster";
+import { clearToasts } from "@/lib/toast";
 import { setAdminEmail } from "@/adminSlice";
 import { adminAuthApi } from "@/services/adminApi";
 import store from "@/store";
@@ -12,6 +14,7 @@ function renderPanel(email: string | null) {
   render(
     <Provider store={store}>
       <PasswordResetPanel />
+      <Toaster />
     </Provider>,
   );
 }
@@ -19,6 +22,7 @@ function renderPanel(email: string | null) {
 describe("PasswordResetPanel", () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    clearToasts();
   });
 
   it("requests a reset link for the signed-in admin", async () => {
@@ -26,7 +30,7 @@ describe("PasswordResetPanel", () => {
     renderPanel("owner@example.com");
     await userEvent.click(screen.getByRole("button", { name: /email me a reset link/i }));
     await waitFor(() => expect(forgot).toHaveBeenCalledWith("owner@example.com"));
-    expect(await screen.findByRole("status")).toHaveTextContent(/check your inbox/i);
+    expect(await screen.findByRole("status")).toHaveTextContent(/reset link sent to owner@example.com/i);
   });
 
   it("shows an error when the request fails", async () => {

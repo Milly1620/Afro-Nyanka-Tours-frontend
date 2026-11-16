@@ -162,6 +162,17 @@ export function resolveStatus(draft: ListingDraft, intent: PublishIntent): Publi
   return draft.publishMode === "schedule" ? "scheduled" : "published";
 }
 
+export function listingNoun(kind: ListingKind): string {
+  return kind === "tour" ? "Tour" : "Event";
+}
+
+export function savedMessage(kind: ListingKind, status: PublishStatus, created: boolean): string {
+  const noun = listingNoun(kind);
+  if (status === "draft") return `${noun} saved as a draft.`;
+  if (status === "scheduled") return `${noun} scheduled.`;
+  return created ? `${noun} published.` : `${noun} updated.`;
+}
+
 export function cleanHighlights(highlights: string[]): string[] {
   return highlights.map((highlight) => highlight.trim()).filter(Boolean);
 }

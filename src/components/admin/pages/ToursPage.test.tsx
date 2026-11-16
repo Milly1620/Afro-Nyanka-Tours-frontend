@@ -3,6 +3,8 @@ import { Provider } from "react-redux";
 import { MemoryRouter } from "react-router-dom";
 import { AxiosError } from "axios";
 import { ToursPage } from "@/components/admin/pages/ToursPage";
+import { Toaster } from "@/components/ui/Toaster";
+import { clearToasts } from "@/lib/toast";
 import store from "@/store";
 import { adminToursApi } from "@/services/adminApi";
 import type { AdminTour } from "@/types/api";
@@ -46,6 +48,7 @@ function renderPage() {
     <Provider store={store}>
       <MemoryRouter>
         <ToursPage />
+        <Toaster />
       </MemoryRouter>
     </Provider>,
   );
@@ -64,11 +67,11 @@ function conflict(detail: string) {
 describe("ToursPage", () => {
   beforeEach(() => {
     vi.mocked(adminToursApi.list).mockResolvedValue(listing);
-    vi.spyOn(window, "confirm").mockReturnValue(true);
   });
 
   afterEach(() => {
     vi.clearAllMocks();
+    clearToasts();
   });
 
   it("shows tours from the API with price on request for unpriced tours", async () => {
@@ -93,23 +96,62 @@ describe("ToursPage", () => {
     );
   });
 
+  it("asks for confirmation in a dialog before deleting", async () => {
+    renderPage();
+    await screen.findByText("Cape Coast Heritage");
+    fireEvent.click(screen.getByRole("button", { name: "Delete Cape Coast Heritage" }));
+    expect(await screen.findByRole("alertdialog", { name: "Delete tour" })).toHaveTextContent("Cape Coast Heritage");
+    expect(adminToursApi.remove).not.toHaveBeenCalled();
+  });
+
+  it("keeps the tour when the dialog is cancelled", async () => {
+    renderPage();
+    await screen.findByText("Cape Coast Heritage");
+    fireEvent.click(screen.getByRole("button", { name: "Delete Cape Coast Heritage" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Cancel" }));
+    await waitFor(() => expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument());
+    expect(adminToursApi.remove).not.toHaveBeenCalled();
+  });
+
+  it("deletes the tour and shows a success toast when confirmed", async () => {
+    vi.mocked(adminToursApi.remove).mockResolvedValue(undefined);
+    renderPage();
+    await screen.findByText("Cape Coast Heritage");
+    fireEvent.click(screen.getByRole("button", { name: "Delete Cape Coast Heritage" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Delete tour" }));
+    await waitFor(() => expect(adminToursApi.remove).toHaveBeenCalledWith(1));
+    expect(await screen.findByRole("status")).toHaveTextContent('"Cape Coast Heritage" deleted.');
+    await waitFor(() => expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument());
+  });
+
+  it("shows an error toast when deleting fails", async () => {
+    vi.mocked(adminToursApi.remove).mockRejectedValue(new Error("down"));
+    renderPage();
+    await screen.findByText("Cape Coast Heritage");
+    fireEvent.click(screen.getByRole("button", { name: "Delete Cape Coast Heritage" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Delete tour" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("We couldn't delete this tour.");
+  });
+
   it("offers to set a tour with bookings to draft when deleting is refused", async () => {
     vi.mocked(adminToursApi.remove).mockRejectedValue(conflict("Tour has bookings"));
     vi.mocked(adminToursApi.update).mockResolvedValue(tour({ status: "draft" }));
     renderPage();
     await screen.findByText("Cape Coast Heritage");
     fireEvent.click(screen.getByRole("button", { name: "Delete Cape Coast Heritage" }));
-    expect(await screen.findByText("Tour has bookings")).toBeInTheDocument();
+    fireEvent.click(await screen.findByRole("button", { name: "Delete tour" }));
+    expect((await screen.findAllByText("Tour has bookings")).length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole("button", { name: "Set to draft" }));
     await waitFor(() =>
       expect(adminToursApi.update).toHaveBeenCalledWith(1, { status: "draft", publish_at: null }),
     );
+    expect(await screen.findByText('"Cape Coast Heritage" set to draft.')).toBeInTheDocument();
   });
 
   it("shows an error with a retry when the list fails", async () => {
     vi.mocked(adminToursApi.list).mockRejectedValueOnce(new Error("down"));
     renderPage();
-    expect(await screen.findByRole("alert")).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Try again" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
     expect(await screen.findByText("Cape Coast Heritage")).toBeInTheDocument();
   });

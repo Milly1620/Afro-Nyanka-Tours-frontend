@@ -8,6 +8,7 @@ import {
   authSubmitClass,
 } from "@/components/admin/layout/AdminAuthLayout";
 import { saveAdminSession } from "@/lib/adminSession";
+import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { adminAuthApi } from "@/services/adminApi";
 import { getErrorMessage, getErrorStatus } from "@/services/api";
@@ -49,9 +50,12 @@ export function AdminLoginPage() {
       });
       saveAdminSession(session.access_token, session.expires_in);
       dispatch(signIn());
+      toast.success("Signed in");
       navigate(redirectTo, { replace: true });
     } catch (reason) {
-      setError(loginErrorMessage(reason));
+      const message = loginErrorMessage(reason);
+      setError(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }

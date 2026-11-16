@@ -6,6 +6,7 @@ import listingDraftReducer from "@/listingDraftSlice";
 import { clearAdminSession } from "@/lib/adminSession";
 import { setUnauthorizedHandler } from "@/services/api";
 import { signOut } from "@/adminSlice";
+import { toast } from "@/lib/toast";
 
 interface SearchData {
   country: string;
@@ -47,7 +48,10 @@ const store = configureStore({
   },
 });
 
-setUnauthorizedHandler(() => store.dispatch(signOut()));
+setUnauthorizedHandler(() => {
+  store.dispatch(signOut());
+  toast.info("Your session expired. Please sign in again.");
+});
 
 store.subscribe(() => {
   if (!store.getState().admin.isSignedIn) clearAdminSession();

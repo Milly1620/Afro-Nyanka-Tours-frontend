@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NativeSelect } from "@/components/ui/NativeSelect";
 import { ALL_COUNTRIES } from "@/data/countries";
 import { EstimatedTotal } from "@/components/booking/EstimatedTotal";
 import { ExtrasPicker } from "@/components/booking/ExtrasPicker";
@@ -10,6 +11,7 @@ import {
   estimateTotal,
   eventPeopleLimit,
 } from "@/lib/booking";
+import { toast } from "@/lib/toast";
 import { bookingsApi, getErrorMessage, getErrorStatus } from "@/services/api";
 import type { BookingCreateResponse, Event as EventListing } from "@/types/api";
 
@@ -70,8 +72,11 @@ export function EventBookingForm({ event, onBooked, onSeatsChanged }: EventBooki
         ),
       );
       onBooked(confirmation);
+      toast.success(`Booking ${confirmation.booking.reference} received`);
     } catch (reason) {
-      setError(getErrorMessage(reason));
+      const message = getErrorMessage(reason);
+      setError(message);
+      toast.error(message);
       if (getErrorStatus(reason) === 409) onSeatsChanged();
     } finally {
       setIsSubmitting(false);
@@ -115,7 +120,7 @@ export function EventBookingForm({ event, onBooked, onSeatsChanged }: EventBooki
           <label htmlFor="event-country" className="block text-sm font-medium text-gray-700 mb-2">
             Country of origin
           </label>
-          <select
+          <NativeSelect
             id="event-country"
             value={country}
             onChange={(e) => setCountry(e.target.value)}
@@ -127,7 +132,7 @@ export function EventBookingForm({ event, onBooked, onSeatsChanged }: EventBooki
                 {option}
               </option>
             ))}
-          </select>
+          </NativeSelect>
         </div>
         <div>
           <label htmlFor="event-age" className="block text-sm font-medium text-gray-700 mb-2">

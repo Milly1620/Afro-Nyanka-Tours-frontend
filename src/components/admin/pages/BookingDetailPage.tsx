@@ -5,10 +5,16 @@ import { AdminButton } from "@/components/admin/ui/AdminButton";
 import { AsyncState } from "@/components/admin/ui/AsyncState";
 import { BackLink } from "@/components/admin/ui/BackLink";
 import { Divider, Panel, PanelHeading } from "@/components/admin/ui/Panel";
+import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
 import { StatusChip } from "@/components/admin/ui/StatusChip";
-import { allowedStatusMoves, bookingStatusActionLabels } from "@/components/admin/bookings/bookingStatus";
+import {
+  allowedStatusMoves,
+  bookingStatusActionLabels,
+  bookingStatusSuccessMessage,
+} from "@/components/admin/bookings/bookingStatus";
 import { useResource } from "@/hooks/useResource";
 import { formatDateTime, formatGhs, formatShortDate } from "@/lib/adminFormat";
+import { toast } from "@/lib/toast";
 import { adminBookingsApi } from "@/services/adminApi";
 import { getErrorMessage } from "@/services/api";
 import type { AdminBookingDetail, BookingStatus } from "@/types/api";
@@ -35,24 +41,31 @@ export function BookingDetailPage() {
 function BookingDetail({ detail, onChanged }: { detail: AdminBookingDetail; onChanged: () => void }) {
   const { booking, summary } = detail;
   const [pendingStatus, setPendingStatus] = useState<BookingStatus | null>(null);
-  const [error, setError] = useState("");
+  const [confirmingCancel, setConfirmingCancel] = useState(false);
 
   const moves = allowedStatusMoves(booking.status);
 
   const changeStatus = async (status: BookingStatus) => {
-    if (status === "cancelled" && !window.confirm(`Cancel booking ${summary.reference}? This cannot be undone.`)) {
-      return;
-    }
     setPendingStatus(status);
-    setError("");
     try {
       await adminBookingsApi.updateStatus(booking.id, status);
+      toast.success(bookingStatusSuccessMessage(summary.reference, status));
+      setConfirmingCancel(false);
       onChanged();
     } catch (reason) {
-      setError(getErrorMessage(reason, "We couldn't update the booking status."));
+      toast.error(getErrorMessage(reason, "We couldn't update the booking status."));
+      setConfirmingCancel(false);
     } finally {
       setPendingStatus(null);
     }
+  };
+
+  const handleMove = (status: BookingStatus) => {
+    if (status === "cancelled") {
+      setConfirmingCancel(true);
+      return;
+    }
+    void changeStatus(status);
   };
 
   return (
@@ -155,18 +168,24 @@ function BookingDetail({ detail, onChanged }: { detail: AdminBookingDetail; onCh
               size="lg"
               className="w-full"
               disabled={pendingStatus !== null}
-              onClick={() => changeStatus(status)}
+              onClick={() => handleMove(status)}
             >
               {pendingStatus === status ? "Updating..." : bookingStatusActionLabels[status]}
             </AdminButton>
           ))}
-          {error && (
-            <p role="alert" className="text-[12.5px] font-medium text-admin-danger">
-              {error}
-            </p>
-          )}
         </Panel>
       </div>
+
+      <ConfirmDialog
+        open={confirmingCancel}
+        title="Cancel booking"
+        message={`Cancel booking ${summary.reference}? This cannot be undone and any event seats it holds are released.`}
+        confirmLabel="Cancel booking"
+        cancelLabel="Keep booking"
+        loading={pendingStatus === "cancelled"}
+        onConfirm={() => void changeStatus("cancelled")}
+        onCancel={() => setConfirmingCancel(false)}
+      />
     </div>
   );
 }

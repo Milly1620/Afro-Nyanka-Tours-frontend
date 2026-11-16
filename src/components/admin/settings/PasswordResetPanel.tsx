@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AdminButton } from "@/components/admin/ui/AdminButton";
 import { Panel, PanelHeading } from "@/components/admin/ui/Panel";
+import { toast } from "@/lib/toast";
 import { adminAuthApi } from "@/services/adminApi";
 import { getErrorMessage, getErrorStatus } from "@/services/api";
 import { useAppSelector } from "@/store";
@@ -13,19 +14,15 @@ export function resetRequestError(error: unknown): string {
 export function PasswordResetPanel() {
   const email = useAppSelector((state) => state.admin.email);
   const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [error, setError] = useState("");
 
   const handleSend = async () => {
     if (!email) return;
     setSending(true);
-    setError("");
-    setSent(false);
     try {
       await adminAuthApi.forgotPassword(email);
-      setSent(true);
+      toast.success(`Reset link sent to ${email}. Check your inbox.`);
     } catch (reason) {
-      setError(resetRequestError(reason));
+      toast.error(resetRequestError(reason));
     } finally {
       setSending(false);
     }
@@ -44,17 +41,7 @@ export function PasswordResetPanel() {
         <AdminButton variant="secondary" size="lg" onClick={() => void handleSend()} disabled={!email || sending}>
           {sending ? "Sending..." : "Email me a reset link"}
         </AdminButton>
-        {sent && (
-          <span role="status" className="text-[12.5px] font-medium text-admin-published-ink">
-            Check your inbox for the link.
-          </span>
-        )}
       </div>
-      {error && (
-        <p role="alert" className="text-[12.5px] font-medium text-admin-danger">
-          {error}
-        </p>
-      )}
     </Panel>
   );
 }

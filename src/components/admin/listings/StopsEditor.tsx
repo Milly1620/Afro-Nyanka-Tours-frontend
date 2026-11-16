@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { ArrowDown, ArrowUp, Plus, Trash } from "lucide-react";
 import { AdminButton, IconButton } from "@/components/admin/ui/AdminButton";
 import { Field, TextInput } from "@/components/admin/ui/Field";
+import { NativeSelect } from "@/components/ui/NativeSelect";
 import { SectionEyebrow } from "@/components/admin/ui/Panel";
 import { moveItem } from "@/components/admin/listings/listingMapping";
 import { getErrorMessage } from "@/services/api";
@@ -16,7 +17,7 @@ interface StopsEditorProps {
 }
 
 const selectClass =
-  "h-[42px] min-w-0 flex-1 rounded-[10px] border border-admin-border bg-admin-field px-[13px] font-admin text-[14px] text-admin-text outline-none focus:border-admin-orange-line-strong focus:ring-2 focus:ring-admin-orange-soft";
+  "h-[42px] rounded-[10px] border border-admin-border bg-admin-field px-[13px] font-admin text-[14px] text-admin-text outline-none focus:border-admin-orange-line-strong focus:ring-2 focus:ring-admin-orange-soft";
 
 export function StopsEditor({ locations, value, defaultCountry, onChange, onCreateLocation }: StopsEditorProps) {
   const [choice, setChoice] = useState("");
@@ -117,10 +118,11 @@ export function StopsEditor({ locations, value, defaultCountry, onChange, onCrea
       </ol>
 
       <div className="flex items-center gap-[10px]">
-        <select
+        <NativeSelect
           aria-label="Choose a stop"
           value={choice}
           onChange={(event) => setChoice(event.target.value)}
+          wrapperClassName="min-w-0 flex-1"
           className={selectClass}
         >
           <option value="">Choose a location…</option>
@@ -129,7 +131,7 @@ export function StopsEditor({ locations, value, defaultCountry, onChange, onCrea
               {location.name} · {location.country}
             </option>
           ))}
-        </select>
+        </NativeSelect>
         <AdminButton variant="secondary" onClick={addChoice} disabled={!choice}>
           Add stop
         </AdminButton>

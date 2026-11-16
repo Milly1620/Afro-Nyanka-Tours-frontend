@@ -4,6 +4,7 @@ import { Mail, Phone, Clock, LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ContactForm } from "@/types";
+import { toast } from "@/lib/toast";
 import { contactApi } from "@/services/api";
 import { usePublicSettings } from "@/hooks/usePublicSettings";
 import { isAxiosError } from "axios";
@@ -101,10 +102,6 @@ const FormField = ({
 export function ContactSection() {
   const settings = usePublicSettings();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<{
-    type: "success" | "error" | null;
-    message: string;
-  }>({ type: null, message: "" });
 
   const {
     register,
@@ -115,7 +112,6 @@ export function ContactSection() {
 
   const onSubmit = async (data: ContactForm) => {
     setIsSubmitting(true);
-    setSubmitStatus({ type: null, message: "" });
 
     try {
       await contactApi.sendMessage({
@@ -126,17 +122,10 @@ export function ContactSection() {
           ? `${data.message}\n\nPhone: ${data.phone}`
           : data.message,
       });
-      setSubmitStatus({
-        type: "success",
-        message:
-          "Thank you! Your message has been sent successfully. We'll get back to you soon.",
-      });
+      toast.success("Thank you! Your message has been sent. We'll get back to you soon.");
       reset();
     } catch (error) {
-      setSubmitStatus({
-        type: "error",
-        message: getContactErrorMessage(error),
-      });
+      toast.error(getContactErrorMessage(error));
     } finally {
       setIsSubmitting(false);
     }
@@ -245,19 +234,6 @@ export function ContactSection() {
 
           {/* Contact Form */}
           <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-sm lg:w-2/3">
-            {/* Status Messages */}
-            {submitStatus.type && (
-              <div
-                className={`mb-6 p-4 rounded-lg ${
-                  submitStatus.type === "success"
-                    ? "bg-green-50 border border-green-200 text-green-800"
-                    : "bg-red-50 border border-red-200 text-red-800"
-                }`}
-              >
-                <p className="text-sm font-medium">{submitStatus.message}</p>
-              </div>
-            )}
-
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="space-y-6 lg:space-y-8"

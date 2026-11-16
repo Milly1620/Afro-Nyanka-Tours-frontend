@@ -1,4 +1,4 @@
-import { allowedStatusMoves } from "@/components/admin/bookings/bookingStatus";
+import { allowedStatusMoves, bookingStatusSuccessMessage } from "@/components/admin/bookings/bookingStatus";
 
 describe("allowedStatusMoves", () => {
   it("lets a pending booking be confirmed, paid or cancelled", () => {
@@ -21,5 +21,15 @@ describe("allowedStatusMoves", () => {
     (["pending", "confirmed", "paid", "cancelled"] as const).forEach((status) => {
       expect(allowedStatusMoves(status)).not.toContain("pending");
     });
+  });
+});
+
+describe("bookingStatusSuccessMessage", () => {
+  it.each([
+    ["confirmed", "Booking BC-7 confirmed"],
+    ["paid", "Booking BC-7 marked as paid"],
+    ["cancelled", "Booking BC-7 cancelled"],
+  ] as const)("describes a move to %s", (status, message) => {
+    expect(bookingStatusSuccessMessage("BC-7", status)).toBe(message);
   });
 });

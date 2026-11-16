@@ -14,6 +14,7 @@ import logo from "@/assets/footer_logo.svg";
 import { cn } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { signOut } from "@/adminSlice";
+import { toast } from "@/lib/toast";
 import { avatarToneFor } from "@/lib/adminFormat";
 import { Avatar } from "@/components/admin/ui/Avatar";
 
@@ -61,6 +62,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
 
   const handleSignOut = () => {
     dispatch(signOut());
+    toast.info("You have been signed out.");
     navigate("/admin/login");
   };
 

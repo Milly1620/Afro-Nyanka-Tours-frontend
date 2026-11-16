@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useState, type FormEvent, type RefObject } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { AdminPage } from "@/components/admin/layout/AdminPage";
 import { CoverImageField } from "@/components/admin/forms/CoverImageField";
 import { HighlightsEditor } from "@/components/admin/forms/HighlightsEditor";
@@ -30,8 +30,6 @@ export function AddTourPage() {
   const draft = useAppSelector((state) => state.listingDraft.tourDraft);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
-  const warnings = (location.state as { warnings?: string[] } | null)?.warnings ?? [];
   const [activeStep, setActiveStep] = useState(0);
   const [ready, setReady] = useState(false);
   const [createdLocations, setCreatedLocations] = useState<Location[]>([]);
@@ -104,11 +102,6 @@ export function AddTourPage() {
         )}
       </div>
 
-      {warnings.length > 0 && (
-        <p role="alert" className="rounded-[12px] bg-admin-danger-bg px-4 py-3 text-[13px] font-medium text-admin-danger">
-          Saved, but some changes did not apply. {warnings.join(" ")}
-        </p>
-      )}
 
       <AsyncState
         loading={id !== null && (tour.loading || !ready)}

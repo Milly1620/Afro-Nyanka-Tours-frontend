@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EventBookingForm, validateEventBooking } from "@/components/booking/EventBookingForm";
+import { toast } from "@/lib/toast";
 import { bookingsApi } from "@/services/api";
 import type { BookingCreateResponse, Event as EventListing } from "@/types/api";
 
@@ -76,7 +77,16 @@ describe("validateEventBooking", () => {
   });
 });
 
+vi.mock("@/lib/toast", () => ({
+  toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() },
+}));
+
 describe("EventBookingForm", () => {
+  beforeEach(() => {
+    vi.mocked(toast.success).mockClear();
+    vi.mocked(toast.error).mockClear();
+  });
+
   it("books the event with its id and the chosen extras and no amount", async () => {
     vi.mocked(bookingsApi.create).mockResolvedValue(confirmation);
     const onBooked = vi.fn();
@@ -85,6 +95,7 @@ describe("EventBookingForm", () => {
     await user.click(screen.getByLabelText(/Airport pickup/));
     await user.click(screen.getByRole("button", { name: "Book now" }));
     await waitFor(() => expect(onBooked).toHaveBeenCalledWith(confirmation));
+    expect(toast.success).toHaveBeenCalledWith(`Booking ${confirmation.booking.reference} received`);
     expect(bookingsApi.create).toHaveBeenCalledWith({
       customer_name: "Ama Mensah",
       customer_email: "ama@example.com",
@@ -108,6 +119,7 @@ describe("EventBookingForm", () => {
     const user = await fillForm("2");
     await user.click(screen.getByRole("button", { name: "Book now" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("Only 1 seats left");
+    expect(toast.error).toHaveBeenCalledWith("Only 1 seats left");
     expect(onSeatsChanged).toHaveBeenCalledTimes(1);
   });
 
@@ -117,5 +129,6 @@ describe("EventBookingForm", () => {
     await user.click(screen.getByRole("button", { name: "Book now" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("Only 3 seats are left");
     expect(bookingsApi.create).not.toHaveBeenCalled();
+    expect(toast.error).not.toHaveBeenCalled();
   });
 });

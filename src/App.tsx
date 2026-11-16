@@ -7,6 +7,7 @@ import { EventsPage } from "./components/pages/EventsPage";
 import { HomePage } from "./components/pages/HomePage";
 import { CarouselProvider } from "./components/sections/CarouselContext";
 import { AdminRoutes } from "./components/admin/AdminRoutes";
+import { Toaster } from "./components/ui/Toaster";
 
 function PublicSite() {
   const location = useLocation();
@@ -32,10 +33,13 @@ function PublicSite() {
 
 function App() {
   return (
-    <Routes>
-      <Route path="/admin/*" element={<AdminRoutes />} />
-      <Route path="/*" element={<PublicSite />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/admin/*" element={<AdminRoutes />} />
+        <Route path="/*" element={<PublicSite />} />
+      </Routes>
+      <Toaster />
+    </>
   );
 }
 

@@ -28,12 +28,12 @@ export function TourCardPreview({ draft }: { draft: ListingDraft }) {
             <Locate size={14.76} strokeWidth={1.5} absoluteStrokeWidth />
             {location}
           </p>
-          <p className="flex items-center py-[3px]">
+          {/* <p className="flex items-center py-[3px]">
             <span className="text-[22.14px] leading-[33.2px] font-medium tracking-[0.44px] text-landing-ink">
               {price === null ? "Price on request" : formatGhs(price)}
             </span>
             {price !== null && <span className="text-[16.6px] text-landing-grey">/Person</span>}
-          </p>
+          </p> */}
         </div>
       </div>
       <div className="absolute top-[385.65px] left-1/2 flex -translate-x-1/2 items-center gap-[33px]">

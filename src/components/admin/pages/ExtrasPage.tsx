@@ -15,6 +15,7 @@ import {
 } from "@/components/admin/extras/extraForm";
 import { useResource } from "@/hooks/useResource";
 import { formatGhs } from "@/lib/adminFormat";
+import { toast } from "@/lib/toast";
 import { adminExtrasApi } from "@/services/adminApi";
 import { getErrorMessage } from "@/services/api";
 import type { AdminExtra } from "@/types/api";
@@ -23,7 +24,6 @@ export function ExtrasPage() {
   const extras = useResource(() => adminExtrasApi.list({ limit: 200 }));
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<AdminExtra | null>(null);
-  const [actionError, setActionError] = useState("");
 
   const visible = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -35,12 +35,12 @@ export function ExtrasPage() {
   }, [extras.data, search]);
 
   const toggleActive = async (extra: AdminExtra, isActive: boolean) => {
-    setActionError("");
     try {
       await adminExtrasApi.update(extra.id, { is_active: isActive });
+      toast.success(`${extra.name} ${isActive ? "is now visible to customers" : "is now hidden from customers"}`);
       extras.reload();
     } catch (reason) {
-      setActionError(getErrorMessage(reason, "We couldn't update this extra."));
+      toast.error(getErrorMessage(reason, "We couldn't update this extra."));
     }
   };
 
@@ -53,11 +53,6 @@ export function ExtrasPage() {
     >
       <div className="flex flex-col gap-5 xl:flex-row xl:items-start">
         <div className="flex min-w-0 flex-1 flex-col gap-3">
-          {actionError && (
-            <p role="alert" className="text-[12.5px] font-medium text-admin-danger">
-              {actionError}
-            </p>
-          )}
           <AsyncState loading={extras.loading} error={extras.error} onRetry={extras.reload}>
             <Panel>
               <ul aria-label="Extras catalog">
@@ -134,12 +129,14 @@ function ExtraEditor({ extra, onCancel, onSaved }: ExtraEditorProps) {
       const input = toExtraInput(values);
       if (extra) {
         await adminExtrasApi.update(extra.id, input);
+        toast.success(`${input.name} updated`);
       } else {
         await adminExtrasApi.create(input);
+        toast.success(`${input.name} created`);
       }
       onSaved();
     } catch (reason) {
-      setError(getErrorMessage(reason, "We couldn't save this extra."));
+      toast.error(getErrorMessage(reason, "We couldn't save this extra."));
     } finally {
       setSubmitting(false);
     }

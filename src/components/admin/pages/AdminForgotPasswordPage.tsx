@@ -6,6 +6,7 @@ import {
   authInputShell,
   authSubmitClass,
 } from "@/components/admin/layout/AdminAuthLayout";
+import { toast } from "@/lib/toast";
 import { adminAuthApi } from "@/services/adminApi";
 import { getErrorMessage, getErrorStatus } from "@/services/api";
 
@@ -26,12 +27,14 @@ export function AdminForgotPasswordPage() {
     try {
       await adminAuthApi.forgotPassword(email.trim());
       setSent(true);
+      toast.success("If that account exists, a link has been sent.");
     } catch (reason) {
-      setError(
+      const message =
         getErrorStatus(reason) === 429
           ? "Too many requests, try again later."
-          : getErrorMessage(reason, "We couldn't send the link. Please try again."),
-      );
+          : getErrorMessage(reason, "We couldn't send the link. Please try again.");
+      setError(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }

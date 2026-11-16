@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ArrowRight, Eye } from "lucide-react";
 import { AdminPage } from "@/components/admin/layout/AdminPage";
 import { CoverImageField } from "@/components/admin/forms/CoverImageField";
@@ -28,8 +28,6 @@ export function CreateEventPage() {
   const draft = useAppSelector((state) => state.listingDraft.eventDraft);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
-  const warnings = (location.state as { warnings?: string[] } | null)?.warnings ?? [];
   const [ready, setReady] = useState(false);
   const [createdLocations, setCreatedLocations] = useState<Location[]>([]);
 
@@ -93,11 +91,6 @@ export function CreateEventPage() {
         )}
       </div>
 
-      {warnings.length > 0 && (
-        <p role="alert" className="rounded-[12px] bg-admin-danger-bg px-4 py-3 text-[13px] font-medium text-admin-danger">
-          Saved, but some changes did not apply. {warnings.join(" ")}
-        </p>
-      )}
 
       <AsyncState
         loading={id !== null && (event.loading || !ready)}

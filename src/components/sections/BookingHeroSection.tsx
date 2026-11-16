@@ -8,6 +8,7 @@ import { BookingForm } from "./BookingForm";
 import { BookingSummary } from "./BookingSummary";
 import { Congratulations } from "./Congratulations";
 import { useNavigate } from "react-router-dom";
+import { toast } from "@/lib/toast";
 import { bookingsApi, getErrorMessage, toursApi } from "@/services/api";
 import {
   buildTourBookingPayload,
@@ -114,7 +115,9 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
     try {
       const payload = buildTourBookingPayload(formData, toursData);
       if (!payload.tour_selections?.length) {
-        setSubmitStatus({ type: "error", message: "Select at least one destination." });
+        const message = "Select at least one destination.";
+        setSubmitStatus({ type: "error", message });
+        toast.error(message);
         return;
       }
 
@@ -122,9 +125,12 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
 
       setConfirmation(result);
       setShowSummaryModal(false);
+      toast.success(`Booking ${result.booking.reference} received`);
     } catch (error) {
       console.error("Error submitting booking:", error);
-      setSubmitStatus({ type: "error", message: getErrorMessage(error) });
+      const message = getErrorMessage(error);
+      setSubmitStatus({ type: "error", message });
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }

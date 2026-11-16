@@ -14,6 +14,7 @@ import {
   validateSettings,
 } from "@/components/admin/settings/settingsForm";
 import { useResource } from "@/hooks/useResource";
+import { toast } from "@/lib/toast";
 import { adminSettingsApi } from "@/services/adminApi";
 import { getErrorMessage } from "@/services/api";
 import type { AdminSettings } from "@/types/api";
@@ -38,9 +39,7 @@ interface SettingsFormProps {
 function SettingsForm({ initial, onLogoChanged }: SettingsFormProps) {
   const [settings, setSettings] = useState(initial);
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
-  const [logoError, setLogoError] = useState("");
   const [uploadingLogo, setUploadingLogo] = useState(false);
 
   useEffect(() => {
@@ -48,7 +47,6 @@ function SettingsForm({ initial, onLogoChanged }: SettingsFormProps) {
   }, [initial.logo_url]);
 
   const change = (changes: Partial<AdminSettings>) => {
-    setSaved(false);
     setSettings((current) => ({ ...current, ...changes }));
   };
 
@@ -64,9 +62,9 @@ function SettingsForm({ initial, onLogoChanged }: SettingsFormProps) {
     try {
       const updated = await adminSettingsApi.update(normaliseSettings(settings));
       setSettings(updated);
-      setSaved(true);
+      toast.success("Settings saved");
     } catch (reason) {
-      setError(getErrorMessage(reason, "We couldn't save your settings."));
+      toast.error(getErrorMessage(reason, "We couldn't save your settings."));
     } finally {
       setSaving(false);
     }
@@ -75,12 +73,12 @@ function SettingsForm({ initial, onLogoChanged }: SettingsFormProps) {
   const handleLogo = async (file: File | undefined) => {
     if (!file) return;
     setUploadingLogo(true);
-    setLogoError("");
     try {
       await adminSettingsApi.uploadLogo(file);
+      toast.success("Logo updated");
       onLogoChanged();
     } catch (reason) {
-      setLogoError(getErrorMessage(reason, "We couldn't upload the logo."));
+      toast.error(getErrorMessage(reason, "We couldn't upload the logo."));
     } finally {
       setUploadingLogo(false);
     }
@@ -110,11 +108,6 @@ function SettingsForm({ initial, onLogoChanged }: SettingsFormProps) {
                 onChange={(event) => handleLogo(event.target.files?.[0])}
               />
             </label>
-            {logoError && (
-              <span role="alert" className="text-[12px] font-medium text-admin-danger">
-                {logoError}
-              </span>
-            )}
           </div>
         </div>
         {profileFields.map((field) => (
@@ -134,11 +127,6 @@ function SettingsForm({ initial, onLogoChanged }: SettingsFormProps) {
           <AdminButton type="submit" size="lg" className="px-[18px] py-3 text-[13.5px]" disabled={saving}>
             {saving ? "Saving..." : "Save changes"}
           </AdminButton>
-          {saved && (
-            <span role="status" className="text-[12.5px] font-medium text-admin-published-ink">
-              Changes saved
-            </span>
-          )}
           {error && (
             <span role="alert" className="text-[12.5px] font-medium text-admin-danger">
               {error}

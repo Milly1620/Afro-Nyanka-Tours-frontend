@@ -5,7 +5,6 @@ import { MapPin, Clock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toursApi } from "@/services/api";
 import type { Tour } from "@/types/api";
-import { formatPrice } from "@/lib/adminFormat";
 
 
 const AttractionCard = ({
@@ -41,25 +40,15 @@ const AttractionCard = ({
         </span>
       </div>
 
-      <div className="flex items-center text-[#6E7070] mb-2">
-        <Clock className="h-4 w-4 mr-2 flex-shrink-0" />
-        <span className="text-[14.76px] poppins-regular">
-          {tour.duration_days !== null
-            ? `${tour.duration_days} ${tour.duration_days === 1 ? "day" : "days"} · `
-            : ""}
-          {`${tour.tour_locations?.length || 0} ${
-            tour.tour_locations?.length === 1 ? "activity" : "activities"
-          }`}
-        </span>
-      </div>
-
       <div className="flex items-center justify-between">
-        <p className="text-[16.61px] poppins-semibold text-[#0D0D0C]">
-          {formatPrice(tour.price_ghs)}
-          {tour.price_ghs !== null && (
-            <span className="text-[14.76px] poppins-regular text-[#6E7070]"> /person</span>
-          )}
-        </p>
+        <div className="flex items-center text-[#6E7070] mb-2">
+          <Clock className="h-4 w-4 mr-2 flex-shrink-0" />
+          <span className="text-[14.76px] poppins-regular">
+            {`${tour.tour_locations?.length || 0} ${
+              tour.tour_locations?.length === 1 ? "activity" : "activities"
+            }`}
+          </span>
+        </div>
         <Button
           onClick={() => onBookNow(tour)}
           className="p-3 lg:px-4 lg:py-2  bg-transparent text-[#482B11] hover:text-[#FFA75D] poppins-medium text-sm transition-colors group border border-[#E1E4E5]  hover:bg-transparent cursor-pointer"

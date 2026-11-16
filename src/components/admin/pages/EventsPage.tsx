@@ -5,7 +5,9 @@ import { EventCard } from "@/components/admin/EventCard";
 import { Pager } from "@/components/admin/listings/Pager";
 import { useStatusList, type StatusFilter } from "@/components/admin/listings/useStatusList";
 import { AsyncState } from "@/components/admin/ui/AsyncState";
+import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
 import { FilterPills, type FilterOption } from "@/components/admin/ui/FilterPills";
+import { toast } from "@/lib/toast";
 import { adminEventsApi } from "@/services/adminApi";
 import { getErrorMessage } from "@/services/api";
 import type { AdminEvent } from "@/types/api";
@@ -15,7 +17,8 @@ const cardGrid = "grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3";
 export function EventsPage() {
   const { filter, setFilter, page, setPage, resource } = useStatusList(adminEventsApi.list);
   const [search, setSearch] = useState("");
-  const [notice, setNotice] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<AdminEvent | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const counts = resource.data?.counts;
   const filterOptions: FilterOption<StatusFilter>[] = [
@@ -34,14 +37,19 @@ export function EventsPage() {
     );
   }, [resource.data, search]);
 
-  const handleDelete = async (event: AdminEvent) => {
-    if (!window.confirm(`Delete "${event.name}"? This cannot be undone.`)) return;
-    setNotice(null);
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
+    const event = pendingDelete;
+    setDeleting(true);
     try {
       await adminEventsApi.remove(event.id);
+      toast.success(`"${event.name}" deleted.`);
       resource.reload();
     } catch (error) {
-      setNotice(getErrorMessage(error, "We couldn't delete this event."));
+      toast.error(getErrorMessage(error, "We couldn't delete this event."));
+    } finally {
+      setDeleting(false);
+      setPendingDelete(null);
     }
   };
 
@@ -87,17 +95,11 @@ export function EventsPage() {
         onChange={setFilter}
       />
 
-      {notice && (
-        <p role="alert" className="rounded-[12px] bg-admin-danger-bg px-4 py-3 text-[13px] font-medium text-admin-danger">
-          {notice}
-        </p>
-      )}
-
       <AsyncState loading={resource.loading && !resource.data} error={resource.error} onRetry={resource.reload}>
         {visibleEvents.length > 0 ? (
           <section aria-label="Events" className={cardGrid}>
             {visibleEvents.map((event) => (
-              <EventCard key={event.id} event={event} onDelete={(target) => void handleDelete(target)} />
+              <EventCard key={event.id} event={event} onDelete={setPendingDelete} />
             ))}
           </section>
         ) : (
@@ -107,6 +109,19 @@ export function EventsPage() {
         )}
         <Pager page={page} total={counts?.[filter] ?? counts?.all ?? 0} onChange={setPage} />
       </AsyncState>
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Delete event"
+        message={
+          <>
+            Delete <strong>{pendingDelete?.name}</strong>? This cannot be undone.
+          </>
+        }
+        confirmLabel="Delete event"
+        loading={deleting}
+        onConfirm={() => void confirmDelete()}
+        onCancel={() => setPendingDelete(null)}
+      />
     </AdminPage>
   );
 }

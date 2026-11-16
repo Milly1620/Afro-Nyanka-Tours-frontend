@@ -6,11 +6,13 @@ import { Pager } from "@/components/admin/listings/Pager";
 import { useStatusList, type StatusFilter } from "@/components/admin/listings/useStatusList";
 import { AdminButton, IconButton } from "@/components/admin/ui/AdminButton";
 import { AsyncState } from "@/components/admin/ui/AsyncState";
+import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
 import { CoverThumb } from "@/components/admin/ui/CoverImage";
 import { FilterPills, type FilterOption } from "@/components/admin/ui/FilterPills";
 import { SearchInput } from "@/components/admin/ui/SearchInput";
 import { PublishChip } from "@/components/admin/ui/StatusChip";
 import { formatDays, formatPrice } from "@/lib/adminFormat";
+import { toast } from "@/lib/toast";
 import { adminToursApi } from "@/services/adminApi";
 import { getErrorMessage, getErrorStatus } from "@/services/api";
 import type { AdminTour } from "@/types/api";
@@ -26,8 +28,9 @@ export function ToursPage() {
   const navigate = useNavigate();
   const { filter, setFilter, page, setPage, resource } = useStatusList(adminToursApi.list);
   const [search, setSearch] = useState("");
-  const [notice, setNotice] = useState<string | null>(null);
   const [blocked, setBlocked] = useState<DeleteBlock | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<AdminTour | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const counts = resource.data?.counts;
   const filterOptions: FilterOption<StatusFilter>[] = [
@@ -46,27 +49,33 @@ export function ToursPage() {
     );
   }, [resource.data, search]);
 
-  const handleDelete = async (tour: AdminTour) => {
-    if (!window.confirm(`Delete "${tour.name}"? This cannot be undone.`)) return;
-    setNotice(null);
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
+    const tour = pendingDelete;
+    setDeleting(true);
     setBlocked(null);
     try {
       await adminToursApi.remove(tour.id);
+      toast.success(`"${tour.name}" deleted.`);
       resource.reload();
     } catch (error) {
       const message = getErrorMessage(error, "We couldn't delete this tour.");
+      toast.error(message);
       if (getErrorStatus(error) === 409) setBlocked({ tour, message });
-      else setNotice(message);
+    } finally {
+      setDeleting(false);
+      setPendingDelete(null);
     }
   };
 
   const setToDraft = async (tour: AdminTour) => {
     try {
       await adminToursApi.update(tour.id, { status: "draft", publish_at: null });
+      toast.success(`"${tour.name}" set to draft.`);
       setBlocked(null);
       resource.reload();
     } catch (error) {
-      setNotice(getErrorMessage(error, "We couldn't update this tour."));
+      toast.error(getErrorMessage(error, "We couldn't update this tour."));
     }
   };
 
@@ -101,11 +110,6 @@ export function ToursPage() {
         />
       </div>
 
-      {notice && (
-        <p role="alert" className="rounded-[12px] bg-admin-danger-bg px-4 py-3 text-[13px] font-medium text-admin-danger">
-          {notice}
-        </p>
-      )}
       {blocked && (
         <div
           role="alert"
@@ -172,7 +176,7 @@ export function ToursPage() {
                     <IconButton label={`Edit ${tour.name}`} onClick={() => navigate(`/admin/tours/${tour.id}/edit`)}>
                       <Pencil size={15} strokeWidth={1.85} absoluteStrokeWidth />
                     </IconButton>
-                    <IconButton label={`Delete ${tour.name}`} tone="danger" onClick={() => void handleDelete(tour)}>
+                    <IconButton label={`Delete ${tour.name}`} tone="danger" onClick={() => setPendingDelete(tour)}>
                       <Trash size={15} strokeWidth={1.85} absoluteStrokeWidth />
                     </IconButton>
                   </span>
@@ -188,6 +192,19 @@ export function ToursPage() {
         </div>
         <Pager page={page} total={counts?.[filter] ?? counts?.all ?? 0} onChange={setPage} />
       </AsyncState>
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Delete tour"
+        message={
+          <>
+            Delete <strong>{pendingDelete?.name}</strong>? This cannot be undone.
+          </>
+        }
+        confirmLabel="Delete tour"
+        loading={deleting}
+        onConfirm={() => void confirmDelete()}
+        onCancel={() => setPendingDelete(null)}
+      />
     </AdminPage>
   );
 }

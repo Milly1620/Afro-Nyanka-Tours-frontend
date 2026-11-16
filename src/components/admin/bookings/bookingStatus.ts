@@ -17,3 +17,14 @@ export const bookingStatusActionLabels: Record<BookingStatus, string> = {
   paid: "Mark as paid",
   cancelled: "Cancel booking",
 };
+
+const statusSuccessVerbs: Record<BookingStatus, string> = {
+  pending: "set to pending",
+  confirmed: "confirmed",
+  paid: "marked as paid",
+  cancelled: "cancelled",
+};
+
+export function bookingStatusSuccessMessage(reference: string, status: BookingStatus): string {
+  return `Booking ${reference} ${statusSuccessVerbs[status]}`;
+}

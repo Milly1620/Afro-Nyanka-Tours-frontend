@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  listingNoun,
   resolveStatus,
+  savedMessage,
   validateListing,
   type ListingDraft,
   type ListingKind,
   type PublishIntent,
 } from "@/components/admin/listings/listingMapping";
 import { saveListing, type ListingApi } from "@/components/admin/listings/saveListing";
+import { toast } from "@/lib/toast";
 import { getErrorMessage } from "@/services/api";
 import type { AdminExtra, ListingExtra, PublishStatus } from "@/types/api";
 
@@ -52,6 +55,7 @@ export function useListingEditor<TInput, TEntity extends { id: number }>(
     const problem = validateListing(options.draft, options.kind, status, options.minimumCapacity);
     if (problem) {
       setError(problem);
+      toast.error(problem);
       return;
     }
     setSubmitting(true);
@@ -70,20 +74,25 @@ export function useListingEditor<TInput, TEntity extends { id: number }>(
         removedGalleryImages,
       });
       if (result.followUpErrors.length === 0) {
+        toast.success(savedMessage(options.kind, status, result.created));
         navigate(options.listPath);
         return;
       }
       setMainImage(null);
       setGalleryFiles([]);
       setRemovedGalleryImages([]);
+      const warning = `${listingNoun(options.kind)} saved, but some changes did not apply. ${result.followUpErrors.join(" ")}`;
+      toast.error(warning);
       if (result.created) {
-        navigate(options.editPath(result.id), { replace: true, state: { warnings: result.followUpErrors } });
+        navigate(options.editPath(result.id), { replace: true });
         return;
       }
-      setError(`Saved, but some changes did not apply. ${result.followUpErrors.join(" ")}`);
+      setError(warning);
       options.onFollowUpFailure();
     } catch (reason) {
-      setError(getErrorMessage(reason, "We couldn't save this listing."));
+      const message = getErrorMessage(reason, "We couldn't save this listing.");
+      setError(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
