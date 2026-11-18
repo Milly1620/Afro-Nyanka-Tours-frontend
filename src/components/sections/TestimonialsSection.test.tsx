@@ -11,14 +11,14 @@ describe("TestimonialsSection", () => {
   it("shows the design testimonials when the API has none", async () => {
     vi.mocked(testimonialsApi.list).mockResolvedValue([]);
     render(<TestimonialsSection />);
-    expect(await screen.findByText("Ama Mensah")).toBeInTheDocument();
+    expect(await screen.findByText("Maritza S")).toBeInTheDocument();
     expect(screen.getByText("What travellers say")).toBeInTheDocument();
   });
 
   it("shows the design testimonials when the request fails", async () => {
     vi.mocked(testimonialsApi.list).mockRejectedValue(new Error("404"));
     render(<TestimonialsSection />);
-    expect(await screen.findByText("Kwame Owusu")).toBeInTheDocument();
+    expect(await screen.findByText("Hodan F")).toBeInTheDocument();
   });
 
   it("prefers testimonials from the API", async () => {
@@ -27,6 +27,6 @@ describe("TestimonialsSection", () => {
     ]);
     render(<TestimonialsSection />);
     expect(await screen.findByText("Yaa Boateng")).toBeInTheDocument();
-    expect(screen.queryByText("Ama Mensah")).not.toBeInTheDocument();
+    expect(screen.queryByText("Maritza S")).not.toBeInTheDocument();
   });
 });
