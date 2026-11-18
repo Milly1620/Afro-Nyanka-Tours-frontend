@@ -4,9 +4,7 @@ import { Mail, Phone, Clock, LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ContactForm } from "@/types";
-import { toast } from "@/lib/toast";
 import { contactApi } from "@/services/api";
-import { usePublicSettings } from "@/hooks/usePublicSettings";
 import { isAxiosError } from "axios";
 
 const getContactErrorMessage = (error: unknown): string => {
@@ -100,8 +98,11 @@ const FormField = ({
 };
 
 export function ContactSection() {
-  const settings = usePublicSettings();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: "success" | "error" | null;
+    message: string;
+  }>({ type: null, message: "" });
 
   const {
     register,
@@ -112,6 +113,7 @@ export function ContactSection() {
 
   const onSubmit = async (data: ContactForm) => {
     setIsSubmitting(true);
+    setSubmitStatus({ type: null, message: "" });
 
     try {
       await contactApi.sendMessage({
@@ -122,48 +124,58 @@ export function ContactSection() {
           ? `${data.message}\n\nPhone: ${data.phone}`
           : data.message,
       });
-      toast.success("Thank you! Your message has been sent. We'll get back to you soon.");
+      setSubmitStatus({
+        type: "success",
+        message:
+          "Thank you! Your message has been sent successfully. We'll get back to you soon.",
+      });
       reset();
     } catch (error) {
-      toast.error(getContactErrorMessage(error));
+      setSubmitStatus({
+        type: "error",
+        message: getContactErrorMessage(error),
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const contactCards = [
-    ...(settings?.contact_email
-      ? [
-          {
-            icon: Mail,
-            title: "Email",
-            content: (
-              <a
-                href={`mailto:${settings.contact_email}`}
-                className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
-              >
-                {settings.contact_email}
-              </a>
-            ),
-          },
-        ]
-      : []),
-    ...(settings?.phone
-      ? [
-          {
-            icon: Phone,
-            title: "Call Us",
-            content: (
-              <a
-                href={`tel:${settings.phone.replace(/\s+/g, "")}`}
-                className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
-              >
-                {settings.phone}
-              </a>
-            ),
-          },
-        ]
-      : []),
+    {
+      icon: Mail,
+      title: "Email",
+      content: (
+        <a
+          href="mailto:afronyankatours@gmail.com"
+          className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
+        >
+          info@afronyankatours.com{" "}
+        </a>
+      ),
+    },
+    {
+      icon: Phone,
+      title: "Call Us",
+      content: (
+        <div className="flex flex-col space-y-1">
+          <a
+            href="tel:+233548665634"
+            className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
+          >
+            <p>+233 548 665 634</p>
+          </a>
+          <a
+            href="tel:+233549202348"
+            className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
+          >
+            <p>+233 549 202 348</p>
+          </a>
+          <a href="tel:+233262251826">
+            <p>+233 262 251 826</p>
+          </a>
+        </div>
+      ),
+    },
     {
       icon: Clock,
       title: "Office Hours",
@@ -234,6 +246,19 @@ export function ContactSection() {
 
           {/* Contact Form */}
           <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-sm lg:w-2/3">
+            {/* Status Messages */}
+            {submitStatus.type && (
+              <div
+                className={`mb-6 p-4 rounded-lg ${
+                  submitStatus.type === "success"
+                    ? "bg-green-50 border border-green-200 text-green-800"
+                    : "bg-red-50 border border-red-200 text-red-800"
+                }`}
+              >
+                <p className="text-sm font-medium">{submitStatus.message}</p>
+              </div>
+            )}
+
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="space-y-6 lg:space-y-8"

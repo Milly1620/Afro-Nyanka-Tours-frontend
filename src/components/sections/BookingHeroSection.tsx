@@ -3,21 +3,12 @@ import frame2 from "../../assets/agyindawuruwhite.svg";
 import frame3 from "../../assets/nyamewhite.svg";
 import frame4 from "../../assets/spiralwhite.svg";
 import { useState, useEffect } from "react";
-import type { BookingCreateResponse, Tour } from "@/types/api";
+import { Tour } from "@/types/api";
 import { BookingForm } from "./BookingForm";
 import { BookingSummary } from "./BookingSummary";
 import { Congratulations } from "./Congratulations";
 import { useNavigate } from "react-router-dom";
-import { toast } from "@/lib/toast";
-import { bookingsApi, getErrorMessage, toursApi } from "@/services/api";
-import {
-  buildTourBookingPayload,
-  chosenExtras,
-  estimateTotal,
-  offeredExtras,
-  selectedTours,
-  type BookingFormValues,
-} from "@/lib/booking";
+import { toursApi } from "@/services/api";
 
 interface SearchData {
   country: string;
@@ -26,6 +17,19 @@ interface SearchData {
   startDate: Date | null;
   endDate: Date | null;
   toursData: Tour[]; // Tour data from Redux
+}
+
+interface BookingForm {
+  selectedCountry: string;
+  selectedDestinations: string[];
+  startDate: Date | null;
+  endDate: Date | null;
+  name: string;
+  email: string;
+  age: string;
+  country: string;
+  additionalServices: string;
+  numberOfPersons: string;
 }
 
 interface BookingHeroSectionProps {
@@ -39,8 +43,8 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
     message: string;
   }>({ type: null, message: "" });
   const [showSummaryModal, setShowSummaryModal] = useState(false);
-  const [formData, setFormData] = useState<BookingFormValues | null>(null);
-  const [confirmation, setConfirmation] = useState<BookingCreateResponse | null>(null);
+  const [formData, setFormData] = useState<BookingForm | null>(null);
+  const [showCongratulations, setShowCongratulations] = useState(false);
   const navigate = useNavigate();
   // Data for activities computation
   const [toursData, setToursData] = useState<Tour[]>([]);
@@ -76,7 +80,7 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
     setActivities(uniqueActivities);
   }, [formData?.selectedDestinations, toursData]);
 
-  const onSubmit = async (data: BookingFormValues) => {
+  const onSubmit = async (data: BookingForm) => {
     // Ensure we have toursData for the selected country
     let availableTours = toursData;
     if (!availableTours || availableTours.length === 0) {
@@ -113,40 +117,66 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
     setSubmitStatus({ type: null, message: "" });
 
     try {
-      const payload = buildTourBookingPayload(formData, toursData);
-      if (!payload.tour_selections?.length) {
-        const message = "Select at least one destination.";
-        setSubmitStatus({ type: "error", message });
-        toast.error(message);
-        return;
-      }
+      // Map the form data to the API structure
+      const tourSelections = formData.selectedDestinations
+        .map((destination, index) => {
+          // Find the tour by name to get the tour_id
+          const tour = toursData.find((t: Tour) => t.name === destination);
+          if (!tour) return null;
 
-      const result = await bookingsApi.create(payload);
+          // Get the location IDs for the selected activities
+          const locationIds = activities
+            .filter((activity) => {
+              // Check if this activity belongs to this tour
+              return tour.tour_locations.some(
+                (tl: any) => tl.location.name === activity
+              );
+            })
+            .map((activity) => {
+              const tourLocation = tour.tour_locations.find(
+                (tl: any) => tl.location.name === activity
+              );
+              return tourLocation?.location_id || 0;
+            })
+            .filter((id) => id > 0);
 
-      setConfirmation(result);
+          return {
+            locations: locationIds,
+            order: index + 1,
+            tour_id: tour.id,
+          };
+        })
+        .filter(Boolean);
+
+      const payload = {
+        customer_name: formData.name,
+        customer_email: formData.email,
+        customer_age: parseInt(formData.age),
+        customer_country: formData.country,
+        number_of_people: parseInt(formData.numberOfPersons),
+        start_date: formData.startDate?.toISOString() || null,
+        end_date: formData.endDate?.toISOString() || null,
+        additional_services: formData.additionalServices || "",
+        tour_selections: tourSelections,
+      };
+
+      await toursApi.createBooking(payload);
+
       setShowSummaryModal(false);
-      toast.success(`Booking ${result.booking.reference} received`);
+      setShowCongratulations(true);
     } catch (error) {
       console.error("Error submitting booking:", error);
-      const message = getErrorMessage(error);
-      setSubmitStatus({ type: "error", message });
-      toast.error(message);
+      setSubmitStatus({
+        type: "error",
+        message: "Network error. Please check your connection and try again.",
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const chosenTours = selectedTours(toursData, formData?.selectedDestinations ?? []);
-  const summaryExtras = chosenExtras(offeredExtras(chosenTours), formData?.extraIds ?? []);
-  const estimatedTotal = estimateTotal(
-    chosenTours,
-    parseInt(formData?.numberOfPersons ?? "", 10),
-    summaryExtras,
-  );
-
   return (
-    <>
-    <section className="h-[400px] lg:h-[450px] flex flex-col justify-center overflow-hidden bg-black/40 bg-[url('/src/assets/heromain.svg')] bg-cover bg-no-repeat bg-blend-multiply">
+    <section className="h-[400px] lg:h-[450px] flex flex-col justify-center overflow-hidden bg-black/40 bg-[url('/src/assets/heromain.svg')] bg-cover bg-no-repeat bg-blend-multiply mb-[870px] md:mb-[582.19px]">
       {/* Main Content */}
       <div className="flex flex-col items-center justify-center text-white">
         <div className="md:flex items-center justify-between mb-6 lg:w-[1204px]">
@@ -164,10 +194,9 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
           <img src={frame4} alt="frame4" className="hidden md:block" />
         </div>
       </div>
-    </section>
 
-      <div className="relative z-20 -mt-2 md:-mt-[78px] lg:mt-0.5 mb-16 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {!showSummaryModal && !confirmation ? (
+      <div className="absolute top-[392px] md:top-[322px] lg:top-[452px] left-0 right-0 z-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {!showSummaryModal && !showCongratulations ? (
           <BookingForm
             searchData={searchData}
             onSubmit={onSubmit}
@@ -178,16 +207,12 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
           <BookingSummary
             formData={formData!}
             activities={activities}
-            extras={summaryExtras}
-            estimatedTotal={estimatedTotal}
-            errorMessage={submitStatus.type === "error" ? submitStatus.message : ""}
             onBack={() => setShowSummaryModal(false)}
             onCompleteBooking={handleCompleteBooking}
             isSubmitting={isSubmitting}
           />
-        ) : confirmation ? (
+        ) : showCongratulations ? (
           <Congratulations
-            confirmation={confirmation}
             onDone={() => {
               // Navigate first to avoid briefly rendering the form again
               navigate("/", { replace: true });
@@ -195,6 +220,6 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
           />
         ) : null}
       </div>
-    </>
+    </section>
   );
 }

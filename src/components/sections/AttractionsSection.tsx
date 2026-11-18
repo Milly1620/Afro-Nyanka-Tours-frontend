@@ -5,6 +5,7 @@ import { MapPin, Clock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toursApi } from "@/services/api";
 import type { Tour } from "@/types/api";
+import { getFallbackTours } from "@/data/fallbackTours";
 
 
 const AttractionCard = ({
@@ -16,15 +17,13 @@ const AttractionCard = ({
 }) => (
   <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group">
     <div className="relative overflow-hidden">
-      {tour.main_image_url ? (
-        <img
-          src={tour.main_image_url}
-          alt={tour.name}
-          className="w-full h-48 lg:h-[290px] group-hover:scale-105 transition-transform duration-300 object-cover"
-        />
-      ) : (
-        <div className="w-full h-48 lg:h-[290px] bg-[#F5F5F5]" role="img" aria-label={tour.name} />
-      )}
+      <img
+        src={tour.main_image_url}
+        alt={tour.name}
+        className={`w-full h-48 lg:h-[290px] group-hover:scale-105 transition-transform duration-300 ${
+          "object-cover"
+        }`}
+      />
       <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
     </div>
 
@@ -84,7 +83,7 @@ export function AttractionsSection() {
           setActiveCountry(sorted[0]);
         }
       } catch (e) {
-        setCountries([]);
+        setCountries(["Ghana"]);
       }
     })();
   }, []);
@@ -96,9 +95,9 @@ export function AttractionsSection() {
     (async () => {
       try {
         const t = await toursApi.getToursByCountry(activeCountry);
-        setTours(t);
+        setTours(t.length ? t : getFallbackTours(activeCountry));
       } catch (e) {
-        setTours([]);
+        setTours(getFallbackTours(activeCountry));
       } finally {
         setIsLoading(false);
       }

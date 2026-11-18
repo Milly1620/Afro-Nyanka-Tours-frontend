@@ -24,7 +24,6 @@
 - Imports: use `@/...` alias for modules under `src/`.
 - Linting: Config in `eslint.config.js` (React + TS). Fix issues before PRs.
 - Styling: Tailwind CSS utility-first classes in JSX; keep component styles local.
-- Data: Never use mock, sample or fallback data; fetch from the backend through `src/services/` and render loading, empty and error states. `src/noDummyData.test.ts` enforces this. Single exception, requested by the client: `src/data/designTestimonials.ts` holds the Figma testimonial quotes, shown only while `GET /api/testimonials/` returns none.
 
 ## Testing Guidelines
 - Frameworks: Vitest + React Testing Library.
