@@ -1,21 +1,20 @@
 import { Button } from "@/components/ui/button";
+import { EstimatedTotal } from "@/components/booking/EstimatedTotal";
+import { formatGhs } from "@/lib/adminFormat";
+import type { BookingFormValues } from "@/lib/booking";
 
-interface BookingForm {
-  selectedCountry: string;
-  selectedDestinations: string[];
-  startDate: Date | null;
-  endDate: Date | null;
+interface SummaryExtra {
+  extra_id: number;
   name: string;
-  email: string;
-  age: string;
-  country: string;
-  additionalServices: string;
-  numberOfPersons: string;
+  price_ghs: number;
 }
 
 interface BookingSummaryProps {
-  formData: BookingForm;
+  formData: BookingFormValues;
   activities: string[];
+  extras: SummaryExtra[];
+  estimatedTotal: number | null;
+  errorMessage: string;
   onBack: () => void;
   onCompleteBooking: () => void;
   isSubmitting: boolean;
@@ -24,11 +23,13 @@ interface BookingSummaryProps {
 export function BookingSummary({
   formData,
   activities,
+  extras,
+  estimatedTotal,
+  errorMessage,
   onBack,
   onCompleteBooking,
   isSubmitting,
 }: BookingSummaryProps) {
-  console.log({formData,activities});
   return (
     <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8">
       <div className="space-y-4 sm:space-y-6">
@@ -129,14 +130,34 @@ export function BookingSummary({
           </p>
         </div>
 
-        {/* Additional Services */}
-        <div>
-          <p className="text-sm text-gray-600 mb-3">Additional services</p>
-          <p className="text-gray-700 leading-relaxed">
-            {formData?.additionalServices ||
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris."}
+        {extras.length > 0 && (
+          <div>
+            <p className="text-sm text-gray-600 mb-3">Extras</p>
+            <ul className="space-y-1">
+              {extras.map((extra) => (
+                <li key={extra.extra_id} className="flex justify-between gap-3 text-sm text-gray-700">
+                  <span>{extra.name}</span>
+                  <span className="font-medium text-gray-900">{formatGhs(extra.price_ghs)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {formData?.additionalServices && (
+          <div>
+            <p className="text-sm text-gray-600 mb-3">Additional services</p>
+            <p className="text-gray-700 leading-relaxed">{formData.additionalServices}</p>
+          </div>
+        )}
+
+        <EstimatedTotal total={estimatedTotal} />
+
+        {errorMessage && (
+          <p role="alert" className="text-sm font-medium text-red-600">
+            {errorMessage}
           </p>
-        </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-4 sm:pt-6">

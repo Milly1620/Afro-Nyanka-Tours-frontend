@@ -3,17 +3,21 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Phone, Calendar, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logoSvg from "../../assets/footer_logo.svg";
+import { usePublicSettings } from "@/hooks/usePublicSettings";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const isBookingPage = location.pathname === "/booking";
+  const settings = usePublicSettings();
+  const isBookingPage =
+    location.pathname === "/booking" || location.pathname.startsWith("/events");
 
   const navItems = [
     { name: "Home", href: "/", active: location.pathname === "/" },
     { name: "Services", href: "#services", active: false },
     { name: "Tours", href: "#attractions", active: false },
+    { name: "Events", href: "/events", active: location.pathname.startsWith("/events") },
     { name: "About us", href: "#about", active: false },
     { name: "Contact us", href: "#contact", active: false },
     {
@@ -25,8 +29,7 @@ export function Header() {
 
   const handleNavigation = (href: string) => {
     if (href.startsWith("#")) {
-      // If we're on the booking page, navigate to home first, then scroll to section
-      if (location.pathname === "/booking") {
+      if (location.pathname !== "/") {
         navigate("/");
         // Wait for navigation to complete, then scroll to section
         setTimeout(() => {
@@ -73,9 +76,9 @@ export function Header() {
           >
             <div className="flex items-center space-x-3">
               <img
-                src={logoSvg}
-                alt="African Tourist Logo"
-                className="filter"
+                src={settings?.logo_url || logoSvg}
+                alt={settings?.company_name || "Afro Nyanka Tours"}
+                className="filter max-h-[95px] w-auto"
               />
             </div>
           </div>
@@ -84,7 +87,7 @@ export function Header() {
           <nav className="hidden lg:flex gap-x-4">
             <div className="bg-white rounded-[799.2px] px-6 py-2 flex items-center">
               <div className="flex items-center space-x-4">
-                {navItems.slice(0, 4).map((item) => (
+                {navItems.slice(0, 5).map((item) => (
                   <Button
                     key={item.name}
                     onClick={() => handleNavigation(item?.href || "")}
@@ -103,7 +106,7 @@ export function Header() {
 
             <div className="bg-white rounded-[799.2px] px-6 py-2 flex items-center">
               <div className="flex items-center space-x-4">
-                {navItems.slice(4, 6).map((item) => (
+                {navItems.slice(5, 7).map((item) => (
                   <Button
                     key={item.name}
                     onClick={() =>

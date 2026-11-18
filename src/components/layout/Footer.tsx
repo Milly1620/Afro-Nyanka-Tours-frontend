@@ -7,8 +7,20 @@ import {
   Mail,
 } from "lucide-react";
 import footerLogo from "../../assets/footer_logo.svg";
+import { usePublicSettings } from "@/hooks/usePublicSettings";
+import { useResource } from "@/hooks/useResource";
+import { toursApi } from "@/services/api";
+
+const POPULAR_LIMIT = 4;
 
 export function Footer() {
+  const settings = usePublicSettings();
+  const companyName = settings?.company_name || "Afro Nyanka Tours";
+  const { data: tours } = useResource(() => toursApi.list(), []);
+  const popularTours = [...(tours ?? [])]
+    .sort((a, b) => Number(Boolean(b.is_popular)) - Number(Boolean(a.is_popular)))
+    .slice(0, POPULAR_LIMIT);
+
   return (
     <footer className="py-5 md:py-10 lg:py-24 border-t border-[#E6E6E6] text-[#6E7070] bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -16,7 +28,7 @@ export function Footer() {
           {/* Company Info - Left Column */}
           <div className="sm:col-span-2 lg:col-span-1">
             <div className="flex items-center mb-6">
-              <img src={footerLogo} alt="Afro Nyanka Tours" />
+              <img src={settings?.logo_url || footerLogo} alt={companyName} className="max-h-[95px] w-auto" />
             </div>
             <p className="mb-6 leading-relaxed text-sm lg:text-base poppins-regular">
               Discover the authentic beauty of Africa with our expert guided
@@ -41,46 +53,25 @@ export function Footer() {
               </a>
             </div>
           </div>
-          {/* Popular Destinations */}
-          <div>
-            <h3 className="text-lg lg:text-xl font-semibold text-[#482B11] mb-4 lg:mb-6 poppins-medium">
-              Popular Destinations
-            </h3>
-            <ul className="space-y-3 lg:space-y-4">
-              <li>
-                <a
-                  href="#attractions"
-                  className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
-                >
-                  Cape Coast Tour
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#attractions"
-                  className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
-                >
-                  Accra City Tour
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#attractions"
-                  className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
-                >
-                  Aburi Tour
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#attractions"
-                  className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
-                >
-                  Akosombo and Shai Hills Tour
-                </a>
-              </li>
-            </ul>
-          </div>
+          {popularTours.length > 0 && (
+            <div>
+              <h3 className="text-lg lg:text-xl font-semibold text-[#482B11] mb-4 lg:mb-6 poppins-medium">
+                Popular Destinations
+              </h3>
+              <ul className="space-y-3 lg:space-y-4">
+                {popularTours.map((tour) => (
+                  <li key={tour.id}>
+                    <a
+                      href="#attractions"
+                      className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
+                    >
+                      {tour.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           {/* Services */}
           <div>
             <h3 className="text-lg lg:text-xl font-semibold text-[#482B11] mb-4 lg:mb-6 poppins-medium">
@@ -121,58 +112,51 @@ export function Footer() {
               </li>
             </ul>
           </div>
-          {/* Contact Info */}
-          <div>
-            <h3 className="text-lg lg:text-xl font-semibold text-[#482B11] mb-4 lg:mb-6 poppins-medium">
-              Contact Info
-            </h3>
-            <div className="space-y-3 lg:space-y-4">
-              <div className="flex items-start space-x-3">
-                <MapPin className="h-4 w-4 lg:h-5 lg:w-5 text-[#FFA75D] mt-0.5 flex-shrink-0" />
-                <span className="text-sm lg:text-base text-gray-600 poppins-regular">
-                  Accra, Ghana
-                </span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Phone className="h-4 w-4 lg:h-5 lg:w-5 text-[#FFA75D] flex-shrink-0" />
-                <div className="flex flex-col space-y-1">
-                  <a
-                    href="tel:+233548665634"
-                    className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
-                  >
-                    <p>+233 548 665 634</p>
-                  </a>
-                  <a
-                    href="tel:+233549202348"
-                    className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
-                  >
-                    <p>+233 549 202 348</p>
-                  </a>
-                  <a
-                    href="tel:+233262251826"
-                    className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
-                  >
-                    <p>+233 262 251 826</p>
-                  </a>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Mail className="h-4 w-4 lg:h-5 lg:w-5 text-[#FFA75D] flex-shrink-0" />
-                <a
-                  href="mailto:afronyankatours@gmail.com"
-                  className="text-sm lg:text-base poppins-regular break-all hover:text-[#FFA75D] transition-colors"
-                >
-                  info@afronyankatours.com{" "}
-                </a>
+          {(settings?.location || settings?.phone || settings?.contact_email) && (
+            <div>
+              <h3 className="text-lg lg:text-xl font-semibold text-[#482B11] mb-4 lg:mb-6 poppins-medium">
+                Contact Info
+              </h3>
+              <div className="space-y-3 lg:space-y-4">
+                {settings.location && (
+                  <div className="flex items-start space-x-3">
+                    <MapPin className="h-4 w-4 lg:h-5 lg:w-5 text-[#FFA75D] mt-0.5 flex-shrink-0" />
+                    <span className="text-sm lg:text-base text-gray-600 poppins-regular">
+                      {settings.location}
+                    </span>
+                  </div>
+                )}
+                {settings.phone && (
+                  <div className="flex items-center space-x-3">
+                    <Phone className="h-4 w-4 lg:h-5 lg:w-5 text-[#FFA75D] flex-shrink-0" />
+                    <a
+                      href={`tel:${settings.phone.replace(/\s+/g, "")}`}
+                      className="text-sm lg:text-base poppins-regular hover:text-[#FFA75D] transition-colors"
+                    >
+                      {settings.phone}
+                    </a>
+                  </div>
+                )}
+                {settings.contact_email && (
+                  <div className="flex items-center space-x-3">
+                    <Mail className="h-4 w-4 lg:h-5 lg:w-5 text-[#FFA75D] flex-shrink-0" />
+                    <a
+                      href={`mailto:${settings.contact_email}`}
+                      className="text-sm lg:text-base poppins-regular break-all hover:text-[#FFA75D] transition-colors"
+                    >
+                      {settings.contact_email}
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Copyright */}
         <div className="border-t border-[#E6E6E6] mt-12 lg:mt-16 pt-8 lg:pt-10 text-center">
           <p className="text-sm lg:text-base text-gray-500 poppins-regular">
-            © 2024 Afro Nyanka Tours. All rights reserved.
+            © {new Date().getFullYear()} {companyName}. All rights reserved.
           </p>
         </div>
       </div>
