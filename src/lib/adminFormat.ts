@@ -1,4 +1,9 @@
-export function formatGhs(amount: number): string {
+export function formatExtraPrice(amount: number | null | undefined): string {
+  return amount === 0 ? "Included" : formatGhs(amount);
+}
+
+export function formatGhs(amount: number | null | undefined): string {
+  if (amount === null || amount === undefined) return "—";
   return `GHS ${amount.toLocaleString("en-US")}`;
 }
 
@@ -75,8 +80,8 @@ export function avatarToneFor(name: string): 1 | 2 | 3 | 4 | 5 {
   return ((total % 5) + 1) as 1 | 2 | 3 | 4 | 5;
 }
 
-export function formatPrice(amount: number | null): string {
-  return amount === null ? "Price on request" : formatGhs(amount);
+export function formatPrice(amount: number | null | undefined): string {
+  return formatGhs(amount);
 }
 
 export function toDateTimeLocal(isoDateTime: string | null): string {

@@ -1,28 +1,17 @@
-import { useEffect, useId, useRef } from "react";
+import { useId } from "react";
 import { Image } from "lucide-react";
 
 interface CoverImageFieldProps {
   value: string | null;
-  onSelect: (file: File, previewUrl: string) => void;
+  onSelect: (file: File) => void;
   className?: string;
 }
 
 export function CoverImageField({ value, onSelect, className }: CoverImageFieldProps) {
   const id = useId();
-  const createdUrl = useRef<string | null>(null);
-
-  useEffect(
-    () => () => {
-      if (createdUrl.current) URL.revokeObjectURL(createdUrl.current);
-    },
-    [],
-  );
 
   const handleFile = (file: File | undefined) => {
-    if (!file) return;
-    if (createdUrl.current) URL.revokeObjectURL(createdUrl.current);
-    createdUrl.current = URL.createObjectURL(file);
-    onSelect(file, createdUrl.current);
+    if (file) onSelect(file);
   };
 
   return (

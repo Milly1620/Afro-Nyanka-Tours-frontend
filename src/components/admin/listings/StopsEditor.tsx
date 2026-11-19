@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { ArrowDown, ArrowUp, Plus, Trash } from "lucide-react";
 import { AdminButton, IconButton } from "@/components/admin/ui/AdminButton";
+import { CountrySelect } from "@/components/admin/forms/CountrySelect";
 import { Field, TextInput } from "@/components/admin/ui/Field";
 import { NativeSelect } from "@/components/ui/NativeSelect";
 import { SectionEyebrow } from "@/components/admin/ui/Panel";
@@ -67,15 +68,15 @@ export function StopsEditor({ locations, value, defaultCountry, onChange, onCrea
   };
 
   return (
-    <section aria-labelledby="stops-heading" className="flex flex-col gap-[10px]">
+    <section aria-labelledby="activities-heading" className="flex flex-col gap-[10px]">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <SectionEyebrow>
-          <span id="stops-heading">STOPS</span>
+          <span id="activities-heading">ACTIVITIES</span>
         </SectionEyebrow>
-        <p className="text-[12px] font-medium text-admin-placeholder">Travellers choose from these stops when booking</p>
+        <p className="text-[12px] font-medium text-admin-placeholder">Travellers choose from these activities when booking</p>
       </div>
 
-      {value.length === 0 && <p className="text-[13px] text-admin-subtle">No stops added yet.</p>}
+      {value.length === 0 && <p className="text-[13px] text-admin-subtle">No activities added yet.</p>}
       <ol className="flex flex-col gap-2">
         {value.map((locationId, index) => {
           const location = byId.get(locationId);
@@ -92,21 +93,21 @@ export function StopsEditor({ locations, value, defaultCountry, onChange, onCrea
                 {location && <span className="text-admin-subtle"> · {location.country}</span>}
               </span>
               <IconButton
-                label={`Move stop ${index + 1} up`}
+                label={`Move activity ${index + 1} up`}
                 disabled={index === 0}
                 onClick={() => onChange(moveItem(value, index, index - 1))}
               >
                 <ArrowUp size={15} strokeWidth={1.85} absoluteStrokeWidth />
               </IconButton>
               <IconButton
-                label={`Move stop ${index + 1} down`}
+                label={`Move activity ${index + 1} down`}
                 disabled={index === value.length - 1}
                 onClick={() => onChange(moveItem(value, index, index + 1))}
               >
                 <ArrowDown size={15} strokeWidth={1.85} absoluteStrokeWidth />
               </IconButton>
               <IconButton
-                label={`Remove stop ${index + 1}`}
+                label={`Remove activity ${index + 1}`}
                 tone="dangerSoft"
                 onClick={() => onChange(value.filter((id) => id !== locationId))}
               >
@@ -119,7 +120,7 @@ export function StopsEditor({ locations, value, defaultCountry, onChange, onCrea
 
       <div className="flex items-center gap-[10px]">
         <NativeSelect
-          aria-label="Choose a stop"
+          aria-label="Choose an activity"
           value={choice}
           onChange={(event) => setChoice(event.target.value)}
           wrapperClassName="min-w-0 flex-1"
@@ -133,7 +134,7 @@ export function StopsEditor({ locations, value, defaultCountry, onChange, onCrea
           ))}
         </NativeSelect>
         <AdminButton variant="secondary" onClick={addChoice} disabled={!choice}>
-          Add stop
+          Add activity
         </AdminButton>
       </div>
 
@@ -144,7 +145,7 @@ export function StopsEditor({ locations, value, defaultCountry, onChange, onCrea
           </Field>
           <div className="flex flex-col gap-3 sm:flex-row">
             <Field label="Location country" className="flex-1">
-              {(id) => <TextInput id={id} value={country} onChange={(event) => setCountry(event.target.value)} />}
+              {(id) => <CountrySelect id={id} value={country} onChange={setCountry} />}
             </Field>
             <Field label="Location region" className="flex-1">
               {(id) => <TextInput id={id} value={region} onChange={(event) => setRegion(event.target.value)} />}

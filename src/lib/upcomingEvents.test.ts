@@ -13,7 +13,7 @@ function eventOn(id: number, start: string): Event {
     start_date: start,
     end_date: start,
     duration_days: null,
-    price_ghs: null,
+    price_ghs: 500,
     capacity: null,
     seats_left: null,
     highlights: [],

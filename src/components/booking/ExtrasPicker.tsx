@@ -1,5 +1,5 @@
 import { Check } from "lucide-react";
-import { formatGhs } from "@/lib/adminFormat";
+import { formatExtraPrice } from "@/lib/adminFormat";
 import type { ListingExtra } from "@/types/api";
 
 interface ExtrasPickerProps {
@@ -44,7 +44,7 @@ export function ExtrasPicker({ extras, selectedIds, onChange }: ExtrasPickerProp
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                   <span className="flex items-center justify-between gap-2 text-sm font-medium text-[#4A2C00]">
                     <span>{extra.name}</span>
-                    <span className="shrink-0">{formatGhs(extra.price_ghs)}</span>
+                    <span className="shrink-0">{formatExtraPrice(extra.price_ghs)}</span>
                   </span>
                   {extra.description && <span className="text-xs text-gray-600">{extra.description}</span>}
                 </span>

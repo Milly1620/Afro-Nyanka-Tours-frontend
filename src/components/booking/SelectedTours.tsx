@@ -13,7 +13,7 @@ export function SelectedTours({ tours }: { tours: Tour[] }) {
             <p className="text-sm font-semibold text-[#4A2C00]">{tour.name}</p>
             <p className="shrink-0 text-sm font-semibold text-[#482B11]">
               {formatPrice(tour.price_ghs)}
-              {tour.price_ghs !== null && <span className="font-normal text-gray-600"> /person</span>}
+              <span className="font-normal text-gray-600"> /person</span>
             </p>
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-600">

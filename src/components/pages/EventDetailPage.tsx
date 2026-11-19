@@ -83,9 +83,7 @@ export function EventDetailPage() {
             </div>
             <p className="text-xl poppins-semibold text-[#0D0D0C]">
               {formatPrice(event.price_ghs)}
-              {event.price_ghs !== null && (
-                <span className="text-base poppins-regular text-[#6E7070]"> /person</span>
-              )}
+              <span className="text-base poppins-regular text-[#6E7070]"> /person</span>
             </p>
             {event.description && (
               <p className="text-[#4A2C00] leading-relaxed poppins-regular whitespace-pre-line">

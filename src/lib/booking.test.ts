@@ -10,7 +10,6 @@ import {
   groupSizeLimit,
   isSoldOut,
   offeredExtras,
-  QUOTE_MESSAGE,
   selectedTours,
   type BookingFormValues,
 } from "@/lib/booking";
@@ -68,10 +67,6 @@ describe("estimateTotal", () => {
 
   it("adds each extra once regardless of group size", () => {
     expect(estimateTotal([{ price_ghs: 1000 }], 4, [{ price_ghs: 150 }, { price_ghs: 300 }])).toBe(4450);
-  });
-
-  it("returns null when any tour has no price", () => {
-    expect(estimateTotal([{ price_ghs: 1000 }, { price_ghs: null }], 2, [{ price_ghs: 150 }])).toBeNull();
   });
 
   it("charges only extras when the group size is invalid", () => {
@@ -239,10 +234,6 @@ describe("event bookings", () => {
 });
 
 describe("formatting", () => {
-  it("shows the quote message when the amount is null", () => {
-    expect(formatAmount(null)).toBe(QUOTE_MESSAGE);
-  });
-
   it("formats a priced amount in cedis", () => {
     expect(formatAmount(2650)).toBe("GHS 2,650");
   });

@@ -2,7 +2,6 @@ import { Fragment, useEffect, useRef, useState, type FormEvent, type RefObject }
 import { useNavigate, useParams } from "react-router-dom";
 import { AdminPage } from "@/components/admin/layout/AdminPage";
 import { CoverImageField } from "@/components/admin/forms/CoverImageField";
-import { HighlightsEditor } from "@/components/admin/forms/HighlightsEditor";
 import { ListingDetailsFields } from "@/components/admin/forms/ListingDetailsFields";
 import { PublishingPanel } from "@/components/admin/forms/PublishingPanel";
 import { ExtrasEditor } from "@/components/admin/listings/ExtrasEditor";
@@ -16,13 +15,14 @@ import { BackLink } from "@/components/admin/ui/BackLink";
 import { Divider, Panel, SectionEyebrow } from "@/components/admin/ui/Panel";
 import { DraftBadge, PublishChip } from "@/components/admin/ui/StatusChip";
 import { loadTourDraft, resetTourDraft, updateTourDraft } from "@/listingDraftSlice";
+import { useObjectUrl } from "@/hooks/useObjectUrl";
 import { useResource } from "@/hooks/useResource";
 import { cn } from "@/lib/utils";
 import { adminExtrasApi, adminLocationsApi, adminToursApi } from "@/services/adminApi";
 import { useAppDispatch, useAppSelector } from "@/store";
 import type { Location } from "@/types/api";
 
-const steps = ["Tour details", "Stops & extras", "Publish"];
+const steps = ["Tour details", "Activities & extras", "Publish"];
 
 export function AddTourPage() {
   const { tourId } = useParams();
@@ -72,6 +72,7 @@ export function AddTourPage() {
     onFollowUpFailure: tour.reload,
   });
 
+  const coverPreview = useObjectUrl(editor.mainImage) ?? draft.coverImage;
   const change = (changes: Partial<typeof draft>) => dispatch(updateTourDraft(changes));
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -90,7 +91,7 @@ export function AddTourPage() {
   return (
     <AdminPage
       title={id !== null ? "Edit tour" : "Add tour"}
-      subtitle={id !== null ? "Update this tour, its stops and extras" : "Create a tour with its stops and extras"}
+      subtitle={id !== null ? "Update this tour, its activities and extras" : "Create a tour with its activities and extras"}
       contentClassName="gap-[18px] py-[22px]"
     >
       <div className="flex items-center justify-between gap-3">
@@ -151,7 +152,6 @@ export function AddTourPage() {
               <section ref={detailsRef} aria-label="Tour details" className="flex scroll-mt-6 flex-col gap-3">
                 <SectionEyebrow>TOUR DETAILS</SectionEyebrow>
                 <ListingDetailsFields kind="tour" draft={draft} onChange={change} fieldClassName="gap-[6px]" />
-                <HighlightsEditor highlights={draft.highlights} onChange={(highlights) => change({ highlights })} />
               </section>
               <Divider />
               <div ref={stopsRef} className="flex scroll-mt-6 flex-col gap-[18px]">
@@ -179,11 +179,8 @@ export function AddTourPage() {
               </div>
               <Divider />
               <CoverImageField
-                value={draft.coverImage}
-                onSelect={(file, coverImage) => {
-                  editor.selectMainImage(file);
-                  change({ coverImage });
-                }}
+                value={coverPreview}
+                onSelect={editor.selectMainImage}
                 className="gap-[6px]"
               />
               <GalleryField
@@ -204,7 +201,7 @@ export function AddTourPage() {
                   <span className="size-[6px] rounded-[3px] bg-admin-orange" />
                   LIVE PREVIEW
                 </p>
-                <TourCardPreview draft={draft} />
+                <TourCardPreview draft={draft} coverImage={coverPreview} />
               </section>
 
               <div ref={publishRef} className="scroll-mt-6">

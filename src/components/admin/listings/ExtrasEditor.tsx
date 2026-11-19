@@ -1,6 +1,6 @@
 import { SectionEyebrow } from "@/components/admin/ui/Panel";
 import type { DraftExtra } from "@/components/admin/listings/listingMapping";
-import { formatGhs } from "@/lib/adminFormat";
+import { formatExtraPrice } from "@/lib/adminFormat";
 import type { AdminExtra } from "@/types/api";
 
 interface ExtrasEditorProps {
@@ -53,7 +53,7 @@ export function ExtrasEditor({ catalog, value, onChange }: ExtrasEditorProps) {
               <span className="min-w-0 flex-1 truncate text-[14px] text-admin-text">
                 {extra.name}
                 {!extra.is_active && <span className="text-admin-subtle"> (inactive)</span>}
-                <span className="text-admin-subtle"> · catalogue {formatGhs(extra.default_price_ghs)}</span>
+                <span className="text-admin-subtle"> · catalogue {formatExtraPrice(extra.default_price_ghs)}</span>
               </span>
             </label>
             {current && (

@@ -36,13 +36,13 @@ export function FeaturedTripPreview({ draft }: { draft: ListingDraft }) {
         ))}
       </div>
 
-      <div className="relative flex flex-col justify-end gap-6">
+      <div className="relative flex min-w-0 flex-1 flex-col justify-end gap-6 break-words md:pl-[30px]">
         <div className="flex flex-col gap-[18px]">
           <p className="flex items-center gap-[6px] font-inter text-[13.5px] font-semibold text-landing-brown">
             <span className="h-[6px] w-[30px] bg-landing-orange" />
             UPCOMING <span className="text-landing-orange">TOURS</span>
           </p>
-          <h2 className="font-admin text-[28px] leading-[1.2] font-bold text-landing-brown md:text-[36px]">
+          <h2 className="min-w-0 font-admin text-[28px] leading-[1.2] font-bold text-landing-brown md:text-[36px]">
             {draft.name || "Untitled event"}
           </h2>
           <div className="flex flex-wrap items-center gap-[18px]">
@@ -57,7 +57,7 @@ export function FeaturedTripPreview({ draft }: { draft: ListingDraft }) {
               </span>
             )}
           </div>
-          <p className="max-w-[456.75px] font-inter text-[13.5px] leading-[1.2] text-landing-grey">
+          <p className="max-w-[456.75px] whitespace-pre-line font-inter text-[13.5px] leading-[1.2] text-landing-grey">
             {draft.description}
           </p>
         </div>

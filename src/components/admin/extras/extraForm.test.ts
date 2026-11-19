@@ -34,6 +34,12 @@ describe("validateExtraForm", () => {
   it("passes a complete form", () => {
     expect(validateExtraForm({ name: "Pickup", description: "", price: "150" })).toBeNull();
   });
+
+  it("accepts an empty price and sends zero", () => {
+    const values = { name: "Pickup", description: "", price: "" };
+    expect(validateExtraForm(values)).toBeNull();
+    expect(toExtraInput(values).default_price_ghs).toBe(0);
+  });
 });
 
 describe("extra form mapping", () => {

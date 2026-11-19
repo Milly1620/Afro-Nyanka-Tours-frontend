@@ -13,7 +13,7 @@ import {
   bookingStatusSuccessMessage,
 } from "@/components/admin/bookings/bookingStatus";
 import { useResource } from "@/hooks/useResource";
-import { formatDateTime, formatGhs, formatShortDate } from "@/lib/adminFormat";
+import { formatDateTime, formatGhs, formatExtraPrice, formatShortDate } from "@/lib/adminFormat";
 import { toast } from "@/lib/toast";
 import { adminBookingsApi } from "@/services/adminApi";
 import { getErrorMessage } from "@/services/api";
@@ -101,7 +101,7 @@ function BookingDetail({ detail, onChanged }: { detail: AdminBookingDetail; onCh
         </Panel>
 
         <Panel className="flex flex-col gap-4 p-[22px]">
-          <PanelHeading title={summary.event ? "Event" : "Tours and stops"} />
+          <PanelHeading title={summary.event ? "Event" : "Tours and activities"} />
           {summary.event && (
             <div className="flex flex-col gap-1">
               <span className="text-[15px] font-semibold text-admin-text">{summary.event.name}</span>
@@ -124,7 +124,7 @@ function BookingDetail({ detail, onChanged }: { detail: AdminBookingDetail; onCh
                   ))}
                 </ul>
               ) : (
-                <span className="text-[13px] text-admin-subtle">No stops selected</span>
+                <span className="text-[13px] text-admin-subtle">No activities selected</span>
               )}
             </div>
           ))}
@@ -142,7 +142,7 @@ function BookingDetail({ detail, onChanged }: { detail: AdminBookingDetail; onCh
               {summary.extras.map((extra, index) => (
                 <li key={`${extra.name}-${index}`} className="flex items-center justify-between text-[13.5px] text-admin-text-2">
                   <span>{extra.name}</span>
-                  <span className="font-medium">{formatGhs(extra.price_ghs)}</span>
+                  <span className="font-medium">{formatExtraPrice(extra.price_ghs)}</span>
                 </li>
               ))}
             </ul>
@@ -151,7 +151,7 @@ function BookingDetail({ detail, onChanged }: { detail: AdminBookingDetail; onCh
           <div className="flex items-center justify-between">
             <span className="text-[13.5px] font-medium text-admin-subtle">Total</span>
             <span className="text-[22px] font-semibold text-admin-text">
-              {summary.amount_ghs === null ? "Quote pending" : formatGhs(summary.amount_ghs)}
+              {formatGhs(summary.amount_ghs)}
             </span>
           </div>
         </Panel>

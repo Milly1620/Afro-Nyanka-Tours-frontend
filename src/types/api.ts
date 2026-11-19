@@ -38,7 +38,7 @@ export interface Tour {
   tour_locations: TourLocation[];
   main_image_url: string | null;
   gallery_images?: string[];
-  price_ghs: number | null;
+  price_ghs: number;
   duration_days: number | null;
   capacity: number | null;
   highlights: string[];
@@ -56,7 +56,7 @@ export interface Event {
   start_date: string;
   end_date: string;
   duration_days: number | null;
-  price_ghs: number | null;
+  price_ghs: number;
   capacity: number | null;
   seats_left: number | null;
   highlights: string[];
@@ -115,7 +115,7 @@ export interface BookingRecord {
   id: number;
   reference: string;
   status: BookingStatus;
-  amount_ghs: number | null;
+  amount_ghs: number;
   customer_name: string;
   customer_email: string;
   customer_age: number | null;
@@ -157,7 +157,7 @@ export interface BookingSummaryEvent {
 export interface BookingSummary {
   reference: string;
   status: BookingStatus;
-  amount_ghs: number | null;
+  amount_ghs: number;
   extras: BookingSummaryExtra[];
   event: BookingSummaryEvent | null;
   tours_and_locations: BookingSummaryTour[];
@@ -217,7 +217,7 @@ export interface TourInput {
   country: string;
   region: string;
   description: string;
-  price_ghs: number | null;
+  price_ghs: number;
   duration_days: number | null;
   capacity: number | null;
   highlights: string[];
@@ -264,7 +264,7 @@ export interface AdminBookingRow {
   tour_or_event_name: string | null;
   start_date: string | null;
   number_of_people: number;
-  amount_ghs: number | null;
+  amount_ghs: number;
   status: BookingStatus;
   created_at: string;
 }
