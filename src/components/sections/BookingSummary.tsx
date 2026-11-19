@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { EstimatedTotal } from "@/components/booking/EstimatedTotal";
-import { formatGhs } from "@/lib/adminFormat";
+import { formatExtraPrice } from "@/lib/adminFormat";
 import type { BookingFormValues } from "@/lib/booking";
 
 interface SummaryExtra {
@@ -13,7 +12,6 @@ interface BookingSummaryProps {
   formData: BookingFormValues;
   activities: string[];
   extras: SummaryExtra[];
-  estimatedTotal: number | null;
   errorMessage: string;
   onBack: () => void;
   onCompleteBooking: () => void;
@@ -24,7 +22,6 @@ export function BookingSummary({
   formData,
   activities,
   extras,
-  estimatedTotal,
   errorMessage,
   onBack,
   onCompleteBooking,
@@ -137,7 +134,7 @@ export function BookingSummary({
               {extras.map((extra) => (
                 <li key={extra.extra_id} className="flex justify-between gap-3 text-sm text-gray-700">
                   <span>{extra.name}</span>
-                  <span className="font-medium text-gray-900">{formatGhs(extra.price_ghs)}</span>
+                  <span className="font-medium text-gray-900">{formatExtraPrice(extra.price_ghs)}</span>
                 </li>
               ))}
             </ul>
@@ -150,8 +147,6 @@ export function BookingSummary({
             <p className="text-gray-700 leading-relaxed">{formData.additionalServices}</p>
           </div>
         )}
-
-        <EstimatedTotal total={estimatedTotal} />
 
         {errorMessage && (
           <p role="alert" className="text-sm font-medium text-red-600">

@@ -187,7 +187,7 @@ export function tourInputFromDraft(draft: ListingDraft, status: PublishStatus): 
     country: draft.country.trim(),
     region: draft.region.trim(),
     description: draft.description.trim(),
-    price_ghs: parseOptionalWhole(draft.price).value,
+    price_ghs: parseOptionalWhole(draft.price).value ?? 0,
     duration_days: parseOptionalWhole(draft.durationDays).value,
     capacity: parseOptionalWhole(draft.capacity).value,
     highlights: cleanHighlights(draft.highlights),
@@ -199,7 +199,6 @@ export function tourInputFromDraft(draft: ListingDraft, status: PublishStatus): 
 }
 
 export function eventInputFromDraft(draft: ListingDraft, status: PublishStatus): EventInput {
-  const typedDuration = parseOptionalWhole(draft.durationDays).value;
   return {
     name: draft.name.trim(),
     country: draft.country.trim(),
@@ -208,8 +207,8 @@ export function eventInputFromDraft(draft: ListingDraft, status: PublishStatus):
     destination: draft.destination.trim(),
     start_date: draft.startDate,
     end_date: draft.endDate,
-    price_ghs: parseOptionalWhole(draft.price).value,
-    duration_days: typedDuration ?? inclusiveDays(draft.startDate, draft.endDate),
+    price_ghs: parseOptionalWhole(draft.price).value ?? 0,
+    duration_days: inclusiveDays(draft.startDate, draft.endDate),
     capacity: parseOptionalWhole(draft.capacity).value,
     highlights: cleanHighlights(draft.highlights),
     status,
@@ -228,8 +227,9 @@ export function validateListing(
   if (!draft.country.trim()) return "Enter a country.";
   const price = parseOptionalWhole(draft.price);
   if (!price.valid) return "Price must be a whole number of cedis.";
+  if (price.value === null) return "Enter a price.";
   const duration = parseOptionalWhole(draft.durationDays);
-  if (!duration.valid || duration.value === 0) return "Duration must be a whole number of days.";
+  if (kind === "tour" && (!duration.valid || duration.value === 0)) return "Duration must be a whole number of days.";
   const capacity = parseOptionalWhole(draft.capacity);
   if (!capacity.valid || capacity.value === 0) return "Capacity must be a whole number of at least 1.";
   if (capacity.value !== null && capacity.value < minimumCapacity) {
@@ -241,7 +241,6 @@ export function validateListing(
     if (!draft.startDate || !draft.endDate) return "Choose a start and end date.";
     if (draft.endDate < draft.startDate) return "The end date cannot be before the start date.";
   }
-  if (status !== "draft" && price.value === null) return "Set a price before publishing.";
   if (status === "scheduled" && !fromDateTimeLocal(draft.publishOn)) return "Choose when to publish.";
   return null;
 }

@@ -55,22 +55,22 @@ function HighlightsHarness({ initial }: { initial: string[] }) {
 }
 
 describe("StopsEditor", () => {
-  it("adds a chosen location to the end of the stops", () => {
+  it("adds a chosen location to the end of the activities", () => {
     render(<StopsHarness initial={[1]} />);
-    fireEvent.change(screen.getByLabelText("Choose a stop"), { target: { value: "2" } });
-    fireEvent.click(screen.getByRole("button", { name: "Add stop" }));
+    fireEvent.change(screen.getByLabelText("Choose an activity"), { target: { value: "2" } });
+    fireEvent.click(screen.getByRole("button", { name: "Add activity" }));
     expect(screen.getByTestId("ids")).toHaveTextContent("1,2");
   });
 
-  it("moves a stop down and removes a stop", () => {
+  it("moves an activity down and removes an activity", () => {
     render(<StopsHarness initial={[1, 2, 3]} />);
-    fireEvent.click(screen.getByRole("button", { name: "Move stop 1 down" }));
+    fireEvent.click(screen.getByRole("button", { name: "Move activity 1 down" }));
     expect(screen.getByTestId("ids")).toHaveTextContent("2,1,3");
-    fireEvent.click(screen.getByRole("button", { name: "Remove stop 3" }));
+    fireEvent.click(screen.getByRole("button", { name: "Remove activity 3" }));
     expect(screen.getByTestId("ids")).toHaveTextContent("2,1");
   });
 
-  it("offers only locations that are not already stops", () => {
+  it("offers only locations that are not already activities", () => {
     render(<StopsHarness initial={[1, 2]} />);
     const options = screen.getAllByRole("option").map((option) => option.textContent);
     expect(options).toEqual(["Choose a location…", "Cape Coast · Ghana"]);

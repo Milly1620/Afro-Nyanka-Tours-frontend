@@ -20,7 +20,7 @@ function eventNamed(id: number): Event {
     start_date: "2999-12-26",
     end_date: "2999-12-28",
     duration_days: 3,
-    price_ghs: null,
+    price_ghs: 500,
     capacity: null,
     seats_left: null,
     highlights: [],

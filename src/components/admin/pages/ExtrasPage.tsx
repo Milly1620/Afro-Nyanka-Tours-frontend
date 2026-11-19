@@ -14,7 +14,7 @@ import {
   type ExtraFormValues,
 } from "@/components/admin/extras/extraForm";
 import { useResource } from "@/hooks/useResource";
-import { formatGhs } from "@/lib/adminFormat";
+import { formatExtraPrice } from "@/lib/adminFormat";
 import { toast } from "@/lib/toast";
 import { adminExtrasApi } from "@/services/adminApi";
 import { getErrorMessage } from "@/services/api";
@@ -70,7 +70,7 @@ export function ExtrasPage() {
                         {extra.is_active ? "Visible to customers" : "Hidden from customers"}
                       </span>
                     </div>
-                    <span className="text-[14px] font-bold text-admin-text">{formatGhs(extra.default_price_ghs)}</span>
+                    <span className="text-[14px] font-bold text-admin-text">{formatExtraPrice(extra.default_price_ghs)}</span>
                     <Toggle
                       label={`${extra.name} active`}
                       checked={extra.is_active}
@@ -168,7 +168,7 @@ function ExtraEditor({ extra, onCancel, onSaved }: ExtraEditorProps) {
             />
           )}
         </Field>
-        <Field label="Default price (GHS)">
+        <Field label="Default price (GHS, optional)">
           {(id) => (
             <TextInput
               id={id}

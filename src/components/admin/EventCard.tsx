@@ -48,7 +48,7 @@ export function EventCard({ event, onDelete }: EventCardProps) {
         <p className="text-[12px] text-admin-subtle">{seatsLabel(event)}</p>
         <div className="flex items-end justify-between gap-2 pt-[2px]">
           <p className="flex items-baseline gap-[5px]">
-            {event.price_ghs !== null && <span className="text-[12px] text-admin-subtle">from</span>}
+            <span className="text-[12px] text-admin-subtle">from</span>
             <span className="text-[16px] font-medium text-admin-text">{formatPrice(event.price_ghs)}</span>
           </p>
           <IconButton label={`Delete ${event.name}`} tone="danger" onClick={() => onDelete(event)}>

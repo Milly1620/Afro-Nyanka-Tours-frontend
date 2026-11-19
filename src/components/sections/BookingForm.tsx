@@ -8,12 +8,9 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toursApi } from "@/services/api";
 import { ALL_COUNTRIES } from "@/data/countries";
-import { EstimatedTotal } from "@/components/booking/EstimatedTotal";
 import { ExtrasPicker } from "@/components/booking/ExtrasPicker";
 import { SelectedTours } from "@/components/booking/SelectedTours";
 import {
-  chosenExtras,
-  estimateTotal,
   groupSizeLimit,
   offeredExtras,
   selectedTours,
@@ -401,11 +398,6 @@ export function BookingForm({
   );
   const availableExtras = useMemo(() => offeredExtras(chosenTours), [chosenTours]);
   const groupLimit = groupSizeLimit(chosenTours.map((tour) => tour.capacity));
-  const estimatedTotal = estimateTotal(
-    chosenTours,
-    parseInt(numberOfPersons, 10),
-    chosenExtras(availableExtras, extraIds),
-  );
 
   // Reset form when initialFormData changes (when navigating back from summary)
   useEffect(() => {
@@ -720,7 +712,6 @@ export function BookingForm({
           control={control}
         />
 
-        {chosenTours.length > 0 && <EstimatedTotal total={estimatedTotal} />}
 
         {/* Submit Button */}
         <div className="flex justify-end">

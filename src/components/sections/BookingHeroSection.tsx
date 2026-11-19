@@ -13,7 +13,6 @@ import { bookingsApi, getErrorMessage, toursApi } from "@/services/api";
 import {
   buildTourBookingPayload,
   chosenExtras,
-  estimateTotal,
   offeredExtras,
   selectedTours,
   type BookingFormValues,
@@ -138,11 +137,6 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
 
   const chosenTours = selectedTours(toursData, formData?.selectedDestinations ?? []);
   const summaryExtras = chosenExtras(offeredExtras(chosenTours), formData?.extraIds ?? []);
-  const estimatedTotal = estimateTotal(
-    chosenTours,
-    parseInt(formData?.numberOfPersons ?? "", 10),
-    summaryExtras,
-  );
 
   return (
     <>
@@ -179,7 +173,6 @@ export function BookingHeroSection({ searchData }: BookingHeroSectionProps) {
             formData={formData!}
             activities={activities}
             extras={summaryExtras}
-            estimatedTotal={estimatedTotal}
             errorMessage={submitStatus.type === "error" ? submitStatus.message : ""}
             onBack={() => setShowSummaryModal(false)}
             onCompleteBooking={handleCompleteBooking}

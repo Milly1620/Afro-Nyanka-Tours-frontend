@@ -104,7 +104,7 @@ export function BookingsPage() {
                   {booking.number_of_people}
                 </span>
                 <span role="cell" className="text-[13.5px] font-semibold text-admin-text">
-                  {booking.amount_ghs === null ? "Quote pending" : formatGhs(booking.amount_ghs)}
+                  {formatGhs(booking.amount_ghs)}
                 </span>
                 <span role="cell">
                   <StatusChip status={booking.status} />

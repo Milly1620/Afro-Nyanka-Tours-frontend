@@ -1,4 +1,4 @@
-import { formatGhs } from "@/lib/adminFormat";
+import { formatExtraPrice } from "@/lib/adminFormat";
 import { formatAmount, formatEventDateRange } from "@/lib/booking";
 import type { BookingCreateResponse } from "@/types/api";
 
@@ -40,7 +40,7 @@ export function BookingConfirmationDetails({ confirmation }: { confirmation: Boo
       {summary.extras.map((extra) => (
         <div key={extra.name} className="flex justify-between gap-3">
           <dt>{extra.name}</dt>
-          <dd className="font-semibold">{formatGhs(extra.price_ghs)}</dd>
+          <dd className="font-semibold">{formatExtraPrice(extra.price_ghs)}</dd>
         </div>
       ))}
       <div className="flex justify-between gap-3 border-t border-orange-200 pt-2">

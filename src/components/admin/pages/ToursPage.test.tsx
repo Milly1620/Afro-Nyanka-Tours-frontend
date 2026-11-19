@@ -39,7 +39,7 @@ const tour = (overrides: Partial<AdminTour>): AdminTour => ({
 });
 
 const listing = {
-  items: [tour({}), tour({ id: 2, name: "Kumasi Trail", price_ghs: null, status: "draft", region: "Ashanti" })],
+  items: [tour({}), tour({ id: 2, name: "Kumasi Trail", price_ghs: 1800, status: "draft", region: "Ashanti" })],
   counts: { all: 2, published: 1, draft: 1, scheduled: 0 },
 };
 
@@ -74,11 +74,10 @@ describe("ToursPage", () => {
     clearToasts();
   });
 
-  it("shows tours from the API with price on request for unpriced tours", async () => {
+  it("shows tours from the API with their prices", async () => {
     renderPage();
     expect(await screen.findByText("Cape Coast Heritage")).toBeInTheDocument();
     expect(screen.getByText("GHS 2,650")).toBeInTheDocument();
-    expect(screen.getByText("Price on request")).toBeInTheDocument();
   });
 
   it("shows counts from the server on the status tabs", async () => {

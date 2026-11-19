@@ -35,8 +35,6 @@ export interface EventBookingValues {
   country?: string;
 }
 
-export const QUOTE_MESSAGE = "We'll send you a quote";
-
 export function selectedTours(tours: Tour[], names: string[]): Tour[] {
   return names
     .map((name) => tours.find((tour) => tour.name === name))
@@ -65,20 +63,8 @@ export function groupSizeLimit(capacities: (number | null | undefined)[]): numbe
   return limits.length ? Math.min(...limits) : null;
 }
 
-export function estimateTotal(
-  listings: { price_ghs: number | null }[],
-  people: number,
-  extras: { price_ghs: number }[],
-): number | null {
-  if (listings.some((listing) => listing.price_ghs === null)) return null;
-  const headcount = Number.isFinite(people) && people > 0 ? people : 0;
-  const perPerson = listings.reduce((sum, listing) => sum + (listing.price_ghs ?? 0) * headcount, 0);
-  const addOns = extras.reduce((sum, extra) => sum + extra.price_ghs, 0);
-  return perPerson + addOns;
-}
-
-export function formatAmount(amount: number | null): string {
-  return amount === null ? QUOTE_MESSAGE : formatGhs(amount);
+export function formatAmount(amount: number): string {
+  return formatGhs(amount);
 }
 
 function optionalNumber(value: string): number | undefined {

@@ -54,7 +54,7 @@ describe("ExtrasPage", () => {
     renderPage();
     await screen.findByText("Airport pickup");
     await userEvent.type(screen.getByLabelText("Name"), "Drone photos");
-    await userEvent.type(screen.getByLabelText("Default price (GHS)"), "450");
+    await userEvent.type(screen.getByLabelText("Default price (GHS, optional)"), "450");
     await userEvent.click(screen.getByRole("button", { name: "Create extra" }));
     await waitFor(() => expect(adminExtrasApi.create).toHaveBeenCalled());
     expect(await screen.findByRole("status")).toHaveTextContent("Drone photos created");
@@ -65,7 +65,7 @@ describe("ExtrasPage", () => {
     renderPage();
     await screen.findByText("Airport pickup");
     await userEvent.type(screen.getByLabelText("Name"), "Airport pickup");
-    await userEvent.type(screen.getByLabelText("Default price (GHS)"), "300");
+    await userEvent.type(screen.getByLabelText("Default price (GHS, optional)"), "300");
     await userEvent.click(screen.getByRole("button", { name: "Create extra" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("Name already exists");
   });

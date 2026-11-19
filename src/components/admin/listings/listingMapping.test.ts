@@ -56,7 +56,7 @@ const event: AdminEvent = {
   start_date: "2026-12-10",
   end_date: "2026-12-12",
   duration_days: null,
-  price_ghs: null,
+  price_ghs: 500,
   capacity: null,
   seats_left: null,
   highlights: [],
@@ -94,10 +94,10 @@ describe("draftFromTour", () => {
 });
 
 describe("draftFromEvent", () => {
-  it("leaves unset numbers empty and trims dates to the day", () => {
+  it("leaves unset capacity empty and trims dates to the day", () => {
     const draft = draftFromEvent({ ...event, start_date: "2026-12-10T00:00:00" });
     expect(draft.startDate).toBe("2026-12-10");
-    expect(draft.price).toBe("");
+    expect(draft.price).toBe("500");
     expect(draft.capacity).toBe("");
     expect(draft.region).toBe("");
   });
@@ -125,25 +125,25 @@ describe("tourInputFromDraft", () => {
     expect(tourInputFromDraft(draft, "published").publish_at).toBeNull();
   });
 
-  it("sends null for an empty price and capacity", () => {
-    const input = tourInputFromDraft({ ...emptyDraft(), name: "X", country: "Ghana" }, "draft");
-    expect(input.price_ghs).toBeNull();
+  it("sends null for an empty capacity and duration", () => {
+    const input = tourInputFromDraft({ ...emptyDraft(), name: "X", country: "Ghana", price: "100" }, "draft");
+    expect(input.price_ghs).toBe(100);
     expect(input.capacity).toBeNull();
     expect(input.duration_days).toBeNull();
   });
 });
 
 describe("eventInputFromDraft", () => {
-  it("derives duration from the dates when none is typed", () => {
+  it("derives duration from the date range", () => {
     const input = eventInputFromDraft(draftFromEvent(event), "draft");
     expect(input.duration_days).toBe(3);
     expect(input.start_date).toBe("2026-12-10");
     expect(input.destination).toBe("Accra");
   });
 
-  it("prefers a typed duration", () => {
+  it("ignores a stale typed duration and follows the dates", () => {
     const input = eventInputFromDraft({ ...draftFromEvent(event), durationDays: "5" }, "draft");
-    expect(input.duration_days).toBe(5);
+    expect(input.duration_days).toBe(3);
   });
 
   it("round-trips the event stops as location ids", () => {
@@ -193,11 +193,11 @@ describe("validateListing", () => {
     expect(validateListing({ ...valid, country: "" }, "tour", "draft")).toBe("Enter a country.");
   });
 
-  it("blocks publishing without a price but allows drafts", () => {
+  it("requires a price for every status", () => {
     const noPrice = { ...valid, price: "" };
-    expect(validateListing(noPrice, "tour", "published")).toBe("Set a price before publishing.");
-    expect(validateListing(noPrice, "tour", "scheduled")).toBe("Set a price before publishing.");
-    expect(validateListing(noPrice, "tour", "draft")).toBeNull();
+    expect(validateListing(noPrice, "tour", "published")).toBe("Enter a price.");
+    expect(validateListing(noPrice, "tour", "scheduled")).toBe("Enter a price.");
+    expect(validateListing(noPrice, "tour", "draft")).toBe("Enter a price.");
   });
 
   it("rejects decimal prices", () => {

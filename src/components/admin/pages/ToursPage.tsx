@@ -140,7 +140,7 @@ export function ToursPage() {
               </span>
             </div>
             {visibleTours.map((tour) => {
-              const stops = tour.tour_locations?.length ?? 0;
+              const activities = tour.tour_locations?.length ?? 0;
               return (
                 <div
                   key={tour.id}
@@ -152,7 +152,7 @@ export function ToursPage() {
                     <span className="flex min-w-0 flex-col gap-[2px]">
                       <span className="truncate text-[14.5px] font-bold text-admin-text">{tour.name}</span>
                       <span className="text-[12px] font-medium text-admin-subtle">
-                        {stops} {stops === 1 ? "stop" : "stops"}
+                        {activities} {activities === 1 ? "activity" : "activities"}
                       </span>
                     </span>
                   </span>

@@ -1,6 +1,7 @@
 import { Field, TextArea, TextInput } from "@/components/admin/ui/Field";
+import { CountrySelect } from "@/components/admin/forms/CountrySelect";
 import { DateField } from "@/components/admin/forms/DateField";
-import type { ListingDraft, ListingKind } from "@/components/admin/listings/listingMapping";
+import { inclusiveDays, type ListingDraft, type ListingKind } from "@/components/admin/listings/listingMapping";
 import { cn } from "@/lib/utils";
 
 interface ListingDetailsFieldsProps {
@@ -24,12 +25,7 @@ export function ListingDetailsFields({ kind, draft, onChange, fieldClassName }: 
       <div className="flex flex-col gap-3 sm:flex-row">
         <Field label="Country" className={cn("flex-1", fieldClassName)}>
           {(id) => (
-            <TextInput
-              id={id}
-              required
-              value={draft.country}
-              onChange={(event) => onChange({ country: event.target.value })}
-            />
+            <CountrySelect id={id} required value={draft.country} onChange={(country) => onChange({ country })} />
           )}
         </Field>
         <Field label="Region" className={cn("flex-1", fieldClassName)}>
@@ -76,7 +72,6 @@ export function ListingDetailsFields({ kind, draft, onChange, fieldClassName }: 
             <TextInput
               id={id}
               inputMode="numeric"
-              placeholder="Price on request"
               value={draft.price}
               onChange={(event) => onChange({ price: event.target.value })}
             />
@@ -89,7 +84,9 @@ export function ListingDetailsFields({ kind, draft, onChange, fieldClassName }: 
               type="number"
               min={1}
               inputMode="numeric"
-              value={draft.durationDays}
+              readOnly={kind === "event"}
+              placeholder={kind === "event" ? "From dates" : undefined}
+              value={kind === "event" ? String(inclusiveDays(draft.startDate, draft.endDate) ?? "") : draft.durationDays}
               onChange={(event) => onChange({ durationDays: event.target.value })}
             />
           )}

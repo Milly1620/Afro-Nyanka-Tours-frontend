@@ -6,6 +6,7 @@ import { CoverImageField } from "@/components/admin/forms/CoverImageField";
 import { HighlightsEditor } from "@/components/admin/forms/HighlightsEditor";
 import { ListingDetailsFields } from "@/components/admin/forms/ListingDetailsFields";
 import { PublishingPanel } from "@/components/admin/forms/PublishingPanel";
+import { EventCardPreview } from "@/components/admin/EventCardPreview";
 import { ExtrasEditor } from "@/components/admin/listings/ExtrasEditor";
 import { GalleryField } from "@/components/admin/listings/GalleryField";
 import { StopsEditor } from "@/components/admin/listings/StopsEditor";
@@ -18,6 +19,7 @@ import { Divider, Panel, SectionEyebrow } from "@/components/admin/ui/Panel";
 import { DraftBadge, PublishChip } from "@/components/admin/ui/StatusChip";
 import { loadEventDraft, resetEventDraft, updateEventDraft } from "@/listingDraftSlice";
 import { holdDraft, peekHeldDraft, releaseHeldDraft } from "@/lib/draftHold";
+import { useObjectUrl } from "@/hooks/useObjectUrl";
 import { useResource } from "@/hooks/useResource";
 import { adminEventsApi, adminExtrasApi, adminLocationsApi } from "@/services/adminApi";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -78,6 +80,7 @@ export function CreateEventPage() {
     heldFiles,
   });
 
+  const coverPreview = useObjectUrl(editor.mainImage) ?? draft.coverImage;
   const change = (changes: Partial<typeof draft>) => dispatch(updateEventDraft(changes));
 
   const openPreview = () => {
@@ -149,11 +152,8 @@ export function CreateEventPage() {
               </AsyncState>
               <Divider />
               <CoverImageField
-                value={draft.coverImage}
-                onSelect={(file, coverImage) => {
-                  editor.selectMainImage(file);
-                  change({ coverImage });
-                }}
+                value={coverPreview}
+                onSelect={editor.selectMainImage}
               />
               <GalleryField
                 existing={visibleGallery}
@@ -166,6 +166,7 @@ export function CreateEventPage() {
 
             <div className="flex w-full flex-col gap-5 xl:w-[384px] xl:shrink-0">
               <Panel className="flex flex-col gap-3 p-5">
+                <EventCardPreview draft={draft} coverImage={coverPreview} />
                 <div className="flex items-center gap-3">
                   <span className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-admin-orange-soft text-admin-orange">
                     <Eye size={20} strokeWidth={1.85} absoluteStrokeWidth />

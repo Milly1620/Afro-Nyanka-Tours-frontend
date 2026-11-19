@@ -54,9 +54,7 @@ function EventCard({ event }: { event: EventListing }) {
         </div>
         <p className="mt-auto pt-2 text-[16.61px] poppins-semibold text-[#0D0D0C]">
           {formatPrice(event.price_ghs)}
-          {event.price_ghs !== null && (
-            <span className="text-[14.76px] poppins-regular text-[#6E7070]"> /person</span>
-          )}
+          <span className="text-[14.76px] poppins-regular text-[#6E7070]"> /person</span>
         </p>
       </div>
     </Link>

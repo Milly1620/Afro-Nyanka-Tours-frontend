@@ -24,7 +24,7 @@ export function parseWholeCedi(value: string): number | null {
 
 export function validateExtraForm(values: ExtraFormValues): string | null {
   if (!values.name.trim()) return "Enter a name for the extra.";
-  if (parseWholeCedi(values.price) === null) return "Price must be a whole number of cedis.";
+  if (values.price.trim() && parseWholeCedi(values.price) === null) return "Price must be a whole number of cedis.";
   return null;
 }
 

@@ -105,11 +105,11 @@ describe("EventBookingForm", () => {
     });
   });
 
-  it("shows the estimated total including extras once", async () => {
+  it("does not show an estimated total", async () => {
     render(<EventBookingForm event={event} onBooked={vi.fn()} onSeatsChanged={vi.fn()} />);
     const user = await fillForm("2");
     await user.click(screen.getByLabelText(/Airport pickup/));
-    expect(screen.getByText("GHS 1,150")).toBeInTheDocument();
+    expect(screen.queryByText(/estimated total/i)).not.toBeInTheDocument();
   });
 
   it("shows the seats message and asks for a refresh on a 409", async () => {

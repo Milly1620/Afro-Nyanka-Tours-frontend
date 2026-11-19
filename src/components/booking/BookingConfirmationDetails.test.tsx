@@ -8,7 +8,7 @@ const confirmation: BookingCreateResponse = {
     id: 43,
     reference: "BC-43",
     status: "pending",
-    amount_ghs: null,
+    amount_ghs: 2650,
     customer_name: "Ama Mensah",
     customer_email: "ama@example.com",
     customer_age: 30,
@@ -23,7 +23,7 @@ const confirmation: BookingCreateResponse = {
   summary: {
     reference: "BC-43",
     status: "pending",
-    amount_ghs: null,
+    amount_ghs: 2650,
     extras: [],
     event: null,
     tours_and_locations: [
@@ -43,10 +43,5 @@ describe("BookingConfirmationDetails", () => {
     render(<BookingConfirmationDetails confirmation={confirmation} />);
     expect(screen.getByText("BC-43")).toBeInTheDocument();
     expect(screen.getByText("Cape Coast Tours")).toBeInTheDocument();
-  });
-
-  it("says a quote will follow when the amount is null", () => {
-    render(<BookingConfirmationDetails confirmation={confirmation} />);
-    expect(screen.getByText(/quote/i)).toBeInTheDocument();
   });
 });
