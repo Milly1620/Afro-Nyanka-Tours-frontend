@@ -199,7 +199,6 @@ export function tourInputFromDraft(draft: ListingDraft, status: PublishStatus): 
 }
 
 export function eventInputFromDraft(draft: ListingDraft, status: PublishStatus): EventInput {
-  const typedDuration = parseOptionalWhole(draft.durationDays).value;
   return {
     name: draft.name.trim(),
     country: draft.country.trim(),
@@ -209,7 +208,7 @@ export function eventInputFromDraft(draft: ListingDraft, status: PublishStatus):
     start_date: draft.startDate,
     end_date: draft.endDate,
     price_ghs: parseOptionalWhole(draft.price).value ?? 0,
-    duration_days: typedDuration ?? inclusiveDays(draft.startDate, draft.endDate),
+    duration_days: inclusiveDays(draft.startDate, draft.endDate),
     capacity: parseOptionalWhole(draft.capacity).value,
     highlights: cleanHighlights(draft.highlights),
     status,
@@ -230,7 +229,7 @@ export function validateListing(
   if (!price.valid) return "Price must be a whole number of cedis.";
   if (price.value === null) return "Enter a price.";
   const duration = parseOptionalWhole(draft.durationDays);
-  if (!duration.valid || duration.value === 0) return "Duration must be a whole number of days.";
+  if (kind === "tour" && (!duration.valid || duration.value === 0)) return "Duration must be a whole number of days.";
   const capacity = parseOptionalWhole(draft.capacity);
   if (!capacity.valid || capacity.value === 0) return "Capacity must be a whole number of at least 1.";
   if (capacity.value !== null && capacity.value < minimumCapacity) {

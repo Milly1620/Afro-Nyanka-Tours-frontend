@@ -134,16 +134,16 @@ describe("tourInputFromDraft", () => {
 });
 
 describe("eventInputFromDraft", () => {
-  it("derives duration from the dates when none is typed", () => {
+  it("derives duration from the date range", () => {
     const input = eventInputFromDraft(draftFromEvent(event), "draft");
     expect(input.duration_days).toBe(3);
     expect(input.start_date).toBe("2026-12-10");
     expect(input.destination).toBe("Accra");
   });
 
-  it("prefers a typed duration", () => {
+  it("ignores a stale typed duration and follows the dates", () => {
     const input = eventInputFromDraft({ ...draftFromEvent(event), durationDays: "5" }, "draft");
-    expect(input.duration_days).toBe(5);
+    expect(input.duration_days).toBe(3);
   });
 
   it("round-trips the event stops as location ids", () => {
