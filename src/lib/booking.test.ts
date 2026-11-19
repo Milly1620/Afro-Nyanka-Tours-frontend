@@ -2,7 +2,6 @@ import {
   buildEventBookingPayload,
   buildTourBookingPayload,
   chosenExtras,
-  estimateTotal,
   eventPeopleLimit,
   formatAmount,
   formatEventDateRange,
@@ -59,20 +58,6 @@ const values: BookingFormValues = {
   numberOfPersons: "2",
   extraIds: [],
 };
-
-describe("estimateTotal", () => {
-  it("multiplies each tour price by the group size", () => {
-    expect(estimateTotal([{ price_ghs: 1000 }, { price_ghs: 500 }], 2, [])).toBe(3000);
-  });
-
-  it("adds each extra once regardless of group size", () => {
-    expect(estimateTotal([{ price_ghs: 1000 }], 4, [{ price_ghs: 150 }, { price_ghs: 300 }])).toBe(4450);
-  });
-
-  it("charges only extras when the group size is invalid", () => {
-    expect(estimateTotal([{ price_ghs: 1000 }], Number.NaN, [{ price_ghs: 150 }])).toBe(150);
-  });
-});
 
 describe("groupSizeLimit", () => {
   it("uses the smallest capacity among the tours", () => {

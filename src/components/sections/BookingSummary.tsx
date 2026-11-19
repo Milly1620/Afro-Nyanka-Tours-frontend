@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { EstimatedTotal } from "@/components/booking/EstimatedTotal";
 import { formatExtraPrice } from "@/lib/adminFormat";
 import type { BookingFormValues } from "@/lib/booking";
 
@@ -13,7 +12,6 @@ interface BookingSummaryProps {
   formData: BookingFormValues;
   activities: string[];
   extras: SummaryExtra[];
-  estimatedTotal: number;
   errorMessage: string;
   onBack: () => void;
   onCompleteBooking: () => void;
@@ -24,7 +22,6 @@ export function BookingSummary({
   formData,
   activities,
   extras,
-  estimatedTotal,
   errorMessage,
   onBack,
   onCompleteBooking,
@@ -150,8 +147,6 @@ export function BookingSummary({
             <p className="text-gray-700 leading-relaxed">{formData.additionalServices}</p>
           </div>
         )}
-
-        <EstimatedTotal total={estimatedTotal} />
 
         {errorMessage && (
           <p role="alert" className="text-sm font-medium text-red-600">

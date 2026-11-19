@@ -3,12 +3,9 @@ import { Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NativeSelect } from "@/components/ui/NativeSelect";
 import { ALL_COUNTRIES } from "@/data/countries";
-import { EstimatedTotal } from "@/components/booking/EstimatedTotal";
 import { ExtrasPicker } from "@/components/booking/ExtrasPicker";
 import {
   buildEventBookingPayload,
-  chosenExtras,
-  estimateTotal,
   eventPeopleLimit,
 } from "@/lib/booking";
 import { toast } from "@/lib/toast";
@@ -53,7 +50,6 @@ export function EventBookingForm({ event, onBooked, onSeatsChanged }: EventBooki
 
   const limit = eventPeopleLimit(event);
   const offered = event.extras.filter((extra) => extra.is_active !== false);
-  const total = estimateTotal([event], parseInt(numberOfPersons, 10), chosenExtras(offered, extraIds));
 
   const handleSubmit = async (submitEvent: FormEvent<HTMLFormElement>) => {
     submitEvent.preventDefault();
@@ -186,7 +182,6 @@ export function EventBookingForm({ event, onBooked, onSeatsChanged }: EventBooki
         />
       </div>
 
-      <EstimatedTotal total={total} />
 
       {error && (
         <p role="alert" className="text-sm font-medium text-red-600">

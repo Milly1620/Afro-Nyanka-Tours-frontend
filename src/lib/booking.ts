@@ -63,17 +63,6 @@ export function groupSizeLimit(capacities: (number | null | undefined)[]): numbe
   return limits.length ? Math.min(...limits) : null;
 }
 
-export function estimateTotal(
-  listings: { price_ghs: number }[],
-  people: number,
-  extras: { price_ghs: number }[],
-): number {
-  const headcount = Number.isFinite(people) && people > 0 ? people : 0;
-  const perPerson = listings.reduce((sum, listing) => sum + listing.price_ghs * headcount, 0);
-  const addOns = extras.reduce((sum, extra) => sum + extra.price_ghs, 0);
-  return perPerson + addOns;
-}
-
 export function formatAmount(amount: number): string {
   return formatGhs(amount);
 }
