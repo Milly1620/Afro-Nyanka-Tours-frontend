@@ -104,8 +104,11 @@ export const toursApi = {
 };
 
 export const eventsApi = {
-  list: async (): Promise<Event[]> => {
-    const response = await api.get<Event[]>(`/api/events/`);
+  list: async (countries: string[] = []): Promise<Event[]> => {
+    const response = await api.get<Event[]>(`/api/events/`, {
+      params: countries.length ? { country: countries } : undefined,
+      paramsSerializer: { indexes: null },
+    });
     return response.data;
   },
 

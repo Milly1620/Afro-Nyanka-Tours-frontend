@@ -109,7 +109,10 @@ export const adminToursApi = {
 
 export const adminEventsApi = {
   list: async (params: ListParams = {}): Promise<ListResponse<AdminEvent>> => {
-    const response = await api.get<ListResponse<AdminEvent>>(`${ADMIN}/events`, { params });
+    const response = await api.get<ListResponse<AdminEvent>>(`${ADMIN}/events`, {
+      params,
+      paramsSerializer: { indexes: null },
+    });
     return response.data;
   },
 
@@ -178,6 +181,11 @@ export const adminExtrasApi = {
 export const adminLocationsApi = {
   list: async (): Promise<Location[]> => {
     const response = await api.get<Location[]>(`/api/tours/locations/`);
+    return response.data;
+  },
+
+  listByCountry: async (country: string): Promise<Location[]> => {
+    const response = await api.get<Location[]>(`/api/tours/locations/country/${encodeURIComponent(country)}`);
     return response.data;
   },
 

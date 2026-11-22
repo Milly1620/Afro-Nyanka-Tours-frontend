@@ -13,7 +13,7 @@ import {
   bookingStatusSuccessMessage,
 } from "@/components/admin/bookings/bookingStatus";
 import { useResource } from "@/hooks/useResource";
-import { formatDateTime, formatGhs, formatExtraPrice, formatShortDate } from "@/lib/adminFormat";
+import { formatDateTime, formatExtraPrice, formatGhs, formatShortDate } from "@/lib/adminFormat";
 import { toast } from "@/lib/toast";
 import { adminBookingsApi } from "@/services/adminApi";
 import { getErrorMessage } from "@/services/api";

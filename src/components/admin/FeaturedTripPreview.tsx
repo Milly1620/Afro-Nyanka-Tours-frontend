@@ -63,7 +63,7 @@ export function FeaturedTripPreview({ draft }: { draft: ListingDraft }) {
         </div>
         {highlights.length > 0 && (
           <ul className="flex flex-wrap gap-6">
-            {highlights.slice(0, 3).map((highlight) => (
+            {highlights.map((highlight) => (
               <li key={highlight} className="flex items-center gap-3">
                 <Check size={30} strokeWidth={1.5} absoluteStrokeWidth className="shrink-0 text-landing-orange" />
                 <span className="max-w-[92px] text-[12px] leading-none text-landing-grey-dark">{highlight}</span>

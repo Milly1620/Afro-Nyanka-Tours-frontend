@@ -14,18 +14,23 @@ interface StatusList<T> {
   resource: Resource<ListResponse<T>>;
 }
 
-export function paramsFor(filter: StatusFilter, page: number): ListParams {
+export function paramsFor(filter: StatusFilter, page: number, extra: ListParams = {}): ListParams {
   return {
+    ...extra,
     ...(filter === "all" ? {} : { status: filter }),
     skip: page * PAGE_SIZE,
     limit: PAGE_SIZE,
   };
 }
 
-export function useStatusList<T>(fetch: (params: ListParams) => Promise<ListResponse<T>>): StatusList<T> {
+export function useStatusList<T>(
+  fetch: (params: ListParams) => Promise<ListResponse<T>>,
+  extra: ListParams = {},
+  extraKey = "",
+): StatusList<T> {
   const [filter, setFilterState] = useState<StatusFilter>("all");
   const [page, setPage] = useState(0);
-  const resource = useResource(() => fetch(paramsFor(filter, page)), [filter, page]);
+  const resource = useResource(() => fetch(paramsFor(filter, page, extra)), [filter, page, extraKey]);
 
   const setFilter = (next: StatusFilter) => {
     setFilterState(next);

@@ -1,5 +1,6 @@
 export function formatExtraPrice(amount: number | null | undefined): string {
-  return amount === 0 ? "Included" : formatGhs(amount);
+  if (amount === null || amount === undefined || amount === 0) return "Included";
+  return formatGhs(amount);
 }
 
 export function formatGhs(amount: number | null | undefined): string {

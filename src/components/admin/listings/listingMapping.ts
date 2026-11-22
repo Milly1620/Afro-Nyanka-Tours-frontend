@@ -24,6 +24,7 @@ export interface DraftExtra {
 export interface ListingDraft {
   name: string;
   country: string;
+  countries: string[];
   region: string;
   destination: string;
   description: string;
@@ -61,6 +62,7 @@ export function emptyDraft(): ListingDraft {
   return {
     name: "",
     country: "",
+    countries: [],
     region: "",
     destination: "",
     description: "",
@@ -99,7 +101,7 @@ export function inclusiveDays(startDate: string, endDate: string): number | null
 }
 
 function extrasFrom(extras: ListingExtra[]): DraftExtra[] {
-  return extras.map((extra) => ({ extraId: extra.extra_id, price: String(extra.price_ghs) }));
+  return extras.map((extra) => ({ extraId: extra.extra_id, price: extra.price_ghs === null ? "" : String(extra.price_ghs) }));
 }
 
 function publishFieldsFrom(status: PublishStatus, publishAt: string | null) {
@@ -139,7 +141,7 @@ export function draftFromEvent(event: AdminEvent): ListingDraft {
   return {
     ...emptyDraft(),
     name: event.name,
-    country: event.country,
+    countries: event.countries?.length ? event.countries : event.country ? [event.country] : [],
     region: event.region ?? "",
     destination: event.destination ?? "",
     description: event.description ?? "",
@@ -201,7 +203,7 @@ export function tourInputFromDraft(draft: ListingDraft, status: PublishStatus): 
 export function eventInputFromDraft(draft: ListingDraft, status: PublishStatus): EventInput {
   return {
     name: draft.name.trim(),
-    country: draft.country.trim(),
+    countries: draft.countries.map((country) => country.trim()).filter(Boolean),
     region: draft.region.trim(),
     description: draft.description.trim(),
     destination: draft.destination.trim(),
@@ -224,7 +226,8 @@ export function validateListing(
   minimumCapacity = 0,
 ): string | null {
   if (!draft.name.trim()) return "Enter a name.";
-  if (!draft.country.trim()) return "Enter a country.";
+  if (kind === "tour" && !draft.country.trim()) return "Enter a country.";
+  if (kind === "event" && draft.countries.length === 0) return "Choose at least one country.";
   const price = parseOptionalWhole(draft.price);
   if (!price.valid) return "Price must be a whole number of cedis.";
   if (price.value === null) return "Enter a price.";

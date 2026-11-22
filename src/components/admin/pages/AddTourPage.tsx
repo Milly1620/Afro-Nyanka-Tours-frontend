@@ -15,6 +15,7 @@ import { BackLink } from "@/components/admin/ui/BackLink";
 import { Divider, Panel, SectionEyebrow } from "@/components/admin/ui/Panel";
 import { DraftBadge, PublishChip } from "@/components/admin/ui/StatusChip";
 import { loadTourDraft, resetTourDraft, updateTourDraft } from "@/listingDraftSlice";
+import { useLocationsForCountries } from "@/components/admin/listings/useLocationsForCountries";
 import { useObjectUrl } from "@/hooks/useObjectUrl";
 import { useResource } from "@/hooks/useResource";
 import { cn } from "@/lib/utils";
@@ -40,7 +41,6 @@ export function AddTourPage() {
 
   const tour = useResource(() => (id === null ? Promise.resolve(null) : adminToursApi.get(id)), [id]);
   const catalog = useResource(() => adminExtrasApi.list({ limit: 200 }), []);
-  const locations = useResource(() => adminLocationsApi.list(), []);
 
   useEffect(() => {
     if (id !== null) {
@@ -85,7 +85,18 @@ export function AddTourPage() {
     stepTargets[index].current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const allLocations = [...(locations.data ?? []), ...createdLocations];
+  const tourCountries = draft.country.trim() ? [draft.country] : [];
+  const locations = useLocationsForCountries(tourCountries, createdLocations);
+  const allLocations = locations.locations;
+
+  useEffect(() => {
+    if (!locations.settled) return;
+    const available = new Set(allLocations.map((location) => location.id));
+    const kept = draft.locationIds.filter((locationId) => available.has(locationId));
+    if (kept.length !== draft.locationIds.length) change({ locationIds: kept });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locations.settled, allLocations, draft.locationIds]);
+
   const visibleGallery = draft.galleryImages.filter((url) => !editor.removedGalleryImages.includes(url));
 
   return (
@@ -151,7 +162,7 @@ export function AddTourPage() {
               <Divider />
               <section ref={detailsRef} aria-label="Tour details" className="flex scroll-mt-6 flex-col gap-3">
                 <SectionEyebrow>TOUR DETAILS</SectionEyebrow>
-                <ListingDetailsFields kind="tour" draft={draft} onChange={change} fieldClassName="gap-[6px]" />
+                <ListingDetailsFields kind="tour" draft={draft} onChange={change} fieldClassName="gap-[6px]" showPopular={id !== null} />
               </section>
               <Divider />
               <div ref={stopsRef} className="flex scroll-mt-6 flex-col gap-[18px]">

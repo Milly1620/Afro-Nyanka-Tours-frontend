@@ -19,6 +19,7 @@ import { Divider, Panel, SectionEyebrow } from "@/components/admin/ui/Panel";
 import { DraftBadge, PublishChip } from "@/components/admin/ui/StatusChip";
 import { loadEventDraft, resetEventDraft, updateEventDraft } from "@/listingDraftSlice";
 import { holdDraft, peekHeldDraft, releaseHeldDraft } from "@/lib/draftHold";
+import { useLocationsForCountries } from "@/components/admin/listings/useLocationsForCountries";
 import { useObjectUrl } from "@/hooks/useObjectUrl";
 import { useResource } from "@/hooks/useResource";
 import { adminEventsApi, adminExtrasApi, adminLocationsApi } from "@/services/adminApi";
@@ -37,8 +38,8 @@ export function CreateEventPage() {
 
   const event = useResource(() => (id === null ? Promise.resolve(null) : adminEventsApi.get(id)), [id]);
   const catalog = useResource(() => adminExtrasApi.list({ limit: 200 }), []);
-  const locations = useResource(() => adminLocationsApi.list(), []);
-  const allLocations = [...(locations.data ?? []), ...createdLocations];
+  const locations = useLocationsForCountries(draft.countries, createdLocations);
+  const allLocations = locations.locations;
 
   useEffect(() => {
     if (heldFiles) {
@@ -82,6 +83,14 @@ export function CreateEventPage() {
 
   const coverPreview = useObjectUrl(editor.mainImage) ?? draft.coverImage;
   const change = (changes: Partial<typeof draft>) => dispatch(updateEventDraft(changes));
+
+  useEffect(() => {
+    if (!locations.settled) return;
+    const available = new Set(allLocations.map((location) => location.id));
+    const kept = draft.locationIds.filter((locationId) => available.has(locationId));
+    if (kept.length !== draft.locationIds.length) change({ locationIds: kept });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locations.settled, allLocations, draft.locationIds]);
 
   const openPreview = () => {
     holdDraft("event", {
@@ -133,7 +142,7 @@ export function CreateEventPage() {
                 <StopsEditor
                   locations={allLocations}
                   value={draft.locationIds}
-                  defaultCountry={draft.country}
+                  defaultCountry={draft.countries[0] ?? ""}
                   onChange={(locationIds) => change({ locationIds })}
                   onCreateLocation={async (input) => {
                     const created = await adminLocationsApi.create(input);

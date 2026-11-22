@@ -19,6 +19,11 @@ export function Congratulations({ confirmation, onDone }: CongratulationsProps) 
           Congratulations!
         </h2>
         <p className="text-[#4A2C00] text-lg">{confirmation.message}</p>
+        {confirmation.summary.status === "pending" && (
+          <p className="mt-2 text-sm text-[#6E7070]">
+            Your booking is pending confirmation. We will email you once it is confirmed.
+          </p>
+        )}
       </div>
 
       <div className="mb-8 w-full">
