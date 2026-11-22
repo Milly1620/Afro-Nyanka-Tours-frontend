@@ -5,7 +5,7 @@ import type { BookingFormValues } from "@/lib/booking";
 interface SummaryExtra {
   extra_id: number;
   name: string;
-  price_ghs: number;
+  price_ghs: number | null;
 }
 
 interface BookingSummaryProps {

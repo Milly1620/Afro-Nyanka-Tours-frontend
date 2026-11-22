@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { CalendarDays, MapPin } from "lucide-react";
 import { useResource } from "@/hooks/useResource";
@@ -6,6 +6,8 @@ import { formatPrice } from "@/lib/adminFormat";
 import { formatEventDateRange, formatSeats, isSoldOut } from "@/lib/booking";
 import { eventsApi } from "@/services/api";
 import type { Event as EventListing } from "@/types/api";
+
+const EVENT_COUNTRIES = ["Ghana", "Togo", "Benin", "Côte d'Ivoire", "Burkina Faso"];
 
 function EventCard({ event }: { event: EventListing }) {
   const soldOut = isSoldOut(event);
@@ -43,7 +45,7 @@ function EventCard({ event }: { event: EventListing }) {
         <div className="flex items-center text-[#6E7070]">
           <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
           <span className="text-[14.76px] poppins-regular">
-            {[event.destination, event.country].filter(Boolean).join(", ")}
+            {[event.destination, event.countries?.length ? event.countries.join(", ") : event.country].filter(Boolean).join(", ")}
           </span>
         </div>
         <div className="flex items-center text-[#6E7070]">
@@ -62,7 +64,11 @@ function EventCard({ event }: { event: EventListing }) {
 }
 
 export function EventsPage() {
-  const { data: events, loading, error, reload } = useResource(() => eventsApi.list(), []);
+  const [country, setCountry] = useState<string | null>(null);
+  const { data: events, loading, error, reload } = useResource(
+    () => eventsApi.list(country ? [country] : []),
+    [country],
+  );
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -78,6 +84,22 @@ export function EventsPage() {
           <p className="text-sm md:text-base lg:text-lg text-gray-600 poppins-regular max-w-2xl mx-auto">
             Fixed-date trips you can book a seat on
           </p>
+        </div>
+
+        <div className="mb-6 flex flex-wrap justify-center gap-2 lg:mb-10" role="group" aria-label="Filter events by country">
+          {[null, ...EVENT_COUNTRIES].map((option) => (
+            <button
+              key={option ?? "all"}
+              type="button"
+              aria-pressed={country === option}
+              onClick={() => setCountry(option)}
+              className={`cursor-pointer rounded-xl px-4 py-2 text-sm poppins-medium transition-colors ${
+                country === option ? "bg-[#482B11] text-white" : "bg-white text-[#482B11] hover:text-[#FFA75D]"
+              }`}
+            >
+              {option ?? "All"}
+            </button>
+          ))}
         </div>
 
         {loading && <p className="text-center text-gray-500">Loading events...</p>}
@@ -96,7 +118,7 @@ export function EventsPage() {
         )}
 
         {!loading && !error && events?.length === 0 && (
-          <p className="text-center text-gray-500">No upcoming events</p>
+          <p className="text-center text-gray-500">{country ? `No upcoming events in ${country}` : "No upcoming events"}</p>
         )}
 
         {!error && events && events.length > 0 && (

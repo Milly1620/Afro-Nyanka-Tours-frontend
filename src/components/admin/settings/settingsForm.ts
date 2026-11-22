@@ -15,8 +15,8 @@ export const notificationOptions: { key: NotificationKey; title: string; descrip
   { key: "notify_new_inquiry", title: "New inquiry alerts", description: "Email me when a traveller sends an inquiry" },
   {
     key: "notify_booking_confirmation",
-    title: "Booking confirmations",
-    description: "Notify me when a booking is paid or confirmed",
+    title: "Email customers about their bookings",
+    description: "Send customers an email when a booking is received, confirmed or cancelled",
   },
   { key: "notify_weekly_summary", title: "Weekly summary email", description: "A Monday digest of the week ahead" },
 ];

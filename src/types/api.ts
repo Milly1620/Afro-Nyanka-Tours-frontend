@@ -22,7 +22,7 @@ export interface ListingExtra {
   extra_id: number;
   name: string;
   description: string | null;
-  price_ghs: number;
+  price_ghs: number | null;
   is_active?: boolean;
 }
 
@@ -51,6 +51,7 @@ export interface Event {
   name: string;
   description: string | null;
   country: string;
+  countries: string[];
   region: string | null;
   destination: string | null;
   start_date: string;
@@ -143,7 +144,7 @@ export interface BookingSummaryTour {
 
 export interface BookingSummaryExtra {
   name: string;
-  price_ghs: number;
+  price_ghs: number | null;
 }
 
 export interface BookingSummaryEvent {
@@ -195,6 +196,7 @@ export interface ListResponse<T> {
 
 export interface ListParams {
   status?: string;
+  country?: string[];
   skip?: number;
   limit?: number;
 }
@@ -227,7 +229,8 @@ export interface TourInput {
   location_ids: number[];
 }
 
-export interface EventInput extends Omit<TourInput, "is_popular" | "location_ids"> {
+export interface EventInput extends Omit<TourInput, "is_popular" | "location_ids" | "country"> {
+  countries: string[];
   destination: string;
   start_date: string;
   end_date: string;

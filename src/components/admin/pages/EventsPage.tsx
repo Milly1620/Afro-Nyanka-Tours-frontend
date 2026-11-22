@@ -12,10 +12,17 @@ import { adminEventsApi } from "@/services/adminApi";
 import { getErrorMessage } from "@/services/api";
 import type { AdminEvent } from "@/types/api";
 
+const EVENT_COUNTRIES = ["Ghana", "Togo", "Benin", "Côte d'Ivoire", "Burkina Faso"];
+
 const cardGrid = "grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3";
 
 export function EventsPage() {
-  const { filter, setFilter, page, setPage, resource } = useStatusList(adminEventsApi.list);
+  const [country, setCountry] = useState("all");
+  const { filter, setFilter, page, setPage, resource } = useStatusList(
+    adminEventsApi.list,
+    country === "all" ? {} : { country: [country] },
+    country,
+  );
   const [search, setSearch] = useState("");
   const [pendingDelete, setPendingDelete] = useState<AdminEvent | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -93,6 +100,17 @@ export function EventsPage() {
         options={filterOptions}
         value={filter}
         onChange={setFilter}
+      />
+
+      <FilterPills
+        label="Filter events by country"
+        variant="soft"
+        options={[{ value: "all", label: "All countries" }, ...EVENT_COUNTRIES.map((name) => ({ value: name, label: name }))]}
+        value={country}
+        onChange={(next) => {
+          setCountry(next);
+          setPage(0);
+        }}
       />
 
       <AsyncState loading={resource.loading && !resource.data} error={resource.error} onRetry={resource.reload}>

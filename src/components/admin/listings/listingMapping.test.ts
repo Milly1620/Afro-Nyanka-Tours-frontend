@@ -146,6 +146,20 @@ describe("eventInputFromDraft", () => {
     expect(input.duration_days).toBe(3);
   });
 
+  it("sends every country as a list", () => {
+    const draft = { ...draftFromEvent(event), countries: ["Ghana", " Togo ", ""] };
+    expect(eventInputFromDraft(draft, "draft").countries).toEqual(["Ghana", "Togo"]);
+  });
+
+  it("starts the countries from the event list", () => {
+    expect(draftFromEvent({ ...event, countries: ["Ghana", "Benin"] }).countries).toEqual(["Ghana", "Benin"]);
+  });
+
+  it("requires at least one country on an event", () => {
+    const draft = { ...draftFromEvent(event), countries: [] as string[], startDate: "2026-12-10", endDate: "2026-12-12" };
+    expect(validateListing(draft, "event", "draft")).toBe("Choose at least one country.");
+  });
+
   it("round-trips the event stops as location ids", () => {
     const withStops = {
       ...event,

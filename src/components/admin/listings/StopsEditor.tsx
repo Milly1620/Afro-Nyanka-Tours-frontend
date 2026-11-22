@@ -118,6 +118,13 @@ export function StopsEditor({ locations, value, defaultCountry, onChange, onCrea
         })}
       </ol>
 
+      {locations.length === 0 && (
+        <p className="text-[13px] text-admin-subtle">
+          {defaultCountry
+            ? "No locations for this country yet. Add one below."
+            : "Choose a country first to see its locations."}
+        </p>
+      )}
       <div className="flex items-center gap-[10px]">
         <NativeSelect
           aria-label="Choose an activity"
