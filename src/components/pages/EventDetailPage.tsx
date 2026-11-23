@@ -41,7 +41,7 @@ export function EventDetailPage() {
 
   const soldOut = isSoldOut(event);
   const seats = formatSeats(event);
-  const where = [event.destination, event.region, event.country].filter(Boolean).join(", ");
+  const where = event.destination ?? "";
 
   return (
     <div className="bg-[#E6E6E6] pb-16">

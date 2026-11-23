@@ -20,7 +20,7 @@ export function FeaturedTripPreview({ draft }: { draft: ListingDraft }) {
   const price = parseOptionalWhole(draft.price).value;
   const sharingPrice = parseOptionalWhole(draft.sharingPrice).value;
   const couplePrice = parseOptionalWhole(draft.couplePrice).value;
-  const location = draft.destination || draft.countries.join(", ");
+  const location = draft.destination;
   const units = [
     { value: countdown.days, label: "Days" },
     { value: countdown.hours, label: "Hours" },
