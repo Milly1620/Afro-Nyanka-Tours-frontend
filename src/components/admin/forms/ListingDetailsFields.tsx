@@ -34,11 +34,13 @@ export function ListingDetailsFields({ kind, draft, onChange, fieldClassName, sh
             )
           )}
         </Field>
-        <Field label="Region" className={cn("flex-1", fieldClassName)}>
-          {(id) => (
-            <TextInput id={id} value={draft.region} onChange={(event) => onChange({ region: event.target.value })} />
-          )}
-        </Field>
+        {kind === "tour" && (
+          <Field label="Region" className={cn("flex-1", fieldClassName)}>
+            {(id) => (
+              <TextInput id={id} value={draft.region} onChange={(event) => onChange({ region: event.target.value })} />
+            )}
+          </Field>
+        )}
       </div>
 
       {kind === "event" && (
@@ -72,17 +74,45 @@ export function ListingDetailsFields({ kind, draft, onChange, fieldClassName, sh
         </>
       )}
 
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <Field label="Price per person (GHS)" className={cn("flex-1", fieldClassName)}>
-          {(id) => (
-            <TextInput
-              id={id}
-              inputMode="numeric"
-              value={draft.price}
-              onChange={(event) => onChange({ price: event.target.value })}
-            />
-          )}
-        </Field>
+      <div className="flex flex-col flex-wrap gap-3 sm:flex-row">
+        {kind === "event" && (
+          <Field label="Price per person (GHS)" className={cn("flex-1", fieldClassName)}>
+            {(id) => (
+              <TextInput
+                id={id}
+                inputMode="numeric"
+                value={draft.price}
+                onChange={(event) => onChange({ price: event.target.value })}
+              />
+            )}
+          </Field>
+        )}
+        {kind === "event" && (
+          <>
+            <Field label="Price for sharing (GHS)" className={cn("flex-1", fieldClassName)}>
+              {(id) => (
+                <TextInput
+                  id={id}
+                  inputMode="numeric"
+                  placeholder="Optional"
+                  value={draft.sharingPrice}
+                  onChange={(event) => onChange({ sharingPrice: event.target.value })}
+                />
+              )}
+            </Field>
+            <Field label="Price for couple (GHS)" className={cn("flex-1", fieldClassName)}>
+              {(id) => (
+                <TextInput
+                  id={id}
+                  inputMode="numeric"
+                  placeholder="Optional"
+                  value={draft.couplePrice}
+                  onChange={(event) => onChange({ couplePrice: event.target.value })}
+                />
+              )}
+            </Field>
+          </>
+        )}
         <Field label="Duration (days)" className={cn("sm:w-[140px]", fieldClassName)}>
           {(id) => (
             <TextInput

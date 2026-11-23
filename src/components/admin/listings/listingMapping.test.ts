@@ -207,11 +207,11 @@ describe("validateListing", () => {
     expect(validateListing({ ...valid, country: "" }, "tour", "draft")).toBe("Enter a country.");
   });
 
-  it("requires a price for every status", () => {
-    const noPrice = { ...valid, price: "" };
-    expect(validateListing(noPrice, "tour", "published")).toBe("Enter a price.");
-    expect(validateListing(noPrice, "tour", "scheduled")).toBe("Enter a price.");
-    expect(validateListing(noPrice, "tour", "draft")).toBe("Enter a price.");
+  it("requires a price for events but not tours", () => {
+    const noPrice = { ...valid, price: "", countries: ["Ghana"], startDate: "2026-01-01", endDate: "2026-01-02" };
+    expect(validateListing(noPrice, "tour", "published")).toBeNull();
+    expect(validateListing(noPrice, "event", "published")).toBe("Enter a price.");
+    expect(validateListing(noPrice, "event", "draft")).toBe("Enter a price.");
   });
 
   it("rejects decimal prices", () => {
