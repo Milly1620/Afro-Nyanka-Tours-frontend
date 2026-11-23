@@ -8,7 +8,7 @@ interface EventCardPreviewProps {
 }
 
 export function EventCardPreview({ draft, coverImage }: EventCardPreviewProps) {
-  const location = draft.destination || draft.countries.join(", ");
+  const location = draft.destination;
   const days = inclusiveDays(draft.startDate, draft.endDate) ?? (Number(draft.durationDays) || 1);
   const price = parseOptionalWhole(draft.price).value;
   const sharingPrice = parseOptionalWhole(draft.sharingPrice).value;

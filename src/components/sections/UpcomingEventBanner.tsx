@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, BedDouble, CalendarDays, MapPin, Users } from "lucide-react";
+import { ArrowRight, CalendarDays, Check, MapPin } from "lucide-react";
 import { useNow } from "@/hooks/useNow";
 import { useResource } from "@/hooks/useResource";
 import { countdownTo, padTwo } from "@/lib/adminFormat";
@@ -20,12 +21,6 @@ import chevron10 from "@/assets/upcoming/chevron-10.svg";
 
 const leftColumn = [chevron1, chevron2, chevron3, chevron4, chevron5];
 const rightColumn = [chevron6, chevron7, chevron8, chevron9, chevron10];
-
-const perks = [
-  { icon: Users, lines: ["Guided", "Experience"] },
-  { icon: BedDouble, lines: ["Accommodation", "Support"] },
-  { icon: BedDouble, lines: ["Transport", "Included"] },
-];
 
 function ChevronColumn({ tiles, rotation, className }: { tiles: string[]; rotation: string; className: string }) {
   return (
@@ -75,12 +70,27 @@ function Countdown({ event }: { event: Event }) {
   );
 }
 
+function FlyerPopup({ src, alt }: { src: string; alt: string }) {
+  return createPortal(
+    <div className="pointer-events-none fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-8 lg:flex">
+      <img src={src} alt={alt} className="max-h-full max-w-full rounded-2xl object-contain shadow-2xl" />
+    </div>,
+    document.body,
+  );
+}
+
 function EventSlide({ event, onNext, hasNext }: { event: Event; onNext: () => void; hasNext: boolean }) {
   const navigate = useNavigate();
-  const place = [event.destination, event.country].filter(Boolean).join(", ");
+  const [previewing, setPreviewing] = useState(false);
+  const place = event.destination ?? "";
+  const prices = [
+    { label: "person", amount: event.price_ghs },
+    { label: "sharing", amount: event.sharing_price_ghs },
+    { label: "couple", amount: event.couple_price_ghs },
+  ].filter((price): price is { label: string; amount: number } => typeof price.amount === "number" && price.amount > 0);
 
   return (
-    <div className="relative flex flex-col items-stretch gap-6 overflow-hidden bg-[#F4EFE9] px-4 py-10 sm:px-8 lg:flex-row lg:items-center lg:gap-6 lg:px-20">
+    <div className="relative flex flex-col items-stretch gap-6 overflow-hidden bg-[#F4EFE9] px-4 py-10 sm:px-8 lg:flex-row lg:items-center lg:gap-6 lg:pr-20 lg:pl-[130px]">
       <div className="absolute left-0 top-0 hidden h-full w-[100px] overflow-hidden lg:block" aria-hidden="true">
         <ChevronColumn tiles={leftColumn} rotation="-rotate-90" className="left-[24px] -top-[44px]" />
         <ChevronColumn tiles={rightColumn} rotation="rotate-90" className="left-0 -top-[44px]" />
@@ -109,6 +119,16 @@ function EventSlide({ event, onNext, hasNext }: { event: Event; onNext: () => vo
               </span>
             </div>
           </div>
+          {prices.length > 0 && (
+            <div className="flex flex-wrap gap-x-8 gap-y-2">
+              {prices.map(({ label, amount }) => (
+                <p key={label} className="poppins-semibold text-[22px] text-[#482B11]">
+                  GHS {amount.toLocaleString("en-US")}
+                  <span className="poppins-regular text-[14px] text-[#6E7070]"> /{label}</span>
+                </p>
+              ))}
+            </div>
+          )}
           {event.description && (
             <p className="line-clamp-3 max-w-[609px] font-[Inter,sans-serif] text-[16px] leading-[1.2] text-[#6E7070] md:text-[18px]">
               {event.description}
@@ -116,18 +136,16 @@ function EventSlide({ event, onNext, hasNext }: { event: Event; onNext: () => vo
           )}
         </div>
 
-        <ul className="flex flex-wrap gap-x-8 gap-y-4">
-          {perks.map(({ icon: Icon, lines }) => (
-            <li key={lines.join(" ")} className="flex items-center gap-4">
-              <Icon className="size-10 text-[#FFA75D]" strokeWidth={1.5} />
-              <span className="poppins-regular text-[16px] leading-none text-[#535555]">
-                {lines[0]}
-                <br />
-                {lines[1]}
-              </span>
-            </li>
-          ))}
-        </ul>
+        {event.highlights.length > 0 && (
+          <ul className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2 xl:grid-cols-3">
+            {event.highlights.map((highlight) => (
+              <li key={highlight} className="flex min-h-10 items-center gap-3">
+                <Check className="size-8 shrink-0 text-[#FFA75D]" strokeWidth={1.5} />
+                <span className="poppins-regular text-[16px] leading-tight text-[#535555]">{highlight}</span>
+              </li>
+            ))}
+          </ul>
+        )}
 
         <div className="flex flex-wrap gap-4">
           {hasNext && (
@@ -150,14 +168,29 @@ function EventSlide({ event, onNext, hasNext }: { event: Event; onNext: () => vo
         </div>
       </div>
 
-      <div className="relative z-10 h-[300px] w-full overflow-hidden rounded-2xl bg-[#E6E6E6] sm:h-[422px] lg:w-[647px] lg:shrink-0">
+      <div
+        className="relative z-10 h-[300px] w-full overflow-hidden rounded-2xl bg-[#E6E6E6] sm:h-[422px] lg:w-[647px] lg:shrink-0"
+        onMouseEnter={() => setPreviewing(true)}
+        onMouseLeave={() => setPreviewing(false)}
+      >
         {event.main_image_url && (
-          <img src={event.main_image_url} alt={event.name} className="absolute inset-0 size-full object-cover" />
+          <>
+            <img
+              src={event.main_image_url}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 size-full scale-110 object-cover blur-xl"
+            />
+            <img src={event.main_image_url} alt={event.name} className="absolute inset-0 size-full object-contain" />
+          </>
         )}
-        <div className="absolute right-3 top-3">
+        <div
+          className={`absolute right-3 top-3 transition-opacity duration-300 ${previewing ? "opacity-0" : "opacity-100"}`}
+        >
           <Countdown event={event} />
         </div>
       </div>
+      {previewing && event.main_image_url && <FlyerPopup src={event.main_image_url} alt={event.name} />}
     </div>
   );
 }
