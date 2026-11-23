@@ -29,6 +29,8 @@ export interface ListingDraft {
   destination: string;
   description: string;
   price: string;
+  sharingPrice: string;
+  couplePrice: string;
   durationDays: string;
   capacity: string;
   startDate: string;
@@ -67,6 +69,8 @@ export function emptyDraft(): ListingDraft {
     destination: "",
     description: "",
     price: "",
+    sharingPrice: "",
+    couplePrice: "",
     durationDays: "",
     capacity: "",
     startDate: "",
@@ -142,10 +146,11 @@ export function draftFromEvent(event: AdminEvent): ListingDraft {
     ...emptyDraft(),
     name: event.name,
     countries: event.countries?.length ? event.countries : event.country ? [event.country] : [],
-    region: event.region ?? "",
     destination: event.destination ?? "",
     description: event.description ?? "",
     price: numberText(event.price_ghs),
+    sharingPrice: numberText(event.sharing_price_ghs ?? null),
+    couplePrice: numberText(event.couple_price_ghs ?? null),
     durationDays: numberText(event.duration_days),
     capacity: numberText(event.capacity),
     startDate: dateOnly(event.start_date),
@@ -204,12 +209,13 @@ export function eventInputFromDraft(draft: ListingDraft, status: PublishStatus):
   return {
     name: draft.name.trim(),
     countries: draft.countries.map((country) => country.trim()).filter(Boolean),
-    region: draft.region.trim(),
     description: draft.description.trim(),
     destination: draft.destination.trim(),
     start_date: draft.startDate,
     end_date: draft.endDate,
     price_ghs: parseOptionalWhole(draft.price).value ?? 0,
+    sharing_price_ghs: parseOptionalWhole(draft.sharingPrice).value,
+    couple_price_ghs: parseOptionalWhole(draft.couplePrice).value,
     duration_days: inclusiveDays(draft.startDate, draft.endDate),
     capacity: parseOptionalWhole(draft.capacity).value,
     highlights: cleanHighlights(draft.highlights),
@@ -230,7 +236,9 @@ export function validateListing(
   if (kind === "event" && draft.countries.length === 0) return "Choose at least one country.";
   const price = parseOptionalWhole(draft.price);
   if (!price.valid) return "Price must be a whole number of cedis.";
-  if (price.value === null) return "Enter a price.";
+  if (kind === "event" && price.value === null) return "Enter a price.";
+  if (kind === "event" && !parseOptionalWhole(draft.sharingPrice).valid) return "Sharing price must be a whole number of cedis.";
+  if (kind === "event" && !parseOptionalWhole(draft.couplePrice).valid) return "Couple price must be a whole number of cedis.";
   const duration = parseOptionalWhole(draft.durationDays);
   if (kind === "tour" && (!duration.valid || duration.value === 0)) return "Duration must be a whole number of days.";
   const capacity = parseOptionalWhole(draft.capacity);

@@ -8,18 +8,23 @@ interface EventCardPreviewProps {
 }
 
 export function EventCardPreview({ draft, coverImage }: EventCardPreviewProps) {
-  const location = draft.destination || [draft.region, draft.country].filter(Boolean).join(", ");
+  const location = draft.destination || draft.countries.join(", ");
   const days = inclusiveDays(draft.startDate, draft.endDate) ?? (Number(draft.durationDays) || 1);
   const price = parseOptionalWhole(draft.price).value;
+  const sharingPrice = parseOptionalWhole(draft.sharingPrice).value;
+  const couplePrice = parseOptionalWhole(draft.couplePrice).value;
 
   return (
     <article
       aria-label="Event card preview"
       className="flex w-full flex-col overflow-hidden rounded-[14px] border border-admin-border bg-white shadow-[0px_4px_12px_0px_rgba(26,26,26,0.05)]"
     >
-      <div className="relative h-[180px] w-full overflow-hidden">
+      <div className="relative h-[180px] w-full overflow-hidden bg-admin-preview-bg">
         {coverImage ? (
-          <img src={coverImage} alt="" className="size-full object-cover" />
+          <>
+            <img src={coverImage} alt="" aria-hidden className="absolute inset-0 size-full scale-110 object-cover blur-xl" />
+            <img src={coverImage} alt="" className="relative size-full object-contain" />
+          </>
         ) : (
           <div className="admin-cover-stripes flex size-full items-center justify-center">
             <ImageIcon size={32} strokeWidth={1.5} absoluteStrokeWidth className="text-admin-cover-icon" />
@@ -44,6 +49,18 @@ export function EventCardPreview({ draft, coverImage }: EventCardPreviewProps) {
           <p className="text-[15px] font-medium text-admin-text">
             GHS {price.toLocaleString("en-US")}
             <span className="text-[12px] font-normal text-admin-subtle"> /person</span>
+          </p>
+        )}
+        {sharingPrice !== null && (
+          <p className="text-[15px] font-medium text-admin-text">
+            GHS {sharingPrice.toLocaleString("en-US")}
+            <span className="text-[12px] font-normal text-admin-subtle"> /sharing</span>
+          </p>
+        )}
+        {couplePrice !== null && (
+          <p className="text-[15px] font-medium text-admin-text">
+            GHS {couplePrice.toLocaleString("en-US")}
+            <span className="text-[12px] font-normal text-admin-subtle"> /couple</span>
           </p>
         )}
       </div>

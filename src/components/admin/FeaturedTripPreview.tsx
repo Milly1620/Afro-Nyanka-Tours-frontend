@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, CalendarDays, Check, ImageIcon, MapPin } from "lucide-react";
 import kenteChevron from "@/assets/admin/kente-chevron.svg";
-import { cleanHighlights, inclusiveDays, type ListingDraft } from "@/components/admin/listings/listingMapping";
+import { cleanHighlights, inclusiveDays, parseOptionalWhole, type ListingDraft } from "@/components/admin/listings/listingMapping";
 import { countdownTo, formatDateRange, padTwo } from "@/lib/adminFormat";
 
 const chevronRows = [0, 1, 2, 3, 4];
@@ -17,7 +17,10 @@ export function FeaturedTripPreview({ draft }: { draft: ListingDraft }) {
   const countdown = countdownTo(draft.startDate ? `${draft.startDate}T00:00:00` : "", now);
   const days = inclusiveDays(draft.startDate, draft.endDate) ?? (Number(draft.durationDays) || 1);
   const highlights = cleanHighlights(draft.highlights);
-  const location = draft.destination || [draft.region, draft.country].filter(Boolean).join(", ");
+  const price = parseOptionalWhole(draft.price).value;
+  const sharingPrice = parseOptionalWhole(draft.sharingPrice).value;
+  const couplePrice = parseOptionalWhole(draft.couplePrice).value;
+  const location = draft.destination || draft.countries.join(", ");
   const units = [
     { value: countdown.days, label: "Days" },
     { value: countdown.hours, label: "Hours" },
@@ -57,6 +60,28 @@ export function FeaturedTripPreview({ draft }: { draft: ListingDraft }) {
               </span>
             )}
           </div>
+          {(price !== null || sharingPrice !== null || couplePrice !== null) && (
+            <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1 text-landing-brown">
+              {price !== null && (
+                <span className="text-[20px] font-bold">
+                  GHS {price.toLocaleString("en-US")}
+                  <span className="text-[13px] font-normal text-landing-grey"> /person</span>
+                </span>
+              )}
+              {sharingPrice !== null && (
+                <span className="text-[20px] font-bold">
+                  GHS {sharingPrice.toLocaleString("en-US")}
+                  <span className="text-[13px] font-normal text-landing-grey"> /sharing</span>
+                </span>
+              )}
+              {couplePrice !== null && (
+                <span className="text-[20px] font-bold">
+                  GHS {couplePrice.toLocaleString("en-US")}
+                  <span className="text-[13px] font-normal text-landing-grey"> /couple</span>
+                </span>
+              )}
+            </div>
+          )}
           <p className="max-w-[456.75px] whitespace-pre-line font-inter text-[13.5px] leading-[1.2] text-landing-grey">
             {draft.description}
           </p>
@@ -84,7 +109,10 @@ export function FeaturedTripPreview({ draft }: { draft: ListingDraft }) {
 
       <div className="relative h-[316.5px] w-full max-w-[485.25px] shrink-0 overflow-hidden rounded-[12px]">
         {draft.coverImage ? (
-          <img src={draft.coverImage} alt="" className="absolute inset-0 size-full object-cover" />
+          <>
+            <img src={draft.coverImage} alt="" aria-hidden className="absolute inset-0 size-full scale-110 object-cover blur-xl" />
+            <img src={draft.coverImage} alt="" className="absolute inset-0 size-full object-contain" />
+          </>
         ) : (
           <div className="admin-cover-stripes absolute inset-0 flex items-center justify-center">
             <ImageIcon size={32} strokeWidth={1.5} absoluteStrokeWidth className="text-admin-cover-icon" />

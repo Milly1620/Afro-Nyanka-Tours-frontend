@@ -58,6 +58,8 @@ export interface Event {
   end_date: string;
   duration_days: number | null;
   price_ghs: number;
+  sharing_price_ghs?: number | null;
+  couple_price_ghs?: number | null;
   capacity: number | null;
   seats_left: number | null;
   highlights: string[];
@@ -229,7 +231,9 @@ export interface TourInput {
   location_ids: number[];
 }
 
-export interface EventInput extends Omit<TourInput, "is_popular" | "location_ids" | "country"> {
+export interface EventInput extends Omit<TourInput, "is_popular" | "location_ids" | "country" | "region"> {
+  sharing_price_ghs: number | null;
+  couple_price_ghs: number | null;
   countries: string[];
   destination: string;
   start_date: string;
