@@ -52,7 +52,19 @@ export function EventDetailPage() {
 
         <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
           {event.main_image_url && (
-            <img src={event.main_image_url} alt={event.name} className="w-full h-64 lg:h-[380px] object-cover" />
+            <div className="relative flex min-h-64 w-full items-center justify-center overflow-hidden bg-[#E6E6E6]">
+              <img
+                src={event.main_image_url}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 size-full scale-110 object-cover blur-xl"
+              />
+              <img
+                src={event.main_image_url}
+                alt={event.name}
+                className="relative block h-auto max-h-[640px] w-auto max-w-full"
+              />
+            </div>
           )}
           <div className="p-6 lg:p-8 space-y-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -118,7 +130,7 @@ export function EventDetailPage() {
         {event.gallery_images.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {event.gallery_images.map((image) => (
-              <img key={image} src={image} alt="" className="w-full h-40 lg:h-56 object-cover rounded-xl" />
+              <img key={image} src={image} alt="" className="w-full h-40 lg:h-56 object-contain bg-[#E6E6E6] rounded-xl" />
             ))}
           </div>
         )}
